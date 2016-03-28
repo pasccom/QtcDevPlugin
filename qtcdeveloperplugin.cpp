@@ -6,6 +6,8 @@
 
 #include <projectexplorer/projectexplorer.h>
 
+#include <coreplugin/icore.h>
+
 #include <QtCore>
 
 using namespace QtcDevPlugin::Internal;
@@ -32,6 +34,20 @@ bool QtcDeveloperPlugin::initialize(const QStringList &arguments, QString *error
 
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
+
+    // Locate QML file for the current language and use it
+    QString qmFile = Core::ICore::userInterfaceLanguage();
+    if (qmFile.isEmpty())
+        qmFile = QLatin1String("en");
+    qmFile = QString(QLatin1String("qtcdevplugin_%1.qm")).arg(qmFile);
+
+    QTranslator *translator = new QTranslator(this);
+    if (translator->load(qmFile, Core::ICore::resourcePath() + QDir::separator() + QLatin1String("translations")) ||
+        translator->load(qmFile, Core::ICore::userResourcePath() + QDir::separator() + QLatin1String("translations")))
+        qApp->installTranslator(translator);
+    else
+        qWarning() << qPrintable(QString(QLatin1String("Translator file \"%1\" not found")).arg(qmFile));
+
 
     addAutoReleasedObject(new QtcRunConfigurationFactory(this));
 
