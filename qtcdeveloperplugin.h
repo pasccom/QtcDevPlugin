@@ -24,6 +24,9 @@ public:
     bool initialize(const QStringList &arguments, QString *errorString);
     void extensionsInitialized();
     ShutdownFlag aboutToShutdown();
+#ifdef BUILD_TESTS
+    virtual QList<QObject *> createTestObjects(void) const;
+#endif
 private slots:
     void handleRunControlStart(ProjectExplorer::RunControl* runControl);
     void handleRunControlEnd(ProjectExplorer::RunControl* runControl);

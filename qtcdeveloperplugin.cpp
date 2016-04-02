@@ -4,6 +4,10 @@
 #include "qtcrunconfigurationfactory.h"
 #include "qtcrunconfiguration.h"
 
+#ifdef BUILD_TESTS
+#   include "Test/qtcrunconfigurationfactorytest.h"
+#endif
+
 #include <projectexplorer/projectexplorer.h>
 
 #include <coreplugin/icore.h>
@@ -111,3 +115,14 @@ void QtcDeveloperPlugin::handleRunControlEnd(ProjectExplorer::RunControl* runCon
     if (QFile(targetAbsPath + QLatin1String(".del")).exists())
         QFile::rename(targetAbsPath + QLatin1String(".del"), targetAbsPath);
 }
+
+#ifdef BUILD_TESTS
+QList<QObject *> QtcDeveloperPlugin::createTestObjects(void) const
+{
+    QList<QObject *> testObjects;
+
+    testObjects << new Test::QtcRunConfigurationFactoryTest;
+
+    return testObjects;
+}
+#endif

@@ -1,6 +1,8 @@
 DEFINES += QTCDEVPLUGIN_LIBRARY
 # Build plugin into user config directory
 USE_USER_DESTDIR = yes
+# Build tests
+BUILD_TESTS = yes
 
 SOURCES += \
     qtcdeveloperplugin.cpp \
@@ -21,6 +23,17 @@ HEADERS += \
 TRANSLATIONS += \
     qtcdevplugin_en.ts \
     qtcdevplugin_fr.ts
+
+!isEmpty(BUILD_TESTS) {
+    DEFINES += BUILD_TESTS
+    DEFINES += TESTS_DIR=\\\"$$PWD/tests\\\"
+    SOURCES += \
+        Test/testhelper.cpp \
+        Test/qtcrunconfigurationfactorytest.cpp
+    HEADERS += \
+        Test/testhelper.h \
+        Test/qtcrunconfigurationfactorytest.h
+}
 
 # Qt Creator from environment
 # Set the QTC_SOURCE environment variable to override the setting here
