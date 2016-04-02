@@ -1,0 +1,11 @@
+{
+    \"Name\" : \"QtcPluginTest\",
+    \"Version\" : \"0.0.0\",
+    \"CompatVersion\" : \"0.0.0\",
+    \"Vendor\" : \"Pascal COMBES\",
+    \"Copyright\" : \"(C) Pascal COMBES <pascom@orange.fr>\",
+    \"License\" : \"GPLv3\",
+    \"Description\" : \"This is Qt Creator example plugin. It is inteded for tests.\",
+    \"Url\" : \"\",
+    $$dependencyList
+}
