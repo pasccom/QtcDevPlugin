@@ -17,26 +17,94 @@ namespace Internal {
 
 class QtcTestRunConfiguration;
 
+/*!
+ * \brief The QtcTestRunConfigurationWidget class provides a form widget to edit a QtcTestRunConfiguration
+ *
+ * This class describes a form widget which allows to easily configure:
+ *  \li The working directory for the test Qt Creator instance
+ *  \li The path to the settings used by the test Qt Creator instance
+ *  \li The theme of the test Qt Creator instance
+ *
+ * \note This class currently does nothing more than its parent, QtcRunConfigurationWidget,
+ * it is proposed as a basis for further developments (test case selection, ...)
+ *
+ * \sa QtcTestRunConfiguration
+ */
 class QtcTestRunConfigurationWidget : public QtcRunConfigurationWidget
 {
     Q_OBJECT
 public:
+    /*!
+     * \brief Constructor
+     *
+     * Construct a new instance of this widget to configure
+     * the given QtcTestRunConfiguration
+     * \param runConfig The run configuration which is configured through this form widget.
+     * \param parent The parent widget
+     */
     QtcTestRunConfigurationWidget(QtcTestRunConfiguration* runConfig, QWidget* parent = NULL);
 private:
-    QtcTestRunConfiguration* mRunConfig;
+    QtcTestRunConfiguration* mRunConfig;    /*!< The QtcTestRunConfiguration that is configured by this form widget. */
 };
 
+/*!
+ * \brief The QtcTestRunConfiguration class stores information required to start a test instance of Qt Creator
+ *
+ * When an instance of this class is added to a target, Qt Creator will propose to the user to
+ * start Qt Creator with the plugin being developped loaded. It will then start the tests
+ * associated with this plugin. It also tries to ensure that all other
+ * versions of the plugin are hidden (by moving them to alternative pathes) when Qt Creator stats,
+ * so that the current version is the only loaded in the current Qt Creator instance.
+ * Otherwide the tests of the other instance could shadow those of the current version being tested.
+ *
+ * This run configuration can be easily edited using QtcTestRunConfigurationWidget, which
+ * defines a suitable form wigdet to ease this process.
+ *
+ * \sa QtcTestRunConfigurationWidget
+ */
 class QtcTestRunConfiguration : public QtcRunConfiguration
 {
     Q_OBJECT
 public:
+    /*!
+     * \brief Creates a configuration widget
+     *
+     * Creates an instance of the configuration widget QtcRunConfigurationWidget
+     * associated to the current instance.
+     * \return The newly allocated instance of the configuration widget.
+     */
     inline QWidget* createConfigurationWidget(void) {return new QtcTestRunConfigurationWidget(this);}
 
+    /*!
+     * \copydoc QtcRunConfiguration::commandLineArgumentsList()
+     */
     virtual QStringList commandLineArgumentsList(void) const;
 
+    /*!
+     * \brief Conversion to map
+     *
+     * Converts the instance into a QVariantMap by initializing the fields of the given map.
+     * \return The map initialized with the contents of the instance
+     * \sa fromMap()
+     */
     QVariantMap toMap(void) const;
+    /*!
+     * \brief Conversion from map
+     *
+     * Initializes the instance with the given QVariantMap.
+     * \param map The map containing the data of the instance
+     * \return \c true when the initialization of the instance was sucessful, \c false otherwise
+     * \sa toMap()
+     */
     bool fromMap(const QVariantMap& map);
 protected:
+    /*!
+     * \brief Constructor
+     *
+     * Initializes a new instance.
+     * \param parent A target
+     * \param id The ID of this instance
+     */
     QtcTestRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
 
     friend class QtcRunConfigurationFactory;
