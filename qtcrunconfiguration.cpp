@@ -77,6 +77,7 @@ QVariantMap QtcRunConfiguration::toMap(void) const
         map.insert(Constants::WorkingDirectoryKey, mWorkingDirectory.toString());
     if (!mSettingsPath.isNull())
         map.insert(Constants::SettingsPathKey, mSettingsPath.toString());
+    map.insert(Constants::ThemeKey, mThemeName);
 
     return map;
 }
@@ -85,6 +86,11 @@ bool QtcRunConfiguration::fromMap(const QVariantMap& map)
 {
     mWorkingDirectory = Utils::FileName::fromString(map.value(Constants::WorkingDirectoryKey, QLatin1String("%{buildDir}")).toString());
     mSettingsPath = Utils::FileName::fromString(map.value(Constants::SettingsPathKey, QString()).toString());
+
+    QStringList themes = availableThemes();
+    QString theme = Utils::creatorTheme()->displayName();
+    if (themes.contains(theme))
+        mThemeName = theme;
 
     return ProjectExplorer::RunConfiguration::fromMap(map);
 }

@@ -30,6 +30,7 @@ const char QtcTestRunConfigurationId [] = QTC_TEST_RUN_CONFIGURATION_ID;        
  */
 const QString WorkingDirectoryKey = QLatin1String(QTC_RUN_CONFIGURATION_ID ".WorkingDirectory");    /*!< Key for working directory path Internal::QtcRunConfiguration */
 const QString SettingsPathKey = QLatin1String(QTC_RUN_CONFIGURATION_ID ".SettingsPath");            /*!< Key for Qt Creator settings path Internal::QtcRunConfiguration */
+const QString ThemeKey = QLatin1String(QTC_RUN_CONFIGURATION_ID ".Theme");                          /*!< Key for the theme in Internal::QtcRunConfiguration */
 /*!@}*/
 
 /*!@}*/
