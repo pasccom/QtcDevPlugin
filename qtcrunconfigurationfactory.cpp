@@ -18,6 +18,16 @@
 namespace QtcDevPlugin {
 namespace Internal {
 
+/*!
+ * \brief Project path corresponding to the given ID
+ *
+ * Return the path to the project file associated with
+ * the given QtcRunConfiguration or QtcTestRunConfiguration ID.
+ * \param id A full QtcRunConfiguration ID or a full QtcTestRunConfiguration ID
+ * \param base A prefix for a QtcRunConfiguration ID or a QtcTestRunConfiguration ID
+ * or an invalid ID to test for both QtcRunConfiguration and QtcTestRunConfiguration
+ * \return The path to the associated project file
+ */
 Utils::FileName pathFromId(Core::Id id, Core::Id base = Core::Id())
 {
     QString path;
