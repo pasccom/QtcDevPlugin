@@ -74,17 +74,17 @@ QVariantMap QtcRunConfiguration::toMap(void) const
 {
     QVariantMap map(ProjectExplorer::RunConfiguration::toMap());
     if (QString::compare(mWorkingDirectory.toString(), QLatin1String("%{buildDir}"), Utils::HostOsInfo::fileNameCaseSensitivity()) != 0)
-        map.insert(Constants::WorkingDirectoryId, mWorkingDirectory.toString());
+        map.insert(Constants::WorkingDirectoryKey, mWorkingDirectory.toString());
     if (!mSettingsPath.isNull())
-        map.insert(Constants::SettingsPathId, mSettingsPath.toString());
+        map.insert(Constants::SettingsPathKey, mSettingsPath.toString());
 
     return map;
 }
 
 bool QtcRunConfiguration::fromMap(const QVariantMap& map)
 {
-    mWorkingDirectory = Utils::FileName::fromString(map.value(Constants::WorkingDirectoryId, QLatin1String("%{buildDir}")).toString());
-    mSettingsPath = Utils::FileName::fromString(map.value(Constants::SettingsPathId, QString()).toString());
+    mWorkingDirectory = Utils::FileName::fromString(map.value(Constants::WorkingDirectoryKey, QLatin1String("%{buildDir}")).toString());
+    mSettingsPath = Utils::FileName::fromString(map.value(Constants::SettingsPathKey, QString()).toString());
 
     return ProjectExplorer::RunConfiguration::fromMap(map);
 }
