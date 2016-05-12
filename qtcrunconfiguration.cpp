@@ -22,6 +22,13 @@
 namespace QtcDevPlugin {
 namespace Internal {
 
+/*!
+ * \brief Available Qt Creator themes
+ *
+ * Returns the list of the available themes in Qt Creator.
+ * \return The list of Qt Creator themes
+ */
+// TODO this should be available from Qt Creator util library
 QStringList availableThemes(void)
 {
     QStringList themes;
