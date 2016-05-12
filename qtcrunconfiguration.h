@@ -138,33 +138,124 @@ private:
     QComboBox* mThemeCombo;                                     /*!< A QComboBox for the user to choose the theme of Qt Creator instance. */
 };
 
+/*!
+ * \brief The QtcRunConfiguration class stores information required to start an instance of Qt Creator
+ *
+ * When an instance of this class is added to a target, Qt Creator will propose to the user to
+ * start Qt Creator with the plugin being developped loaded. It also tries to ensure that all other
+ * versions of the plugin are hidden (by moving them to alternative pathes) when Qt Creator stats,
+ * so that the current version is the only loaded in the current Qt Creator instance.
+ *
+ * This run configuration can be easily edited using QtcRunConfigurationWidget, which
+ * defines a suitable form wigdet to ease this process.
+ *
+ * \sa QtcRunConfigurationWidget
+ */
 class QtcRunConfiguration : public ProjectExplorer::LocalApplicationRunConfiguration
 {
     Q_OBJECT
 public:
+    /*!
+     * \brief Creates a configuration widget
+     *
+     * Creates an instance of the configuration widget QtcRunConfigurationWidget
+     * associated to the current instance.
+     * \return The newly allocated instance of the configuration widget.
+     */
     inline QWidget* createConfigurationWidget(void) {return new QtcRunConfigurationWidget(this);}
 
+    /*!
+     * \brief Run mode
+     *
+     * Return the run mode for the run configuration,
+     * which is always <tt>ProjectExplorer::ApplicationLauncher::Gui</tt>.
+     * \return The run mode, which is always <tt>ProjectExplorer::ApplicationLauncher::Gui</tt>
+     */
     virtual inline ProjectExplorer::ApplicationLauncher::Mode runMode(void) const {return ProjectExplorer::ApplicationLauncher::Gui;}
-    inline virtual QString executable() const {return QCoreApplication::applicationFilePath();}
+    /*!
+     * \brief Path to executable
+     *
+     * Returns the path to the executable which should be started,
+     * which is the path to \c Qt Creator exexutable (the application file path).
+     * \return The path to Qt Creator executable
+     */
+    virtual inline QString executable() const {return QCoreApplication::applicationFilePath();}
+    /*!
+     * \brief Path to the working directory
+     *
+     * Returns the path to the working directory.
+     * \return The path to the working directory.
+     */
     virtual QString workingDirectory(void) const;
+    /*!
+     * \brief Command-line arguments list
+     *
+     * Returns the list of the command-line arguments to be passed to Qt Creator executable.
+     * \return The command-line arguments to be passed to the Qt Creator instance
+     * \sa commandLineArguments()
+     */
     virtual QStringList commandLineArgumentsList(void) const;
-    inline virtual QString commandLineArguments(void) const {return commandLineArgumentsList().join(QLatin1Char(' '));}
+    /*!
+     * \brief Command-line arguments
+     *
+     * Returns command-line arguments to be passed to Qt Creator executable.
+     * \return The command-line arguments to be passed to the Qt Creator instance
+     * \sa commandLineArgumentsList()
+     */
+    virtual inline QString commandLineArguments(void) const {return commandLineArgumentsList().join(QLatin1Char(' '));}
 
+    /*!
+     * \brief The path where the plugin should be installed
+     *
+     * Returns the pathe where plugin library file should be installed,
+     * which is the path to the target.
+     * \return The pathe where the plugin should be installed
+     * \sa targetName()
+     */
     virtual Utils::FileName installPath(void) const {return mInstallPath;}
+    /*!
+     * \brief The name of the target
+     *
+     * Returns the name of the target: The name of the library file containing the plugin.
+     * \return  The name of the target.
+     * \sa installPath()
+     */
     virtual Utils::FileName targetName(void) const {return mTargetName;}
 
+    /*!
+     * \brief Conversion to map
+     *
+     * Converts the instance into a QVariantMap by initializing the fields of the given map.
+     * \return The map initialized with the contents of the instance
+     * \sa fromMap()
+     */
     QVariantMap toMap(void) const;
+    /*!
+     * \brief Conversion from map
+     *
+     * Initializes the instance with the given QVariantMap.
+     * \param map The map containing the data of the instance
+     * \return \c true when the initialization of the instance was sucessful, \c false otherwise
+     * \sa toMap()
+     */
     bool fromMap(const QVariantMap& map);
 protected:
+    /*!
+     * \brief Constructor
+     *
+     * Initializes a new instance and set default values in the private fields.
+     * \param parent A target
+     * \param id The ID of this instance
+     */
     QtcRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
 private:
-    Utils::FileName mTargetName;
-    Utils::FileName mDestDir;
-    Utils::FileName mInstallPath;
+    Utils::FileName mTargetName;        /*!< The name of the target, i.e. the name of the library file containing the plugin */
+    Utils::FileName mDestDir;           /*!< The path where the plugin is output after build. \sa mInstallPath */
+    Utils::FileName mInstallPath;       /*!< The path where the plugin is installed. \sa mDestDir */
 
-    Utils::FileName mWorkingDirectory;
-    Utils::FileName mSettingsPath;
-    QString mThemeName;
+    Utils::FileName mWorkingDirectory;  /*!< The path to the working directory */
+    Utils::FileName mSettingsPath;      /*!< The path to Qt Creator settings */
+    QString mThemeName;                 /*!< Qt Creator theme to be used */
 
     friend class QtcRunConfigurationFactory;
     friend class QtcRunConfigurationWidget;
