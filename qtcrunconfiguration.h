@@ -124,6 +124,7 @@ private slots:
      *
      * This slot is called when the user changes the theme through \ref mThemeCombo.
      * It saves the theme.
+     * \param theme The selected theme.
      */
     void updateTheme(const QString& theme);
 private:
