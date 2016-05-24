@@ -52,6 +52,9 @@ TRANSLATIONS += \
         Test/qtcrunconfigurationfactorytest.h
 }
 
+OTHER_FILES += README.md \
+               QtCreator.local.pri.example
+
 # Qt Creator from environment
 # Set the QTC_SOURCE environment variable to override the setting here
 QTCREATOR_SOURCES = $$(QTC_SOURCE)
