@@ -233,7 +233,7 @@ ProjectExplorer::RunConfiguration* QtcRunConfigurationFactory::clone(ProjectExpl
 {
     QTC_ASSERT(canHandle(target), return NULL);
 
-    QtcRunConfiguration* runConfig;
+    QtcRunConfiguration* runConfig = NULL;
 
     if (qobject_cast<QtcRunConfiguration*>(product) != NULL) {
         qDebug() << "Cloning QTC run configuration for target:" << target->displayName();
@@ -262,7 +262,7 @@ ProjectExplorer::RunConfiguration* QtcRunConfigurationFactory::clone(ProjectExpl
 
 ProjectExplorer::RunConfiguration* QtcRunConfigurationFactory::doCreate(ProjectExplorer::Target* target, Core::Id id)
 {
-    QtcRunConfiguration* runConfig;
+    QtcRunConfiguration* runConfig = NULL;
 
     if (!pathFromId(id, Core::Id(Constants::QtcRunConfigurationId)).isNull()) {
         qDebug() << "Creating QTC run configuration for target:" << target->displayName();
@@ -291,7 +291,7 @@ ProjectExplorer::RunConfiguration* QtcRunConfigurationFactory::doCreate(ProjectE
 
 ProjectExplorer::RunConfiguration* QtcRunConfigurationFactory::doRestore(ProjectExplorer::Target* target, const QVariantMap& map)
 {
-    QtcRunConfiguration* runConfig;
+    QtcRunConfiguration* runConfig = NULL;
 
     if (!pathFromId(ProjectExplorer::idFromMap(map), Core::Id(Constants::QtcRunConfigurationId)).isNull()) {
         qDebug() << "Restoring QTC run configuration for target:" << target->displayName();
