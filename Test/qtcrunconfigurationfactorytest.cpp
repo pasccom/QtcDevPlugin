@@ -146,7 +146,9 @@ void QtcRunConfigurationFactoryTest::testOpenProject(void)
 
             QCOMPARE(qtcRunConfig->runMode(), ProjectExplorer::ApplicationLauncher::Gui);
             QCOMPARE(qtcRunConfig->executable(), QCoreApplication::applicationFilePath());
-            QCOMPARE(qtcRunConfig->workingDirectory(), target->activeBuildConfiguration()->buildDirectory().toString());
+            QString workingDirectory = target->activeBuildConfiguration()->buildDirectory().toString();
+            workingDirectory.replace(QLatin1Char('/'), QDir::separator());
+            QCOMPARE(qtcRunConfig->workingDirectory(), workingDirectory);
             QCOMPARE(qtcRunConfig->commandLineArguments(), qtcRunConfig->commandLineArgumentsList().join(QLatin1Char(' ')));
 
             int themeIndex = qtcRunConfig->commandLineArgumentsList().indexOf(QLatin1String("-theme"));
@@ -184,7 +186,9 @@ void QtcRunConfigurationFactoryTest::testOpenProject(void)
 
             QCOMPARE(qtcTestRunConfig->runMode(), ProjectExplorer::ApplicationLauncher::Gui);
             QCOMPARE(qtcTestRunConfig->executable(), QCoreApplication::applicationFilePath());
-            QCOMPARE(qtcTestRunConfig->workingDirectory(), target->activeBuildConfiguration()->buildDirectory().toString());
+            QString workingDirectory = target->activeBuildConfiguration()->buildDirectory().toString();
+            workingDirectory.replace(QLatin1Char('/'), QDir::separator());
+            QCOMPARE(qtcTestRunConfig->workingDirectory(), workingDirectory);
             QCOMPARE(qtcTestRunConfig->commandLineArguments(), qtcTestRunConfig->commandLineArgumentsList().join(QLatin1Char(' ')));
 
             int themeIndex = qtcTestRunConfig->commandLineArgumentsList().indexOf(QLatin1String("-theme"));
