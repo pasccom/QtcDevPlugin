@@ -229,7 +229,7 @@ public:
      * Returns the pathe where plugin library file should be installed,
      * which is the path to the target.
      * \return The pathe where the plugin should be installed
-     * \sa targetName()
+     * \sa targetName(), pluginName()
      */
     virtual Utils::FileName installPath(void) const {return mInstallPath;}
     /*!
@@ -237,9 +237,17 @@ public:
      *
      * Returns the name of the target: The name of the library file containing the plugin.
      * \return  The name of the target.
-     * \sa installPath()
+     * \sa installPath(), pluginName()
      */
     virtual Utils::FileName targetName(void) const {return mTargetName;}
+    /*!
+     * \brief The name of the plugin
+     *
+     * Returns the name of the plugin: This is the project file name without the *.pro extension.
+     * \return  The name of the plugin.
+     * \sa installPath(), targetName()
+     */
+    virtual QString pluginName(void) const {return mPluginName;}
 
     /*!
      * \brief Conversion to map
@@ -268,6 +276,7 @@ protected:
      */
     QtcRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
 private:
+    QString mPluginName;                /*!< The name of the plugin, i.e. the name of the project file without the *.pro extension */
     Utils::FileName mTargetName;        /*!< The name of the target, i.e. the name of the library file containing the plugin */
     Utils::FileName mDestDir;           /*!< The path where the plugin is output after build. \sa mInstallPath */
     Utils::FileName mInstallPath;       /*!< The path where the plugin is installed. \sa mDestDir */

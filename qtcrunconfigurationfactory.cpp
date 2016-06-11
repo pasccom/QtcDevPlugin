@@ -61,6 +61,11 @@ void QtcRunConfigurationFactory::updateRunConfiguration(QtcRunConfiguration* run
     if (qMakeRoot == NULL)
         return;
 
+    QString name = pathFromId(runConfig->id()).fileName();
+    if (name.endsWith(QLatin1String(".pro")))
+        name.chop(4);
+    runConfig->mPluginName = name;
+
     QmakeProjectManager::QmakeProFileNode* qMakeNode = qMakeRoot->findProFileFor(pathFromId(runConfig->id()));
     QTC_ASSERT(qMakeNode != NULL, return);
 
@@ -72,9 +77,12 @@ void QtcRunConfigurationFactory::updateRunConfiguration(QtcRunConfiguration* run
     runConfig->mInstallPath = Utils::FileName::fromString(qMakeNode->installsList().targetPath);
     if (!qMakeNode->variableValue(QmakeProjectManager::ShLibExtensionVar).isEmpty()) {
         QTC_ASSERT(qMakeNode->variableValue(QmakeProjectManager::ShLibExtensionVar).size() == 1,);
-        runConfig->mTargetName = Utils::FileName::fromString(QLatin1String("lib") + qMakeNode->targetInformation().target + QLatin1Char('.') + qMakeNode->variableValue(QmakeProjectManager::ShLibExtensionVar).first());
+        if (Utils::HostOsInfo::isWindowsHost())
+            runConfig->mTargetName = Utils::FileName::fromString(qMakeNode->targetInformation().target + QLatin1Char('.') + qMakeNode->variableValue(QmakeProjectManager::ShLibExtensionVar).first());
+        else
+            runConfig->mTargetName = Utils::FileName::fromString(QLatin1String("lib") + qMakeNode->targetInformation().target + QLatin1Char('.') + qMakeNode->variableValue(QmakeProjectManager::ShLibExtensionVar).first());
     } else if (Utils::HostOsInfo::isWindowsHost()) {
-        runConfig->mTargetName = Utils::FileName::fromString(QLatin1String("lib") + qMakeNode->targetInformation().target + QLatin1String(".dll"));
+            runConfig->mTargetName = Utils::FileName::fromString(qMakeNode->targetInformation().target + QLatin1String(".dll"));
     } else {
         runConfig->mTargetName = Utils::FileName::fromString(QLatin1String("lib") + qMakeNode->targetInformation().target + QLatin1String(".so"));
     }
