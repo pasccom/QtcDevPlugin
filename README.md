@@ -19,6 +19,19 @@ Here is a list of the current features of the plugin:
 Ideas I currently have to extend the plugin are listed in the 
 section PLANNED DEVELOPMENTS below.
 
+COMPATIBILITY TABLE
+-------------------
+
+| QtcDevPlugin | Qt Creator | Linux | Windows | Mac OS |
+|:-------------|:-----------|:-----:|:-------:|:------:|
+| 0.0.1        | 3.6.0      |  `Y`  |   `N`   |  `?`   |
+| 0.0.2        | 3.6.0      |  `Y`  |   `Y`   |  `?`   |
+
+A `Y` means that QtcDevPlugin was tested against this Qt Creator version
+under the given operating system. A `N` means that the version of the plugin
+cannot work properly for the given operating system. A `?` means that I
+currently do not know whether it works.
+
 INSTALLATION
 ------------
 

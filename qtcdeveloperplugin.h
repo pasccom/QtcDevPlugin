@@ -53,6 +53,18 @@ namespace Internal {
  * can do what you desire with the code (under the constraints stated in the
  * section \ref license below), but this will avoid double work.
  *
+ * \section compat Compatibity table
+ *
+ *  | QtcDevPlugin | Qt Creator | Linux | Windows | Mac OS |
+ *  |:-------------|:-----------|:-----:|:-------:|:------:|
+ *  | 0.0.1        | 3.6.0      |  `Y`  |   `N`   |  `?`   |
+ *  | 0.0.2        | 3.6.0      |  `Y`  |   `Y`   |  `?`   |
+ *
+ * A \c Y means that QtcDevPlugin was tested against this Qt Creator version
+ * under the given operating system. A \c N means that the version of the plugin
+ * cannot work properly for the given operating system. A \c ? means that I
+ * currently do not know whether it works.
+ *
  * \section license Licensing information
  *
  * QtcDevPlugin is free software: you can redistribute it and/or modify
