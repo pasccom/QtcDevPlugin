@@ -207,7 +207,7 @@ QtcRunConfigurationWidget::QtcRunConfigurationWidget(QtcRunConfiguration* runCon
     mainLayout->setColumnStretch(1, 1);
 
     QStringList themes = availableThemes();
-    int currentThemeIndex = themes.indexOf(runConfig->mThemeName);
+    int currentThemeIndex = themes.indexOf(runConfig->mThemeName.toLower());
     QTC_ASSERT(currentThemeIndex != -1, );
     mThemeCombo->addItems(themes);
     if (currentThemeIndex != -1)
