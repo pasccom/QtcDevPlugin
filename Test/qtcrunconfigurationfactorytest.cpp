@@ -24,6 +24,7 @@
 #include "../qtcdevpluginconstants.h"
 
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/runnables.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/kitmanager.h>
@@ -143,13 +144,15 @@ void QtcRunConfigurationFactoryTest::testOpenProject(void)
             QVERIFY2(ok, qPrintable(QString(QLatin1String("Unexpected run configuration: %1")).arg(qtcRunConfig->id().suffixAfter(Core::Id(Constants::QtcRunConfigurationId)))));
 
             QCOMPARE(qtcRunConfig->displayName(), QString(QLatin1String("Run Qt Creator with \"%1\"")).arg(qtcPluginsFound.last()));
+            QVERIFY(qtcRunConfig->runnable().is<ProjectExplorer::StandardRunnable>());
 
-            QCOMPARE(qtcRunConfig->runMode(), ProjectExplorer::ApplicationLauncher::Gui);
-            QCOMPARE(qtcRunConfig->executable(), QCoreApplication::applicationFilePath());
+            ProjectExplorer::StandardRunnable qtcRunnable = qtcRunConfig->runnable().as<ProjectExplorer::StandardRunnable>();
+            QCOMPARE(qtcRunnable.runMode, ProjectExplorer::ApplicationLauncher::Gui);
+            QCOMPARE(qtcRunnable.executable, QCoreApplication::applicationFilePath());
             QString workingDirectory = target->activeBuildConfiguration()->buildDirectory().toString();
             workingDirectory.replace(QLatin1Char('/'), QDir::separator());
-            QCOMPARE(qtcRunConfig->workingDirectory(), workingDirectory);
-            QCOMPARE(qtcRunConfig->commandLineArguments(), qtcRunConfig->commandLineArgumentsList().join(QLatin1Char(' ')));
+            QCOMPARE(qtcRunnable.workingDirectory, workingDirectory);
+            QCOMPARE(qtcRunnable.commandLineArguments, qtcRunConfig->commandLineArgumentsList().join(QLatin1Char(' ')));
 
             int themeIndex = qtcRunConfig->commandLineArgumentsList().indexOf(QLatin1String("-theme"));
             QVERIFY(themeIndex != -1);
@@ -183,13 +186,15 @@ void QtcRunConfigurationFactoryTest::testOpenProject(void)
             QVERIFY2(ok, qPrintable(QString(QLatin1String("Unexpected run configuration: %1")).arg(qtcTestRunConfig->id().suffixAfter(Core::Id(Constants::QtcTestRunConfigurationId)))));
 
             QCOMPARE(qtcTestRunConfig->displayName(), QString(QLatin1String("Run Qt Creator tests for \"%1\"")).arg(qtcTestPluginsFound.last()));
+            QVERIFY(qtcTestRunConfig->runnable().is<ProjectExplorer::StandardRunnable>());
 
-            QCOMPARE(qtcTestRunConfig->runMode(), ProjectExplorer::ApplicationLauncher::Gui);
-            QCOMPARE(qtcTestRunConfig->executable(), QCoreApplication::applicationFilePath());
+            ProjectExplorer::StandardRunnable qtcTestRunnable = qtcTestRunConfig->runnable().as<ProjectExplorer::StandardRunnable>();
+            QCOMPARE(qtcTestRunnable.runMode, ProjectExplorer::ApplicationLauncher::Gui);
+            QCOMPARE(qtcTestRunnable.executable, QCoreApplication::applicationFilePath());
             QString workingDirectory = target->activeBuildConfiguration()->buildDirectory().toString();
             workingDirectory.replace(QLatin1Char('/'), QDir::separator());
-            QCOMPARE(qtcTestRunConfig->workingDirectory(), workingDirectory);
-            QCOMPARE(qtcTestRunConfig->commandLineArguments(), qtcTestRunConfig->commandLineArgumentsList().join(QLatin1Char(' ')));
+            QCOMPARE(qtcTestRunnable.workingDirectory, workingDirectory);
+            QCOMPARE(qtcTestRunnable.commandLineArguments, qtcTestRunConfig->commandLineArgumentsList().join(QLatin1Char(' ')));
 
             int themeIndex = qtcTestRunConfig->commandLineArgumentsList().indexOf(QLatin1String("-theme"));
             QVERIFY(themeIndex != -1);

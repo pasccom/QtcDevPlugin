@@ -19,7 +19,7 @@
 #ifndef QTCRUNCONFIGURATION_H
 #define QTCRUNCONFIGURATION_H
 
-#include <projectexplorer/localapplicationrunconfiguration.h>
+#include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/applicationlauncher.h>
 
 #include <coreplugin/id.h>
@@ -170,7 +170,7 @@ private:
  *
  * \sa QtcRunConfigurationWidget
  */
-class QtcRunConfiguration : public ProjectExplorer::LocalApplicationRunConfiguration
+class QtcRunConfiguration : public ProjectExplorer::RunConfiguration
 {
     Q_OBJECT
 public:
@@ -190,7 +190,7 @@ public:
      * which is always <tt>ProjectExplorer::ApplicationLauncher::Gui</tt>.
      * \return The run mode, which is always <tt>ProjectExplorer::ApplicationLauncher::Gui</tt>
      */
-    virtual inline ProjectExplorer::ApplicationLauncher::Mode runMode(void) const {return ProjectExplorer::ApplicationLauncher::Gui;}
+    //virtual inline ProjectExplorer::ApplicationLauncher::Mode runMode(void) const {return ProjectExplorer::ApplicationLauncher::Gui;}
     /*!
      * \brief Path to executable
      *
@@ -198,14 +198,14 @@ public:
      * which is the path to \c Qt Creator exexutable (the application file path).
      * \return The path to Qt Creator executable
      */
-    virtual inline QString executable() const {return QCoreApplication::applicationFilePath();}
+    //virtual inline QString executable() const {return QCoreApplication::applicationFilePath();}
     /*!
      * \brief Path to the working directory
      *
      * Returns the path to the working directory.
      * \return The path to the working directory.
      */
-    virtual QString workingDirectory(void) const;
+    //virtual QString workingDirectory(void) const;
     /*!
      * \brief Command-line arguments list
      *
@@ -221,7 +221,9 @@ public:
      * \return The command-line arguments to be passed to the Qt Creator instance
      * \sa commandLineArgumentsList()
      */
-    virtual inline QString commandLineArguments(void) const {return commandLineArgumentsList().join(QLatin1Char(' '));}
+    //virtual inline QString commandLineArguments(void) const {return commandLineArgumentsList().join(QLatin1Char(' '));}
+
+    virtual ProjectExplorer::Runnable runnable(void) const;
 
     /*!
      * \brief The path where the plugin should be installed

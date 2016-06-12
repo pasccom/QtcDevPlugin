@@ -29,6 +29,8 @@
 
 #include <qmakeprojectmanager/qmakeproject.h>
 
+#include <coreplugin/featureprovider.h>
+
 #include <utils/hostosinfo.h>
 
 #include <QtDebug>
@@ -104,8 +106,8 @@ QList<Core::Id> QtcRunConfigurationFactory::availableCreationIds(ProjectExplorer
 
     foreach(ProjectExplorer::ProjectNode* node, qtCreatorPlugins(target->project()->rootProjectNode())) {
         QmakeProjectManager::QmakeProFileNode* qMakeNode = static_cast<QmakeProjectManager::QmakeProFileNode*>(node);
-        ids << Core::Id(Constants::QtcRunConfigurationId).withSuffix(qMakeNode->path().toString())
-            << Core::Id(Constants::QtcTestRunConfigurationId).withSuffix(qMakeNode->path().toString());
+        ids << Core::Id(Constants::QtcRunConfigurationId).withSuffix(qMakeNode->filePath().toString())
+            << Core::Id(Constants::QtcTestRunConfigurationId).withSuffix(qMakeNode->filePath().toString());
     }
 
     qDebug() << ids;
@@ -136,7 +138,7 @@ bool QtcRunConfigurationFactory::canHandle(ProjectExplorer::Target* target)
 
     if (target->kit() == NULL)
         return false;
-    if (target->kit()->hasFeatures(Core::FeatureSet(QtSupport::Constants::FEATURE_DESKTOP)))
+    if (target->kit()->hasFeatures(QSet<Core::Id>() << Core::Id(QtSupport::Constants::FEATURE_DESKTOP)))
         return true;
     return false;
 }
@@ -146,7 +148,7 @@ bool QtcRunConfigurationFactory::isReady(ProjectExplorer::Project* project)
     QmakeProjectManager::QmakeProject* qMakeProject = qobject_cast<QmakeProjectManager::QmakeProject*>(project);
     if (qMakeProject == NULL)
         return false;
-    return qMakeProject->rootQmakeProjectNode()->validParse();
+    return qMakeProject->rootProjectNode()->validParse();
 }
 
 bool QtcRunConfigurationFactory::isUseful(ProjectExplorer::Project* project)
@@ -154,8 +156,8 @@ bool QtcRunConfigurationFactory::isUseful(ProjectExplorer::Project* project)
     QmakeProjectManager::QmakeProject* qMakeProject = static_cast<QmakeProjectManager::QmakeProject*>(project);
 
     QTC_ASSERT(qMakeProject != NULL, return false);
-    QTC_ASSERT(qMakeProject->rootQmakeProjectNode() != NULL, return false);
-    QTC_ASSERT(qMakeProject->rootQmakeProjectNode()->validParse(), return false);
+    QTC_ASSERT(qMakeProject->rootProjectNode() != NULL, return false);
+    QTC_ASSERT(qMakeProject->rootProjectNode()->validParse(), return false);
 
     return hasQtCreatorPlugin(project->rootProjectNode());
 }
@@ -163,7 +165,7 @@ bool QtcRunConfigurationFactory::isUseful(ProjectExplorer::Project* project)
 bool QtcRunConfigurationFactory::findQtcPluginPri(ProjectExplorer::ProjectNode* node)
 {
     foreach(ProjectExplorer::FileNode* subNode, node->fileNodes()) {
-        if (QString::compare(subNode->path().fileName(), Constants::QtCreatorPluginPriName, Utils::HostOsInfo::fileNameCaseSensitivity()) == 0)
+        if (QString::compare(subNode->filePath().fileName(), Constants::QtCreatorPluginPriName, Utils::HostOsInfo::fileNameCaseSensitivity()) == 0)
             return true;
     }
 
@@ -261,9 +263,9 @@ ProjectExplorer::RunConfiguration* QtcRunConfigurationFactory::clone(ProjectExpl
     QmakeProjectManager::QmakeProject* qMakeProject = qobject_cast<QmakeProjectManager::QmakeProject*>(target->project());
     connect(qMakeProject, &QmakeProjectManager::QmakeProject::proFilesEvaluated,
             this, [runConfig, qMakeProject] () {
-        updateRunConfiguration(runConfig, qMakeProject->rootQmakeProjectNode());
+        updateRunConfiguration(runConfig, qMakeProject->rootProjectNode());
     });
-    updateRunConfiguration(runConfig, qMakeProject->rootQmakeProjectNode());
+    updateRunConfiguration(runConfig, qMakeProject->rootProjectNode());
 
     return runConfig;
 }
@@ -290,9 +292,9 @@ ProjectExplorer::RunConfiguration* QtcRunConfigurationFactory::doCreate(ProjectE
     QmakeProjectManager::QmakeProject* qMakeProject = qobject_cast<QmakeProjectManager::QmakeProject*>(target->project());
     connect(qMakeProject, &QmakeProjectManager::QmakeProject::proFilesEvaluated,
             this, [runConfig, qMakeProject] () {
-        updateRunConfiguration(runConfig, qMakeProject->rootQmakeProjectNode());
+        updateRunConfiguration(runConfig, qMakeProject->rootProjectNode());
     });
-    updateRunConfiguration(runConfig, qMakeProject->rootQmakeProjectNode());
+    updateRunConfiguration(runConfig, qMakeProject->rootProjectNode());
 
     return runConfig;
 }
@@ -320,9 +322,9 @@ ProjectExplorer::RunConfiguration* QtcRunConfigurationFactory::doRestore(Project
     QmakeProjectManager::QmakeProject* qMakeProject = qobject_cast<QmakeProjectManager::QmakeProject*>(target->project());
     connect(qMakeProject, &QmakeProjectManager::QmakeProject::proFilesEvaluated,
             this, [runConfig, qMakeProject] () {
-        updateRunConfiguration(runConfig, qMakeProject->rootQmakeProjectNode());
+        updateRunConfiguration(runConfig, qMakeProject->rootProjectNode());
     });
-    updateRunConfiguration(runConfig, qMakeProject->rootQmakeProjectNode());
+    updateRunConfiguration(runConfig, qMakeProject->rootProjectNode());
 
     return runConfig;
 }

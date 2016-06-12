@@ -21,7 +21,10 @@
 #include "qtcdevpluginconstants.h"
 #include "Widgets/filetypevalidatinglineedit.h"
 
+#include <projectexplorer/runnables.h>
 #include <projectexplorer/localenvironmentaspect.h>
+#include <projectexplorer/runconfigurationaspects.h>
+#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/kit.h>
 
@@ -79,7 +82,7 @@ QStringList availableThemes(void)
 }
 
 QtcRunConfiguration::QtcRunConfiguration(ProjectExplorer::Target *parent, Core::Id id):
-    ProjectExplorer::LocalApplicationRunConfiguration(parent, id)
+    ProjectExplorer::RunConfiguration(parent, id)
 {
     mWorkingDirectory = Utils::FileName::fromString(QLatin1String("%{buildDir}"));
     mThemeName = Utils::creatorTheme()->displayName();
@@ -92,7 +95,22 @@ QtcRunConfiguration::QtcRunConfiguration(ProjectExplorer::Target *parent, Core::
      * and addAspects() should only add aspects provided bu runnable RunControl factories.
      * 2.Alternatively, ValgrindPlugin, should ensure the extra aspects are added to
      * sensible RunConfiguration and RunConfiguration::addExtraAspects() should be removed. */
-    addExtraAspect(new ProjectExplorer::LocalEnvironmentAspect(this));
+    addExtraAspect(new ProjectExplorer::LocalEnvironmentAspect(this, ProjectExplorer::LocalEnvironmentAspect::BaseEnvironmentModifier()));
+}
+
+ProjectExplorer::Runnable QtcRunConfiguration::runnable(void) const
+{
+    ProjectExplorer::StandardRunnable runnable;
+    runnable.executable = QCoreApplication::applicationFilePath();
+    runnable.commandLineArguments = commandLineArgumentsList().join(QLatin1Char(' '));;
+    if (macroExpander() != NULL)
+        runnable.workingDirectory = macroExpander()->expand(mWorkingDirectory.toString());
+    else
+        runnable.workingDirectory = mWorkingDirectory.toString();
+    runnable.environment = extraAspect<ProjectExplorer::LocalEnvironmentAspect>()->environment();
+    runnable.runMode = ProjectExplorer::ApplicationLauncher::Gui;
+    runnable.device = ProjectExplorer::DeviceManager::instance()->defaultDevice(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
+    return runnable;
 }
 
 QVariantMap QtcRunConfiguration::toMap(void) const
@@ -120,12 +138,12 @@ bool QtcRunConfiguration::fromMap(const QVariantMap& map)
     return ProjectExplorer::RunConfiguration::fromMap(map);
 }
 
-QString QtcRunConfiguration::workingDirectory(void) const
+/*QString QtcRunConfiguration::workingDirectory(void) const
 {
     if (macroExpander() != NULL)
         return macroExpander()->expand(mWorkingDirectory.toString());
     return mWorkingDirectory.toString();
-}
+}*/
 
 QStringList QtcRunConfiguration::commandLineArgumentsList(void) const
 {
