@@ -101,7 +101,7 @@ QList<Core::Id> QtcRunConfigurationFactory::availableCreationIds(ProjectExplorer
 
     QList<Core::Id> ids;
 
-    if (!canHandle(target) || !isUseful(target->project()))
+    if (!canHandle(target) || !isReady(target->project()) || !isUseful(target->project()))
         return ids;
 
     foreach(ProjectExplorer::ProjectNode* node, qtCreatorPlugins(target->project()->rootProjectNode())) {
@@ -229,14 +229,14 @@ bool QtcRunConfigurationFactory::canCreate(ProjectExplorer::Target *target, Core
 
 bool QtcRunConfigurationFactory::canRestore(ProjectExplorer::Target *target, const QVariantMap &map) const
 {
-    return canHandle(target) && (!pathFromId(ProjectExplorer::idFromMap(map), Core::Id(Constants::QtcRunConfigurationId)).isNull() ||
-                                 !pathFromId(ProjectExplorer::idFromMap(map), Core::Id(Constants::QtcTestRunConfigurationId)).isNull());
+    return canHandle(target) && isReady(target->project()) && (!pathFromId(ProjectExplorer::idFromMap(map), Core::Id(Constants::QtcRunConfigurationId)).isNull() ||
+                                                               !pathFromId(ProjectExplorer::idFromMap(map), Core::Id(Constants::QtcTestRunConfigurationId)).isNull());
 }
 
 bool QtcRunConfigurationFactory::canClone(ProjectExplorer::Target *target, ProjectExplorer::RunConfiguration *product) const
 {
-    return canHandle(target) && ((qobject_cast<QtcRunConfiguration*>(product) != NULL) ||
-                                 (qobject_cast<QtcTestRunConfiguration*>(product) != NULL));
+    return canHandle(target) && isReady(target->project()) && ((qobject_cast<QtcRunConfiguration*>(product) != NULL) ||
+                                                               (qobject_cast<QtcTestRunConfiguration*>(product) != NULL));
 }
 
 ProjectExplorer::RunConfiguration* QtcRunConfigurationFactory::clone(ProjectExplorer::Target *target, ProjectExplorer::RunConfiguration *product)
