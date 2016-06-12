@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.0" language="en_US">
+<TS version="2.1" language="en_US">
 <context>
     <name>QtcDevPlugin::Internal::QtcRunConfiguration</name>
     <message>
@@ -25,7 +25,7 @@
         <location filename="qtcrunconfiguration.cpp" line="132"/>
         <location filename="qtcrunconfiguration.cpp" line="140"/>
         <source>Browse...</source>
-        <translation>Borwse...</translation>
+        <translation>Browse...</translation>
     </message>
     <message>
         <location filename="qtcrunconfiguration.cpp" line="138"/>
