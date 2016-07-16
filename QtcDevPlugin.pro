@@ -179,9 +179,6 @@ target.path = $$DESTDIR
 INSTALLS += target
 DESTDIR = ./bin
 
-unix {
-    LIBS+= -L$$IDE_BUILD_TREE
-    LIBS+= -L$$IDE_BUILD_TREE/plugins
-} else:win32  {
+win32 {
     LIBS+= -L$$IDE_BUILD_TREE/bin
 }
