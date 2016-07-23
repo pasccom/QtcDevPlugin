@@ -207,11 +207,7 @@ QtcRunConfigurationWidget::QtcRunConfigurationWidget(QtcRunConfiguration* runCon
     mainLayout->setColumnStretch(1, 1);
 
     QStringList themes = availableThemes();
-    int currentThemeIndex = themes.indexOf(runConfig->mThemeName.toLower());
-    QTC_ASSERT(currentThemeIndex != -1, );
     mThemeCombo->addItems(themes);
-    if (currentThemeIndex != -1)
-        mThemeCombo->setCurrentIndex(currentThemeIndex);
 
     Core::VariableChooser::addSupportForChildWidgets(this, runConfig->macroExpander());
 
@@ -240,6 +236,17 @@ QtcRunConfigurationWidget::QtcRunConfigurationWidget(QtcRunConfiguration* runCon
 void QtcRunConfigurationWidget::showEvent(QShowEvent *se)
 {
     mWorkingDirectoryEdit->setText(mRunConfig->mWorkingDirectory.toString());
+
+    mSettingsPathEdit->setText(mRunConfig->mSettingsPath.toString());
+    mSettingsPathCheck->setChecked(!mRunConfig->mSettingsPath.isNull());
+
+    int currentThemeIndex = 0;
+    while ((currentThemeIndex < mThemeCombo->count()) &&
+           (QString::compare(mThemeCombo->itemText(currentThemeIndex), mRunConfig->mThemeName, Qt::CaseInsensitive) != 0))
+        currentThemeIndex++;
+    QTC_ASSERT(currentThemeIndex != mThemeCombo->count(), );
+    if (currentThemeIndex != mThemeCombo->count())
+        mThemeCombo->setCurrentIndex(currentThemeIndex);
 
     QWidget::showEvent(se);
 }
