@@ -59,6 +59,7 @@ namespace Internal {
  *  |:-------------|:-----------|:-----:|:-------:|:------:|
  *  | 0.0.1        | 3.6.0      |  `Y`  |   `N`   |  `?`   |
  *  | 0.0.2        | 3.6.0      |  `Y`  |   `Y`   |  `?`   |
+ *  | 0.0.3        | 4.0.0      |  `Y`  |   `Y`   |  `?`   |
  *
  * A \c Y means that QtcDevPlugin was tested against this Qt Creator version
  * under the given operating system. A \c N means that the version of the plugin
