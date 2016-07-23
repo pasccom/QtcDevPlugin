@@ -62,6 +62,7 @@ void QtcRunConfigurationFactory::updateRunConfiguration(QtcRunConfiguration* run
 {
     if (qMakeRoot == NULL)
         return;
+    QTC_ASSERT(qMakeRoot->validParse(), return);
 
     QString name = pathFromId(runConfig->id()).fileName();
     if (name.endsWith(QLatin1String(".pro")))
@@ -206,15 +207,15 @@ bool QtcRunConfigurationFactory::hasQtCreatorPlugin(ProjectExplorer::ProjectNode
 
 QList<ProjectExplorer::ProjectNode*> QtcRunConfigurationFactory::qtCreatorPlugins(ProjectExplorer::ProjectNode* node)
 {
-    QList<ProjectExplorer::ProjectNode*> qtcPlugings;
+    QList<ProjectExplorer::ProjectNode*> qtcPlugins;
 
     if (isQtCreatorPlugin(node))
-        qtcPlugings.append(node);
+        qtcPlugins.append(node);
 
     foreach (ProjectExplorer::ProjectNode* subNode, node->subProjectNodes())
-        qtcPlugings.append(qtCreatorPlugins(subNode));
+        qtcPlugins.append(qtCreatorPlugins(subNode));
 
-    return qtcPlugings;
+    return qtcPlugins;
 }
 
 bool QtcRunConfigurationFactory::canCreate(ProjectExplorer::Target *target, Core::Id id) const
@@ -229,14 +230,14 @@ bool QtcRunConfigurationFactory::canCreate(ProjectExplorer::Target *target, Core
 
 bool QtcRunConfigurationFactory::canRestore(ProjectExplorer::Target *target, const QVariantMap &map) const
 {
-    return canHandle(target) && isReady(target->project()) && (!pathFromId(ProjectExplorer::idFromMap(map), Core::Id(Constants::QtcRunConfigurationId)).isNull() ||
-                                                               !pathFromId(ProjectExplorer::idFromMap(map), Core::Id(Constants::QtcTestRunConfigurationId)).isNull());
+    return canHandle(target) && (!pathFromId(ProjectExplorer::idFromMap(map), Core::Id(Constants::QtcRunConfigurationId)).isNull() ||
+                                 !pathFromId(ProjectExplorer::idFromMap(map), Core::Id(Constants::QtcTestRunConfigurationId)).isNull());
 }
 
 bool QtcRunConfigurationFactory::canClone(ProjectExplorer::Target *target, ProjectExplorer::RunConfiguration *product) const
 {
-    return canHandle(target) && isReady(target->project()) && ((qobject_cast<QtcRunConfiguration*>(product) != NULL) ||
-                                                               (qobject_cast<QtcTestRunConfiguration*>(product) != NULL));
+    return canHandle(target) && ((qobject_cast<QtcRunConfiguration*>(product) != NULL) ||
+                                 (qobject_cast<QtcTestRunConfiguration*>(product) != NULL));
 }
 
 ProjectExplorer::RunConfiguration* QtcRunConfigurationFactory::clone(ProjectExplorer::Target *target, ProjectExplorer::RunConfiguration *product)
@@ -265,7 +266,8 @@ ProjectExplorer::RunConfiguration* QtcRunConfigurationFactory::clone(ProjectExpl
             this, [runConfig, qMakeProject] () {
         updateRunConfiguration(runConfig, qMakeProject->rootProjectNode());
     });
-    updateRunConfiguration(runConfig, qMakeProject->rootProjectNode());
+    if (isReady(target->project()))
+        updateRunConfiguration(runConfig, qMakeProject->rootProjectNode());
 
     return runConfig;
 }
@@ -294,7 +296,8 @@ ProjectExplorer::RunConfiguration* QtcRunConfigurationFactory::doCreate(ProjectE
             this, [runConfig, qMakeProject] () {
         updateRunConfiguration(runConfig, qMakeProject->rootProjectNode());
     });
-    updateRunConfiguration(runConfig, qMakeProject->rootProjectNode());
+    if (isReady(target->project()))
+        updateRunConfiguration(runConfig, qMakeProject->rootProjectNode());
 
     return runConfig;
 }
@@ -324,7 +327,8 @@ ProjectExplorer::RunConfiguration* QtcRunConfigurationFactory::doRestore(Project
             this, [runConfig, qMakeProject] () {
         updateRunConfiguration(runConfig, qMakeProject->rootProjectNode());
     });
-    updateRunConfiguration(runConfig, qMakeProject->rootProjectNode());
+    if (isReady(target->project()))
+        updateRunConfiguration(runConfig, qMakeProject->rootProjectNode());
 
     return runConfig;
 }
