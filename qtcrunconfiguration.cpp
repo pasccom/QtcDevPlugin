@@ -131,7 +131,7 @@ bool QtcRunConfiguration::fromMap(const QVariantMap& map)
     mSettingsPath = Utils::FileName::fromString(map.value(Constants::SettingsPathKey, QString()).toString());
 
     QStringList themes = availableThemes();
-    QString theme = Utils::creatorTheme()->displayName();
+    QString theme = map.value(Constants::ThemeKey, QString()).toString();
     if (themes.contains(theme))
         mThemeName = theme;
 
