@@ -53,7 +53,9 @@ TRANSLATIONS += \
 }
 
 OTHER_FILES += README.md \
-               QtCreator.local.pri.example
+               QtCreator.local.pri.example \
+               Doxyfile \
+               Doxyfile.internal
 
 # Qt Creator from environment
 # Set the QTC_SOURCE environment variable to override the setting here
