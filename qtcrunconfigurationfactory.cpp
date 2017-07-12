@@ -58,10 +58,11 @@ Utils::FileName pathFromId(Core::Id id, Core::Id base = Core::Id())
     return Utils::FileName::fromString(path);
 }
 
-void QtcRunConfigurationFactory::updateRunConfiguration(QtcRunConfiguration* runConfig, QmakeProjectManager::QmakeProFileNode* qMakeRoot)
+void QtcRunConfigurationFactory::updateRunConfiguration(QtcRunConfiguration* runConfig, QmakeProjectManager::QmakeProFileNode* qMakeRootNode)
 {
-    if (qMakeRoot == NULL)
+    if (qMakeRootNode == NULL)
         return;
+    QmakeProjectManager::QmakeProFile *qMakeRoot = qMakeRootNode->proFile();
     QTC_ASSERT(qMakeRoot->validParse(), return);
 
     QString name = pathFromId(runConfig->id()).fileName();
@@ -69,21 +70,23 @@ void QtcRunConfigurationFactory::updateRunConfiguration(QtcRunConfiguration* run
         name.chop(4);
     runConfig->mPluginName = name;
 
-    QmakeProjectManager::QmakeProFileNode* qMakeNode = qMakeRoot->findProFileFor(pathFromId(runConfig->id()));
+    QmakeProjectManager::QmakeProFile* qMakeNode = qMakeRoot->findProFile(pathFromId(runConfig->id()));
     QTC_ASSERT(qMakeNode != NULL, return);
 
-    if (QDir::isAbsolutePath(qMakeNode->targetInformation().destDir))
-        runConfig->mDestDir = Utils::FileName::fromString(qMakeNode->targetInformation().destDir);
+    if (QDir::isAbsolutePath(qMakeNode->targetInformation().destDir.toString()))
+        runConfig->mDestDir = qMakeNode->targetInformation().destDir;
     else
-        runConfig->mDestDir = Utils::FileName::fromString(qMakeNode->targetInformation().buildDir).appendPath(qMakeNode->targetInformation().destDir);
+        runConfig->mDestDir = qMakeNode->targetInformation().buildDir.appendPath(qMakeNode->targetInformation().destDir.toString());
 
     runConfig->mInstallPath = Utils::FileName::fromString(qMakeNode->installsList().targetPath);
-    if (!qMakeNode->variableValue(QmakeProjectManager::ShLibExtensionVar).isEmpty()) {
-        QTC_ASSERT(qMakeNode->variableValue(QmakeProjectManager::ShLibExtensionVar).size() == 1,);
+
+    QStringList shLibExtension = qMakeNode->variableValue(QmakeProjectManager::Variable::ShLibExtension);
+    if (!shLibExtension.isEmpty()) {
+        QTC_ASSERT(shLibExtension.size() == 1,);
         if (Utils::HostOsInfo::isWindowsHost())
-            runConfig->mTargetName = Utils::FileName::fromString(qMakeNode->targetInformation().target + QLatin1Char('.') + qMakeNode->variableValue(QmakeProjectManager::ShLibExtensionVar).first());
+            runConfig->mTargetName = Utils::FileName::fromString(qMakeNode->targetInformation().target + QLatin1Char('.') + shLibExtension.first());
         else
-            runConfig->mTargetName = Utils::FileName::fromString(QLatin1String("lib") + qMakeNode->targetInformation().target + QLatin1Char('.') + qMakeNode->variableValue(QmakeProjectManager::ShLibExtensionVar).first());
+            runConfig->mTargetName = Utils::FileName::fromString(QLatin1String("lib") + qMakeNode->targetInformation().target + QLatin1Char('.') + shLibExtension.first());
     } else if (Utils::HostOsInfo::isWindowsHost()) {
             runConfig->mTargetName = Utils::FileName::fromString(qMakeNode->targetInformation().target + QLatin1String(".dll"));
     } else {
@@ -149,7 +152,7 @@ bool QtcRunConfigurationFactory::isReady(ProjectExplorer::Project* project)
     QmakeProjectManager::QmakeProject* qMakeProject = qobject_cast<QmakeProjectManager::QmakeProject*>(project);
     if (qMakeProject == NULL)
         return false;
-    return qMakeProject->rootProjectNode()->validParse();
+    return qMakeProject->rootProFile()->validParse();
 }
 
 bool QtcRunConfigurationFactory::isUseful(ProjectExplorer::Project* project)
@@ -157,8 +160,8 @@ bool QtcRunConfigurationFactory::isUseful(ProjectExplorer::Project* project)
     QmakeProjectManager::QmakeProject* qMakeProject = static_cast<QmakeProjectManager::QmakeProject*>(project);
 
     QTC_ASSERT(qMakeProject != NULL, return false);
-    QTC_ASSERT(qMakeProject->rootProjectNode() != NULL, return false);
-    QTC_ASSERT(qMakeProject->rootProjectNode()->validParse(), return false);
+    QTC_ASSERT(qMakeProject->rootProFile() != NULL, return false);
+    QTC_ASSERT(qMakeProject->rootProFile()->validParse(), return false);
 
     return hasQtCreatorPlugin(project->rootProjectNode());
 }
@@ -170,11 +173,13 @@ bool QtcRunConfigurationFactory::findQtcPluginPri(ProjectExplorer::ProjectNode* 
             return true;
     }
 
-    foreach (ProjectExplorer::ProjectNode* subNode, node->subProjectNodes()) {
-        if (dynamic_cast<QmakeProjectManager::QmakeProFileNode*>(subNode) != NULL)
-            continue;
-        if (findQtcPluginPri(subNode))
-            return true;
+    foreach (ProjectExplorer::FolderNode* subNode, node->folderNodes()) {
+        if (ProjectExplorer::ProjectNode* subProjectNode = subNode->asProjectNode()) {
+            if (dynamic_cast<QmakeProjectManager::QmakeProFileNode*>(subProjectNode) != NULL)
+                continue;
+            if (findQtcPluginPri(subProjectNode))
+                return true;
+        }
     }
 
     return false;
@@ -186,7 +191,7 @@ bool QtcRunConfigurationFactory::isQtCreatorPlugin(ProjectExplorer::ProjectNode*
     QmakeProjectManager::QmakeProFileNode* qMakeNode = dynamic_cast<QmakeProjectManager::QmakeProFileNode*>(node);
     if (qMakeNode == NULL)
         return false;
-    if (qMakeNode->projectType() != QmakeProjectManager::SharedLibraryTemplate)
+    if (qMakeNode->projectType() != QmakeProjectManager::ProjectType::SharedLibraryTemplate)
         return false;
 
     return findQtcPluginPri(node);
@@ -197,9 +202,10 @@ bool QtcRunConfigurationFactory::hasQtCreatorPlugin(ProjectExplorer::ProjectNode
     if (isQtCreatorPlugin(node))
         return true;
 
-    foreach (ProjectExplorer::ProjectNode* subNode, node->subProjectNodes()) {
-        if (hasQtCreatorPlugin(subNode))
-            return true;
+    foreach (ProjectExplorer::FolderNode* subNode, node->folderNodes()) {
+        if (ProjectExplorer::ProjectNode* subProjectNode = subNode->asProjectNode())
+            if (hasQtCreatorPlugin(subProjectNode))
+                return true;
     }
 
     return false;
@@ -212,8 +218,9 @@ QList<ProjectExplorer::ProjectNode*> QtcRunConfigurationFactory::qtCreatorPlugin
     if (isQtCreatorPlugin(node))
         qtcPlugins.append(node);
 
-    foreach (ProjectExplorer::ProjectNode* subNode, node->subProjectNodes())
-        qtcPlugins.append(qtCreatorPlugins(subNode));
+    foreach (ProjectExplorer::FolderNode* subNode, node->folderNodes())
+        if (ProjectExplorer::ProjectNode* subProjectNode = subNode->asProjectNode())
+            qtcPlugins.append(qtCreatorPlugins(subProjectNode));
 
     return qtcPlugins;
 }
