@@ -1,0 +1,5 @@
+# Whether to compile tests (empty=no,default=no)
+BUILD_TESTS=
+# Whether to install plugin into user config directory (empty=no,default=yes)
+USE_USER_DESTDIR=
+

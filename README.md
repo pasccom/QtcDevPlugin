@@ -52,6 +52,10 @@ isEmpty(IDE_BUILD_TREE):IDE_BUILD_TREE=/path/to/QtCreator/build/tree
 ```
 An example file (`QtCreator.local.pri.example`) is provided along with the sources.
 
+Further build-related configuration options can be provided with
+`QtcDevPlugin.local.pri`. Again an exemple file (`QtcDevPlugin.local.pri.example`)
+is provided along with the sources.
+
 PLANNED DEVELOPMENTS
 --------------------
 

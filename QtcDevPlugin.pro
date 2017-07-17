@@ -16,10 +16,15 @@
 # along with QtcDevPlugin. If not, see <http://www.gnu.org/licenses/>
 
 DEFINES += QTCDEVPLUGIN_LIBRARY
-# Build plugin into user config directory
-USE_USER_DESTDIR = yes
-# Build tests
-BUILD_TESTS = yes
+
+# By default, build plugin into user config directory
+USE_USER_DESTDIR=yes
+# By default do not build tests
+BUILD_TESTS=
+
+exists(QtcDevPlugin.local.pri) {
+    include(QtcDevPlugin.local.pri)
+}
 
 SOURCES += \
     qtcdeveloperplugin.cpp \
@@ -54,6 +59,7 @@ TRANSLATIONS += \
 
 OTHER_FILES += README.md \
                QtCreator.local.pri.example \
+               QtcDevPlugin.local.pri.example \
                Doxyfile \
                Doxyfile.internal
 
