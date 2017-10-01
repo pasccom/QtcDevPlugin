@@ -116,7 +116,6 @@ public:
      */
     ~QtcDeveloperPlugin();
 
-
     /*!
      * \brief Plugin initialisation method
      *
@@ -159,29 +158,6 @@ public:
      */
     QList<QObject *> createTestObjects(void) const;
 #endif
-private slots:
-    /*!
-     * \brief Slot called on run control start.
-     *
-     * This slot is called whenever a run control is started.
-     * It checks if the associated run configuration is a QtcRunConfiguration
-     * of a QtcTestRunConfiguration. If this is the case, it ensures that old
-     * versions of the plugin are removed from Qt Creator plugin path
-     * before startin Qt Creator with the right command line arguments.
-     * \param runControl The run control which is starting.
-     * \sa handleRunControlEnd()
-     */
-    void handleRunControlStart(ProjectExplorer::RunControl* runControl);
-    /*!
-     * \brief Slot called on run control end.
-     *
-     * This slot is called whenever a run control finishes.
-     * It restores old versions of the plugin (which have been removed by
-     * handleRunControlStart()).
-     * \param runControl The run control which is finishing.
-     * \sa handleRunControlStart()
-     */
-    void handleRunControlEnd(ProjectExplorer::RunControl* runControl);
 };
 
 } // namespace Internal
