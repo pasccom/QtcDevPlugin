@@ -71,7 +71,7 @@ void QtcRunConfigurationFactoryTest::init(void)
 void QtcRunConfigurationFactoryTest::cleanup(void)
 {
     if (mProject != NULL)
-        ProjectExplorer::SessionManager::removeProject(mProject);
+        closeProject(mProject);
 }
 
 void QtcRunConfigurationFactoryTest::testOpenProject_data(void)
@@ -87,7 +87,7 @@ void QtcRunConfigurationFactoryTest::testOpenProject_data(void)
     plugins << QLatin1String("QtcPluginTest");
     QTest::newRow("QtcPluginTest") << TESTS_DIR "/QtcPluginTest/QtcPluginTest.pro" << plugins;
     plugins.clear();
-    QTest::newRow("/OneSubTest") << TESTS_DIR "/OneSubTest/OneSubTest.pro" << plugins;
+    QTest::newRow("OneSubTest") << TESTS_DIR "/OneSubTest/OneSubTest.pro" << plugins;
     plugins.clear();
     QTest::newRow("TwoSubTests") << TESTS_DIR "/TwoSubTests/TwoSubTests.pro" << plugins;
     plugins.clear();

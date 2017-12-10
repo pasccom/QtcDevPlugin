@@ -113,6 +113,11 @@ bool openQMakeProject(const QString& projectFilePath, ProjectExplorer::Project**
     return true;
 }
 
+void closeProject(ProjectExplorer::Project* project)
+{
+    if (project != NULL)
+        ProjectExplorer::SessionManager::removeProject(project);
+}
 
 } // Test
 } // QtcDevPlugin
