@@ -133,7 +133,7 @@ public:
      * \return \c true if the plugin initialisation suceeded, \c false otherwise.
      * \sa extensionsInitialized()
      */
-    bool initialize(const QStringList &arguments, QString *errorString);
+    bool initialize(const QStringList &arguments, QString *errorString) override;
     /*!
      * \brief Listener for dependant plugin initialisation.
      *
@@ -141,7 +141,7 @@ public:
      * \note This function of this method is extensively described in Qt Creator developper documentation.
      * \sa initialize()
      */
-    void extensionsInitialized();
+    void extensionsInitialized() override;
     /*!
      * \brief Listener for shutdown
      *
@@ -149,7 +149,7 @@ public:
      * \note This function of this method is extensively described in Qt Creator developper documentation.
      * \return \c SynchronousShutdown in all cases.
      */
-    ShutdownFlag aboutToShutdown();
+    ShutdownFlag aboutToShutdown() override;
 #ifdef BUILD_TESTS
     /*!
      * \brief Creates tests instances
@@ -158,7 +158,7 @@ public:
      * \note This function of this method is extensively described in Qt Creator developper documentation.
      * \return A list of instances of test classes.
      */
-    QList<QObject *> createTestObjects(void) const;
+    QList<QObject *> createTestObjects(void) const override;
 #endif
 };
 

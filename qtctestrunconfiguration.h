@@ -91,12 +91,12 @@ public:
      * associated to the current instance.
      * \return The newly allocated instance of the configuration widget.
      */
-    inline QWidget* createConfigurationWidget(void) {return new QtcTestRunConfigurationWidget(this);}
+    inline QWidget* createConfigurationWidget(void) override {return new QtcTestRunConfigurationWidget(this);}
 
     /*!
      * \copydoc QtcRunConfiguration::commandLineArgumentsList()
      */
-    virtual QStringList commandLineArgumentsList(void) const;
+    virtual QStringList commandLineArgumentsList(void) const override;
 
     /*!
      * \brief Conversion to map
@@ -105,7 +105,7 @@ public:
      * \return The map initialized with the contents of the instance
      * \sa fromMap()
      */
-    QVariantMap toMap(void) const;
+    QVariantMap toMap(void) const override;
     /*!
      * \brief Conversion from map
      *
@@ -114,7 +114,7 @@ public:
      * \return \c true when the initialization of the instance was sucessful, \c false otherwise
      * \sa toMap()
      */
-    bool fromMap(const QVariantMap& map);
+    bool fromMap(const QVariantMap& map) override;
 protected:
     /*!
      * \brief Constructor

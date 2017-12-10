@@ -81,7 +81,7 @@ protected:
      * It ensures all the fields are correctly initialized.
      * \param se The show event.
      */
-    void showEvent(QShowEvent *se);
+    void showEvent(QShowEvent *se) override;
 private slots:
     /*!
      * \brief Updates the validity of the working directory path
@@ -181,7 +181,7 @@ public:
      * associated to the current instance.
      * \return The newly allocated instance of the configuration widget.
      */
-    inline QWidget* createConfigurationWidget(void) {return new QtcRunConfigurationWidget(this);}
+    inline QWidget* createConfigurationWidget(void) override {return new QtcRunConfigurationWidget(this);}
 
     /*!
      * \brief Run mode
@@ -223,7 +223,7 @@ public:
      */
     //virtual inline QString commandLineArguments(void) const {return commandLineArgumentsList().join(QLatin1Char(' '));}
 
-    virtual ProjectExplorer::Runnable runnable(void) const;
+    virtual ProjectExplorer::Runnable runnable(void) const override;
 
     /*!
      * \brief The path where the plugin should be installed
@@ -258,7 +258,7 @@ public:
      * \return The map initialized with the contents of the instance
      * \sa fromMap()
      */
-    QVariantMap toMap(void) const;
+    QVariantMap toMap(void) const override;
     /*!
      * \brief Conversion from map
      *
@@ -267,7 +267,7 @@ public:
      * \return \c true when the initialization of the instance was sucessful, \c false otherwise
      * \sa toMap()
      */
-    bool fromMap(const QVariantMap& map);
+    bool fromMap(const QVariantMap& map) override;
 protected:
     /*!
      * \brief Constructor
