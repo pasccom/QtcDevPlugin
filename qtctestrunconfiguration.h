@@ -119,11 +119,19 @@ protected:
     /*!
      * \brief Constructor
      *
-     * Initializes a new instance.
-     * \param parent A target
+     * Creates a new instance with parent target.
+     * \param parent The parent target
+     * \sa initialize()
+     */
+    QtcTestRunConfiguration(ProjectExplorer::Target *parent);
+
+    /*!
+     * \brief Initialize run configuration
+     *
+     * Initializes a new instance and set run configuration ID.
      * \param id The ID of this instance
      */
-    QtcTestRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
+    inline void initialize(Core::Id id) {QtcRunConfiguration::initialize(id);}
 
     friend class QtcRunConfigurationFactory;
     friend class QtcTestRunConfigurationWidget;

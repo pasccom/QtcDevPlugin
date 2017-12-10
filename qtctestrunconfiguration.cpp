@@ -37,8 +37,8 @@
 namespace QtcDevPlugin {
 namespace Internal {
 
-QtcTestRunConfiguration::QtcTestRunConfiguration(ProjectExplorer::Target *parent, Core::Id id):
-    QtcRunConfiguration(parent, id)
+QtcTestRunConfiguration::QtcTestRunConfiguration(ProjectExplorer::Target *parent):
+    QtcRunConfiguration(parent)
 {
     setDefaultDisplayName(tr("Run Qt Creator tests"));
 }

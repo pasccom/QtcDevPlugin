@@ -81,8 +81,8 @@ QStringList availableThemes(void)
     return themes;
 }
 
-QtcRunConfiguration::QtcRunConfiguration(ProjectExplorer::Target *parent, Core::Id id):
-    ProjectExplorer::RunConfiguration(parent, id)
+QtcRunConfiguration::QtcRunConfiguration(ProjectExplorer::Target *parent):
+    ProjectExplorer::RunConfiguration(parent)
 {
     mWorkingDirectory = Utils::FileName::fromString(QLatin1String("%{buildDir}"));
     mThemeName = Utils::creatorTheme()->displayName();

@@ -272,11 +272,18 @@ protected:
     /*!
      * \brief Constructor
      *
-     * Initializes a new instance and set default values in the private fields.
-     * \param parent A target
+     * Creates a new instance with parent target.
+     * \param parent The parent target
+     * \sa initialize()
+     */
+    QtcRunConfiguration(ProjectExplorer::Target *parent);
+    /*!
+     * \brief Initialize run configuration
+     *
+     * Initializes a new instance and set run configuration ID.
      * \param id The ID of this instance
      */
-    QtcRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
+    inline void initialize(Core::Id id) {ProjectExplorer::RunConfiguration::initialize(id);}
 private:
     QString mPluginName;                /*!< The name of the plugin, i.e. the name of the project file without the *.pro extension */
     Utils::FileName mTargetName;        /*!< The name of the target, i.e. the name of the library file containing the plugin */

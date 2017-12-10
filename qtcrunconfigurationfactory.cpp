@@ -259,12 +259,14 @@ ProjectExplorer::RunConfiguration* QtcRunConfigurationFactory::clone(ProjectExpl
 
     if (qobject_cast<QtcRunConfiguration*>(product) != NULL) {
         qDebug() << "Cloning QTC run configuration for target:" << target->displayName();
-        runConfig = new QtcRunConfiguration(target, Core::Id(Constants::QtcRunConfigurationId));
+        runConfig = new QtcRunConfiguration(target);
+        runConfig->initialize(Core::Id(Constants::QtcRunConfigurationId));
     }
 
     if (qobject_cast<QtcTestRunConfiguration*>(product) != NULL) {
         qDebug() << "Cloning QTC test run configuration for target:" << target->displayName();
-        runConfig = new QtcTestRunConfiguration(target, Core::Id(Constants::QtcTestRunConfigurationId));
+        runConfig = new QtcTestRunConfiguration(target);
+        runConfig->initialize(Core::Id(Constants::QtcTestRunConfigurationId));
     }
 
     QTC_ASSERT(runConfig != NULL, return NULL);
@@ -294,15 +296,16 @@ ProjectExplorer::RunConfiguration* QtcRunConfigurationFactory::doCreate(ProjectE
 
     if (!pathFromId(id, Core::Id(Constants::QtcRunConfigurationId)).isNull()) {
         qDebug() << "Creating QTC run configuration for target:" << target->displayName();
-        runConfig = new QtcRunConfiguration(target, id);
+        runConfig = new QtcRunConfiguration(target);
     }
 
     if (!pathFromId(id, Core::Id(Constants::QtcTestRunConfigurationId)).isNull()) {
         qDebug() << "Creating QTC test run configuration for target:" << target->displayName();
-        runConfig = new QtcTestRunConfiguration(target, id);
+        runConfig = new QtcTestRunConfiguration(target);
     }
 
     QTC_ASSERT(runConfig != NULL, return NULL);
+    runConfig->initialize(id);
 
     qDebug() << displayNameForId(id);
     runConfig->setDisplayName(displayNameForId(id));
@@ -328,15 +331,16 @@ ProjectExplorer::RunConfiguration* QtcRunConfigurationFactory::doRestore(Project
 
     if (!pathFromId(ProjectExplorer::idFromMap(map), Core::Id(Constants::QtcRunConfigurationId)).isNull()) {
         qDebug() << "Restoring QTC run configuration for target:" << target->displayName();
-        runConfig = new QtcRunConfiguration(target, ProjectExplorer::idFromMap(map));
+        runConfig = new QtcRunConfiguration(target);
     }
 
     if (!pathFromId(ProjectExplorer::idFromMap(map), Core::Id(Constants::QtcTestRunConfigurationId)).isNull()) {
         qDebug() << "Restoring QTC test run configuration for target:" << target->displayName();
-        runConfig = new QtcTestRunConfiguration(target, ProjectExplorer::idFromMap(map));
+        runConfig = new QtcTestRunConfiguration(target);
     }
 
     QTC_ASSERT(runConfig != NULL, return NULL);
+    runConfig->initialize(ProjectExplorer::idFromMap(map));
 
     runConfig->fromMap(map);
     qDebug() << displayNameForId(ProjectExplorer::idFromMap(map));
