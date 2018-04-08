@@ -19,6 +19,8 @@
 #ifndef QTCRUNCONFIGURATION_H
 #define QTCRUNCONFIGURATION_H
 
+#include "qtcdevpluginconstants.h"
+
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/applicationlauncher.h>
 
@@ -175,6 +177,16 @@ class QtcRunConfiguration : public ProjectExplorer::RunConfiguration
     Q_OBJECT
 public:
     /*!
+     * \brief Constructor
+     *
+     * Creates a new instance with parent target.
+     * \param parent The parent target
+     * \param id The id for the run configuration
+     * \sa initialize()
+     */
+    QtcRunConfiguration(ProjectExplorer::Target *parent, Core::Id id = Core::Id(Constants::QtcRunConfigurationId));
+
+    /*!
      * \brief Creates a configuration widget
      *
      * Creates an instance of the configuration widget QtcRunConfigurationWidget
@@ -184,45 +196,23 @@ public:
     inline QWidget* createConfigurationWidget(void) override {return new QtcRunConfigurationWidget(this);}
 
     /*!
-     * \brief Run mode
-     *
-     * Return the run mode for the run configuration,
-     * which is always <tt>ProjectExplorer::ApplicationLauncher::Gui</tt>.
-     * \return The run mode, which is always <tt>ProjectExplorer::ApplicationLauncher::Gui</tt>
-     */
-    //virtual inline ProjectExplorer::ApplicationLauncher::Mode runMode(void) const {return ProjectExplorer::ApplicationLauncher::Gui;}
-    /*!
-     * \brief Path to executable
-     *
-     * Returns the path to the executable which should be started,
-     * which is the path to \c Qt Creator exexutable (the application file path).
-     * \return The path to Qt Creator executable
-     */
-    //virtual inline QString executable() const {return QCoreApplication::applicationFilePath();}
-    /*!
-     * \brief Path to the working directory
-     *
-     * Returns the path to the working directory.
-     * \return The path to the working directory.
-     */
-    //virtual QString workingDirectory(void) const;
-    /*!
      * \brief Command-line arguments list
      *
      * Returns the list of the command-line arguments to be passed to Qt Creator executable.
      * \return The command-line arguments to be passed to the Qt Creator instance
-     * \sa commandLineArguments()
      */
     virtual QStringList commandLineArgumentsList(void) const;
-    /*!
-     * \brief Command-line arguments
-     *
-     * Returns command-line arguments to be passed to Qt Creator executable.
-     * \return The command-line arguments to be passed to the Qt Creator instance
-     * \sa commandLineArgumentsList()
-     */
-    //virtual inline QString commandLineArguments(void) const {return commandLineArgumentsList().join(QLatin1Char(' '));}
 
+    /*!
+     * \brief The runnable for this runconfiguration
+     *
+     * Returns the runnable for this runconfiguration, which contains
+     *  - The executable
+     *  - The command line arguments
+     *  - The environment
+     *  - The working directory
+     * \return The runnable for this runconfiguration
+     */
     virtual ProjectExplorer::Runnable runnable(void) const override;
 
     /*!
@@ -258,7 +248,7 @@ public:
      * \return The map initialized with the contents of the instance
      * \sa fromMap()
      */
-    QVariantMap toMap(void) const override;
+    virtual QVariantMap toMap(void) const override;
     /*!
      * \brief Conversion from map
      *
@@ -267,23 +257,27 @@ public:
      * \return \c true when the initialization of the instance was sucessful, \c false otherwise
      * \sa toMap()
      */
-    bool fromMap(const QVariantMap& map) override;
+    virtual bool fromMap(const QVariantMap& map) override;
 protected:
     /*!
-     * \brief Constructor
+     * \brief Load the map
      *
-     * Creates a new instance with parent target.
-     * \param parent The parent target
-     * \sa initialize()
+     * This function initializes the run configuration
+     * from the data contained in the given map.
+     * It is used internally by fromMap().
+     * \param map he map containing the data of the instance.
+     * \sa fromMap()
      */
-    QtcRunConfiguration(ProjectExplorer::Target *parent);
+    void loadMap(const QVariantMap& map);
     /*!
-     * \brief Initialize run configuration
+     * \brief Update the run configuration
      *
-     * Initializes a new instance and set run configuration ID.
-     * \param id The ID of this instance
+     * Updates the run configuration by looking in the application
+     * build target informations in the target.
+     * \param targetName The name of the target for this run configuration.
+     * \return \c true on succes, \c false otherwise
      */
-    inline void initialize(Core::Id id) {ProjectExplorer::RunConfiguration::initialize(id);}
+    bool update(const QString& targetName);
 private:
     QString mPluginName;                /*!< The name of the plugin, i.e. the name of the project file without the *.pro extension */
     Utils::FileName mTargetName;        /*!< The name of the target, i.e. the name of the library file containing the plugin */
@@ -294,7 +288,6 @@ private:
     Utils::FileName mSettingsPath;      /*!< The path to Qt Creator settings */
     QString mThemeName;                 /*!< Qt Creator theme to be used */
 
-    friend class QtcRunConfigurationFactory;
     friend class QtcRunConfigurationWidget;
 };
 

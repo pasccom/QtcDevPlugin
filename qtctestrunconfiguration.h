@@ -85,6 +85,16 @@ class QtcTestRunConfiguration : public QtcRunConfiguration
     Q_OBJECT
 public:
     /*!
+     * \brief Constructor
+     *
+     * Creates a new instance with parent target.
+     * \param parent The parent target
+     * \param id The id for the run configuration
+     * \sa initialize()
+     */
+    QtcTestRunConfiguration(ProjectExplorer::Target *parent, Core::Id id = Core::Id(Constants::QtcTestRunConfigurationId));
+
+    /*!
      * \brief Creates a configuration widget
      *
      * Creates an instance of the configuration widget QtcRunConfigurationWidget
@@ -105,7 +115,7 @@ public:
      * \return The map initialized with the contents of the instance
      * \sa fromMap()
      */
-    QVariantMap toMap(void) const override;
+    virtual QVariantMap toMap(void) const override;
     /*!
      * \brief Conversion from map
      *
@@ -114,26 +124,8 @@ public:
      * \return \c true when the initialization of the instance was sucessful, \c false otherwise
      * \sa toMap()
      */
-    bool fromMap(const QVariantMap& map) override;
-protected:
-    /*!
-     * \brief Constructor
-     *
-     * Creates a new instance with parent target.
-     * \param parent The parent target
-     * \sa initialize()
-     */
-    QtcTestRunConfiguration(ProjectExplorer::Target *parent);
+    virtual bool fromMap(const QVariantMap& map) override;
 
-    /*!
-     * \brief Initialize run configuration
-     *
-     * Initializes a new instance and set run configuration ID.
-     * \param id The ID of this instance
-     */
-    inline void initialize(Core::Id id) {QtcRunConfiguration::initialize(id);}
-
-    friend class QtcRunConfigurationFactory;
     friend class QtcTestRunConfigurationWidget;
 };
 

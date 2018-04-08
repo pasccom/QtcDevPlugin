@@ -23,128 +23,60 @@
 #include "qtcdevpluginconstants.h"
 
 #include <projectexplorer/target.h>
-#include <projectexplorer/kit.h>
-
-#include <qtsupport/qtsupportconstants.h>
 
 #include <qmakeprojectmanager/qmakeproject.h>
-
-#include <coreplugin/featureprovider.h>
-
-#include <utils/hostosinfo.h>
+#include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 
 #include <QtDebug>
 
 namespace QtcDevPlugin {
 namespace Internal {
 
-/*!
- * \brief Project path corresponding to the given ID
- *
- * Return the path to the project file associated with
- * the given QtcRunConfiguration or QtcTestRunConfiguration ID.
- * \param id A full QtcRunConfiguration ID or a full QtcTestRunConfiguration ID
- * \param base A prefix for a QtcRunConfiguration ID or a QtcTestRunConfiguration ID
- * or an invalid ID to test for both QtcRunConfiguration and QtcTestRunConfiguration
- * \return The path to the associated project file
- */
-Utils::FileName pathFromId(Core::Id id, Core::Id base = Core::Id())
-{
-    QString path;
-    if (path.isNull() && (!base.isValid() || (base == Core::Id(Constants::QtcRunConfigurationId))))
-        path = id.suffixAfter(Constants::QtcRunConfigurationId);
-    if (path.isNull() && (!base.isValid() || (base == Core::Id(Constants::QtcTestRunConfigurationId))))
-        path = id.suffixAfter(Constants::QtcTestRunConfigurationId);
-    return Utils::FileName::fromString(path);
-}
-
-void QtcRunConfigurationFactory::updateRunConfiguration(QtcRunConfiguration* runConfig, QmakeProjectManager::QmakeProFileNode* qMakeRootNode)
-{
-    if (qMakeRootNode == NULL)
-        return;
-    QmakeProjectManager::QmakeProFile *qMakeRoot = qMakeRootNode->proFile();
-    QTC_ASSERT(qMakeRoot->validParse(), return);
-
-    QString name = pathFromId(runConfig->id()).fileName();
-    if (name.endsWith(QLatin1String(".pro")))
-        name.chop(4);
-    runConfig->mPluginName = name;
-
-    QmakeProjectManager::QmakeProFile* qMakeNode = qMakeRoot->findProFile(pathFromId(runConfig->id()));
-    QTC_ASSERT(qMakeNode != NULL, return);
-
-    if (QDir::isAbsolutePath(qMakeNode->targetInformation().destDir.toString()))
-        runConfig->mDestDir = qMakeNode->targetInformation().destDir;
-    else
-        runConfig->mDestDir = qMakeNode->targetInformation().buildDir.appendPath(qMakeNode->targetInformation().destDir.toString());
-
-    runConfig->mInstallPath = Utils::FileName::fromString(qMakeNode->installsList().targetPath);
-
-    QStringList shLibExtension = qMakeNode->variableValue(QmakeProjectManager::Variable::ShLibExtension);
-    if (!shLibExtension.isEmpty()) {
-        QTC_ASSERT(shLibExtension.size() == 1,);
-        if (Utils::HostOsInfo::isWindowsHost())
-            runConfig->mTargetName = Utils::FileName::fromString(qMakeNode->targetInformation().target + QLatin1Char('.') + shLibExtension.first());
-        else
-            runConfig->mTargetName = Utils::FileName::fromString(QLatin1String("lib") + qMakeNode->targetInformation().target + QLatin1Char('.') + shLibExtension.first());
-    } else if (Utils::HostOsInfo::isWindowsHost()) {
-            runConfig->mTargetName = Utils::FileName::fromString(qMakeNode->targetInformation().target + QLatin1String(".dll"));
-    } else {
-        runConfig->mTargetName = Utils::FileName::fromString(QLatin1String("lib") + qMakeNode->targetInformation().target + QLatin1String(".so"));
-    }
-}
-
 QtcRunConfigurationFactory::QtcRunConfigurationFactory(QObject *parent) :
     IRunConfigurationFactory(parent)
 {
+    addSupportedProjectType(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
+    setSupportedTargetDeviceTypes({ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE});
+
+    setDisplayNamePattern(QCoreApplication::translate("QtcDevPlugin::Internal::QtcRunConfiguration", "Run Qt Creator with \"%1\""));
+    registerRunConfiguration<QtcRunConfiguration>(Core::Id(Constants::QtcRunConfigurationId));
 }
 
-QList<Core::Id> QtcRunConfigurationFactory::availableCreationIds(ProjectExplorer::Target *target, CreationMode mode) const
+QtcTestRunConfigurationFactory::QtcTestRunConfigurationFactory(QObject *parent) :
+    QtcRunConfigurationFactory(parent)
+{
+    setDisplayNamePattern(QCoreApplication::translate("QtcDevPlugin::Internal::QtcTestRunConfiguration", "Run Qt Creator tests for \"%1\""));
+    registerRunConfiguration<QtcTestRunConfiguration>(Core::Id(Constants::QtcTestRunConfigurationId));
+}
+
+QList<ProjectExplorer::BuildTargetInfo> QtcRunConfigurationFactory::availableBuildTargets(ProjectExplorer::Target *target, CreationMode mode) const
 {
     Q_UNUSED(mode);
 
-    QList<Core::Id> ids;
+    QList<ProjectExplorer::BuildTargetInfo> buildTargets;
+    ProjectExplorer::BuildTargetInfoList appBuildTargets = target->applicationTargets();
 
     if (!canHandle(target) || !isReady(target->project()) || !isUseful(target->project()))
-        return ids;
+        return buildTargets;
 
-    foreach(ProjectExplorer::ProjectNode* node, qtCreatorPlugins(target->project()->rootProjectNode())) {
+    foreach (ProjectExplorer::ProjectNode* node, qtCreatorPlugins(target->project()->rootProjectNode())) {
         QmakeProjectManager::QmakeProFileNode* qMakeNode = static_cast<QmakeProjectManager::QmakeProFileNode*>(node);
-        ids << Core::Id(Constants::QtcRunConfigurationId).withSuffix(qMakeNode->filePath().toString())
-            << Core::Id(Constants::QtcTestRunConfigurationId).withSuffix(qMakeNode->filePath().toString());
+
+        ProjectExplorer::BuildTargetInfo buildTarget;
+        buildTarget.projectFilePath = qMakeNode->filePath();
+
+        QString name = buildTarget.projectFilePath.fileName();
+        if (name.endsWith(QLatin1String(".pro")))
+                name.chop(4);
+        buildTarget.targetName = name;
+
+        buildTargets << buildTarget;
+        if (!appBuildTargets.list.contains(buildTarget))
+            appBuildTargets.list.append(buildTarget);
     }
 
-    qDebug() << ids;
-
-    return ids;
-}
-
-QString QtcRunConfigurationFactory::displayNameForId(Core::Id id) const
-{
-    QString name = pathFromId(id).fileName();
-    if (name.endsWith(QLatin1String(".pro")))
-        name.chop(4);
-
-    if (!pathFromId(id, Core::Id(Constants::QtcRunConfigurationId)).isNull())
-        return QCoreApplication::translate("QtcDevPlugin::Internal::QtcRunConfiguration", "Run Qt Creator with \"%1\"").arg(name);
-    if (!pathFromId(id, Core::Id(Constants::QtcTestRunConfigurationId)).isNull())
-        return QCoreApplication::translate("QtcDevPlugin::Internal::QtcTestRunConfiguration", "Run Qt Creator tests for \"%1\"").arg(name);
-
-    QTC_ASSERT(false, return QString::null);
-}
-
-bool QtcRunConfigurationFactory::canHandle(ProjectExplorer::Target* target)
-{
-    QTC_ASSERT((target != NULL) && (target->kit() != NULL), return false);
-
-    if (qobject_cast<QmakeProjectManager::QmakeProject*>(target->project()) == NULL)
-        return false;
-
-    if (target->kit() == NULL)
-        return false;
-    if (target->kit()->hasFeatures(QSet<Core::Id>() << Core::Id(QtSupport::Constants::FEATURE_DESKTOP)))
-        return true;
-    return false;
+    target->setApplicationTargets(appBuildTargets);
+    return buildTargets;
 }
 
 bool QtcRunConfigurationFactory::isReady(ProjectExplorer::Project* project)
@@ -185,7 +117,6 @@ bool QtcRunConfigurationFactory::findQtcPluginPri(ProjectExplorer::ProjectNode* 
 
     return false;
 }
-
 
 bool QtcRunConfigurationFactory::isQtCreatorPlugin(ProjectExplorer::ProjectNode* node)
 {
@@ -228,141 +159,6 @@ QList<ProjectExplorer::ProjectNode*> QtcRunConfigurationFactory::qtCreatorPlugin
 
     return qtcPlugins;
 }
-
-bool QtcRunConfigurationFactory::canCreate(ProjectExplorer::Target *target, Core::Id id) const
-{
-    QTC_ASSERT(canHandle(target) && isUseful(target->project()), return false);
-    if (!pathFromId(id, Core::Id(Constants::QtcRunConfigurationId)).isNull() ||
-        !pathFromId(id, Core::Id(Constants::QtcTestRunConfigurationId)).isNull())
-        return true;
-
-    return false;
-}
-
-bool QtcRunConfigurationFactory::canRestore(ProjectExplorer::Target *target, const QVariantMap &map) const
-{
-    return canHandle(target) && (!pathFromId(ProjectExplorer::idFromMap(map), Core::Id(Constants::QtcRunConfigurationId)).isNull() ||
-                                 !pathFromId(ProjectExplorer::idFromMap(map), Core::Id(Constants::QtcTestRunConfigurationId)).isNull());
-}
-
-bool QtcRunConfigurationFactory::canClone(ProjectExplorer::Target *target, ProjectExplorer::RunConfiguration *product) const
-{
-    return canHandle(target) && ((qobject_cast<QtcRunConfiguration*>(product) != NULL) ||
-                                 (qobject_cast<QtcTestRunConfiguration*>(product) != NULL));
-}
-
-ProjectExplorer::RunConfiguration* QtcRunConfigurationFactory::clone(ProjectExplorer::Target *target, ProjectExplorer::RunConfiguration *product)
-{
-    QTC_ASSERT(canHandle(target), return NULL);
-
-    QtcRunConfiguration* runConfig = NULL;
-
-    if (qobject_cast<QtcRunConfiguration*>(product) != NULL) {
-        qDebug() << "Cloning QTC run configuration for target:" << target->displayName();
-        runConfig = new QtcRunConfiguration(target);
-        runConfig->initialize(Core::Id(Constants::QtcRunConfigurationId));
-    }
-
-    if (qobject_cast<QtcTestRunConfiguration*>(product) != NULL) {
-        qDebug() << "Cloning QTC test run configuration for target:" << target->displayName();
-        runConfig = new QtcTestRunConfiguration(target);
-        runConfig->initialize(Core::Id(Constants::QtcTestRunConfigurationId));
-    }
-
-    QTC_ASSERT(runConfig != NULL, return NULL);
-
-    runConfig->fromMap(product->toMap());
-    runConfig->setDisplayName(product->displayName());
-
-    QmakeProjectManager::QmakeProject* qMakeProject = qobject_cast<QmakeProjectManager::QmakeProject*>(target->project());
-    QMetaObject::Connection updateConnection = connect(qMakeProject, &QmakeProjectManager::QmakeProject::proFilesEvaluated,
-            this, [runConfig, qMakeProject] () {
-        updateRunConfiguration(runConfig, qMakeProject->rootProjectNode());
-    });
-    connect(target, &ProjectExplorer::Target::removedRunConfiguration,
-            this, [updateConnection] (ProjectExplorer::RunConfiguration* rc) {
-        qDebug() << "QTC run configuration removed: " << rc;
-        disconnect(updateConnection);
-    });
-    if (isReady(target->project()))
-        updateRunConfiguration(runConfig, qMakeProject->rootProjectNode());
-
-    return runConfig;
-}
-
-ProjectExplorer::RunConfiguration* QtcRunConfigurationFactory::doCreate(ProjectExplorer::Target* target, Core::Id id)
-{
-    QtcRunConfiguration* runConfig = NULL;
-
-    if (!pathFromId(id, Core::Id(Constants::QtcRunConfigurationId)).isNull()) {
-        qDebug() << "Creating QTC run configuration for target:" << target->displayName();
-        runConfig = new QtcRunConfiguration(target);
-    }
-
-    if (!pathFromId(id, Core::Id(Constants::QtcTestRunConfigurationId)).isNull()) {
-        qDebug() << "Creating QTC test run configuration for target:" << target->displayName();
-        runConfig = new QtcTestRunConfiguration(target);
-    }
-
-    QTC_ASSERT(runConfig != NULL, return NULL);
-    runConfig->initialize(id);
-
-    qDebug() << displayNameForId(id);
-    runConfig->setDisplayName(displayNameForId(id));
-
-    QmakeProjectManager::QmakeProject* qMakeProject = qobject_cast<QmakeProjectManager::QmakeProject*>(target->project());
-    QMetaObject::Connection updateConnection = connect(qMakeProject, &QmakeProjectManager::QmakeProject::proFilesEvaluated,
-            this, [runConfig, qMakeProject] () {
-        updateRunConfiguration(runConfig, qMakeProject->rootProjectNode());
-    });
-    connect(target, &ProjectExplorer::Target::removedRunConfiguration,
-            this, [updateConnection] (ProjectExplorer::RunConfiguration* rc) {
-        qDebug() << "QTC run configuration removed: " << rc;
-        disconnect(updateConnection);
-    });
-    updateRunConfiguration(runConfig, qMakeProject->rootProjectNode());
-
-    return runConfig;
-}
-
-ProjectExplorer::RunConfiguration* QtcRunConfigurationFactory::doRestore(ProjectExplorer::Target* target, const QVariantMap& map)
-{
-    QtcRunConfiguration* runConfig = NULL;
-
-    if (!pathFromId(ProjectExplorer::idFromMap(map), Core::Id(Constants::QtcRunConfigurationId)).isNull()) {
-        qDebug() << "Restoring QTC run configuration for target:" << target->displayName();
-        runConfig = new QtcRunConfiguration(target);
-    }
-
-    if (!pathFromId(ProjectExplorer::idFromMap(map), Core::Id(Constants::QtcTestRunConfigurationId)).isNull()) {
-        qDebug() << "Restoring QTC test run configuration for target:" << target->displayName();
-        runConfig = new QtcTestRunConfiguration(target);
-    }
-
-    QTC_ASSERT(runConfig != NULL, return NULL);
-    runConfig->initialize(ProjectExplorer::idFromMap(map));
-
-    runConfig->fromMap(map);
-    qDebug() << displayNameForId(ProjectExplorer::idFromMap(map));
-    runConfig->setDisplayName(displayNameForId(ProjectExplorer::idFromMap(map)));
-
-    QmakeProjectManager::QmakeProject* qMakeProject = qobject_cast<QmakeProjectManager::QmakeProject*>(target->project());
-    QMetaObject::Connection updateConnection = connect(qMakeProject, &QmakeProjectManager::QmakeProject::proFilesEvaluated,
-            this, [runConfig, qMakeProject] () {
-        updateRunConfiguration(runConfig, qMakeProject->rootProjectNode());
-    });
-    connect(target, &ProjectExplorer::Target::removedRunConfiguration,
-            this, [updateConnection] (ProjectExplorer::RunConfiguration* rc) {
-        qDebug() << "QTC run configuration removed: " << rc;
-        disconnect(updateConnection);
-    });
-    if (isReady(target->project()))
-        updateRunConfiguration(runConfig, qMakeProject->rootProjectNode());
-
-    return runConfig;
-}
-
-
 
 } // Internal
 } // QTestLibPlugin

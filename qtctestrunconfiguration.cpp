@@ -37,8 +37,8 @@
 namespace QtcDevPlugin {
 namespace Internal {
 
-QtcTestRunConfiguration::QtcTestRunConfiguration(ProjectExplorer::Target *parent):
-    QtcRunConfiguration(parent)
+QtcTestRunConfiguration::QtcTestRunConfiguration(ProjectExplorer::Target *parent, Core::Id id):
+    QtcRunConfiguration(parent, id)
 {
     setDefaultDisplayName(tr("Run Qt Creator tests"));
 }
@@ -50,7 +50,16 @@ QVariantMap QtcTestRunConfiguration::toMap(void) const
 
 bool QtcTestRunConfiguration::fromMap(const QVariantMap& map)
 {
-    return QtcRunConfiguration::fromMap(map);
+    if (!ProjectExplorer::RunConfiguration::fromMap(map))
+        return false;
+    loadMap(map);
+
+    Core::Id id(map.value(ProjectExplorer::ProjectConfiguration::settingsIdKey(), Constants::QtcTestRunConfigurationId).toString().toLocal8Bit().constData());
+    QString name = id.suffixAfter(Constants::QtcTestRunConfigurationId);
+    if (!name.isEmpty())
+        setDisplayName(tr("Run Qt Creator tests for \"%1\"").arg(name));
+
+    return update(name);
 }
 
 QStringList QtcTestRunConfiguration::commandLineArgumentsList(void) const

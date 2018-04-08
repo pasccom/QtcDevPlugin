@@ -81,8 +81,8 @@ QStringList availableThemes(void)
     return themes;
 }
 
-QtcRunConfiguration::QtcRunConfiguration(ProjectExplorer::Target *parent):
-    ProjectExplorer::RunConfiguration(parent)
+QtcRunConfiguration::QtcRunConfiguration(ProjectExplorer::Target *parent, Core::Id id):
+    ProjectExplorer::RunConfiguration(parent, id)
 {
     mWorkingDirectory = Utils::FileName::fromString(QLatin1String("%{buildDir}"));
     mThemeName = Utils::creatorTheme()->displayName();
@@ -96,6 +96,57 @@ QtcRunConfiguration::QtcRunConfiguration(ProjectExplorer::Target *parent):
      * 2.Alternatively, ValgrindPlugin, should ensure the extra aspects are added to
      * sensible RunConfiguration and RunConfiguration::addExtraAspects() should be removed. */
     addExtraAspect(new ProjectExplorer::LocalEnvironmentAspect(this, ProjectExplorer::LocalEnvironmentAspect::BaseEnvironmentModifier()));
+}
+
+void QtcRunConfiguration::loadMap(const QVariantMap& map)
+{
+    mWorkingDirectory = Utils::FileName::fromString(map.value(Constants::WorkingDirectoryKey, QLatin1String("%{buildDir}")).toString());
+    mSettingsPath = Utils::FileName::fromString(map.value(Constants::SettingsPathKey, QString()).toString());
+
+    QStringList themes = availableThemes();
+    QString theme = map.value(Constants::ThemeKey, QString()).toString();
+    if (themes.contains(theme))
+        mThemeName = theme;
+}
+
+bool QtcRunConfiguration::update(const QString& targetName)
+{
+    ProjectExplorer::BuildTargetInfo buildTarget = Utils::findOrDefault(target()->applicationTargets().list, [&targetName](const ProjectExplorer::BuildTargetInfo& ti) {
+        return ti.targetName == targetName;
+    });
+
+    mPluginName = targetName;
+
+    QmakeProjectManager::QmakeProject* qMakeProject = qobject_cast<QmakeProjectManager::QmakeProject*>(target()->project());
+    QTC_ASSERT(qMakeProject != nullptr, return false);
+
+    if (!qMakeProject->rootProFile()->validParse())
+        return false;
+
+    QmakeProjectManager::QmakeProFile* qMakeProFile = qMakeProject->rootProFile()->findProFile(buildTarget.projectFilePath);
+    QTC_ASSERT(qMakeProFile != nullptr, return false);
+
+    if (QDir::isAbsolutePath(qMakeProFile->targetInformation().destDir.toString()))
+        mDestDir = qMakeProFile->targetInformation().destDir;
+    else
+        mDestDir = qMakeProFile->targetInformation().buildDir.appendPath(qMakeProFile->targetInformation().destDir.toString());
+
+    mInstallPath = Utils::FileName::fromString(qMakeProFile->installsList().targetPath);
+
+    QStringList shLibExtension = qMakeProFile->variableValue(QmakeProjectManager::Variable::ShLibExtension);
+    if (!shLibExtension.isEmpty()) {
+        QTC_ASSERT(shLibExtension.size() == 1,);
+        if (Utils::HostOsInfo::isWindowsHost())
+            mTargetName = Utils::FileName::fromString(qMakeProFile->targetInformation().target + QLatin1Char('.') + shLibExtension.first());
+        else
+            mTargetName = Utils::FileName::fromString(QLatin1String("lib") + qMakeProFile->targetInformation().target + QLatin1Char('.') + shLibExtension.first());
+    } else if (Utils::HostOsInfo::isWindowsHost()) {
+            mTargetName = Utils::FileName::fromString(qMakeProFile->targetInformation().target + QLatin1String(".dll"));
+    } else {
+        mTargetName = Utils::FileName::fromString(QLatin1String("lib") + qMakeProFile->targetInformation().target + QLatin1String(".so"));
+    }
+
+    return true;
 }
 
 ProjectExplorer::Runnable QtcRunConfiguration::runnable(void) const
@@ -127,23 +178,17 @@ QVariantMap QtcRunConfiguration::toMap(void) const
 
 bool QtcRunConfiguration::fromMap(const QVariantMap& map)
 {
-    mWorkingDirectory = Utils::FileName::fromString(map.value(Constants::WorkingDirectoryKey, QLatin1String("%{buildDir}")).toString());
-    mSettingsPath = Utils::FileName::fromString(map.value(Constants::SettingsPathKey, QString()).toString());
+    if (!ProjectExplorer::RunConfiguration::fromMap(map))
+        return false;
+    loadMap(map);
 
-    QStringList themes = availableThemes();
-    QString theme = map.value(Constants::ThemeKey, QString()).toString();
-    if (themes.contains(theme))
-        mThemeName = theme;
+    Core::Id id(map.value(ProjectExplorer::ProjectConfiguration::settingsIdKey(), Constants::QtcRunConfigurationId).toString().toLocal8Bit().constData());
+    QString name = id.suffixAfter(Constants::QtcRunConfigurationId);
+    if (!name.isEmpty())
+        setDisplayName(tr("Run Qt Creator with \"%1\"").arg(name));
 
-    return ProjectExplorer::RunConfiguration::fromMap(map);
+    return update(name);
 }
-
-/*QString QtcRunConfiguration::workingDirectory(void) const
-{
-    if (macroExpander() != NULL)
-        return macroExpander()->expand(mWorkingDirectory.toString());
-    return mWorkingDirectory.toString();
-}*/
 
 QStringList QtcRunConfiguration::commandLineArgumentsList(void) const
 {

@@ -77,6 +77,7 @@ bool QtcDeveloperPlugin::initialize(const QStringList &arguments, QString *error
     }
 
     addAutoReleasedObject(new QtcRunConfigurationFactory(this));
+    addAutoReleasedObject(new QtcTestRunConfigurationFactory(this));
 
     ProjectExplorer::RunControl::registerWorker<QtcPluginRunner>(ProjectExplorer::Constants::NORMAL_RUN_MODE, [] (ProjectExplorer::RunConfiguration* runConfig) {
         qDebug() << "Checking" << runConfig->id() << runConfig->id().suffixAfter(Constants::QtcRunConfigurationId).isNull() << runConfig->id().suffixAfter(Constants::QtcTestRunConfigurationId).isNull();
