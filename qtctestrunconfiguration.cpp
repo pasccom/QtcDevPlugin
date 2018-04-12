@@ -52,14 +52,14 @@ bool QtcTestRunConfiguration::fromMap(const QVariantMap& map)
 {
     if (!ProjectExplorer::RunConfiguration::fromMap(map))
         return false;
-    loadMap(map);
 
     Core::Id id(map.value(ProjectExplorer::ProjectConfiguration::settingsIdKey(), Constants::QtcTestRunConfigurationId).toString().toLocal8Bit().constData());
-    QString name = id.suffixAfter(Constants::QtcTestRunConfigurationId);
-    if (!name.isEmpty())
-        setDisplayName(tr("Run Qt Creator tests for \"%1\"").arg(name));
+    QString projectPath = id.suffixAfter(Constants::QtcTestRunConfigurationId);
+    loadMap(projectPath, map);
+    if (!pluginName().isEmpty())
+        setDisplayName(tr("Run Qt Creator tests for \"%1\"").arg(pluginName()));
 
-    return update(name);
+    return connectUpdate();
 }
 
 QStringList QtcTestRunConfiguration::commandLineArgumentsList(void) const

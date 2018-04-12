@@ -17,7 +17,7 @@
  */
 
 #include "qtcrunconfiguration.h"
-
+#include "qtcrunconfigurationfactory.h"
 #include "qtcdevpluginconstants.h"
 #include "Widgets/filetypevalidatinglineedit.h"
 
@@ -98,8 +98,9 @@ QtcRunConfiguration::QtcRunConfiguration(ProjectExplorer::Target *parent, Core::
     addExtraAspect(new ProjectExplorer::LocalEnvironmentAspect(this, ProjectExplorer::LocalEnvironmentAspect::BaseEnvironmentModifier()));
 }
 
-void QtcRunConfiguration::loadMap(const QVariantMap& map)
+void QtcRunConfiguration::loadMap(const QString& projectPath, const QVariantMap& map)
 {
+    mProjectPath = Utils::FileName::fromString(projectPath);
     mWorkingDirectory = Utils::FileName::fromString(map.value(Constants::WorkingDirectoryKey, QLatin1String("%{buildDir}")).toString());
     mSettingsPath = Utils::FileName::fromString(map.value(Constants::SettingsPathKey, QString()).toString());
 
@@ -109,13 +110,23 @@ void QtcRunConfiguration::loadMap(const QVariantMap& map)
         mThemeName = theme;
 }
 
-bool QtcRunConfiguration::update(const QString& targetName)
+bool QtcRunConfiguration::connectUpdate()
 {
-    ProjectExplorer::BuildTargetInfo buildTarget = Utils::findOrDefault(target()->applicationTargets().list, [&targetName](const ProjectExplorer::BuildTargetInfo& ti) {
-        return ti.targetName == targetName;
+    QMetaObject::Connection updateConnection = connect(target()->project(), &ProjectExplorer::Project::parsingFinished, this, &QtcRunConfiguration::update);
+    connect(target(), &ProjectExplorer::Target::removedRunConfiguration,
+            this, [updateConnection] (ProjectExplorer::RunConfiguration* rc) {
+        qDebug() << "QTC run configuration removed: " << rc;
+        disconnect(updateConnection);
     });
 
-    mPluginName = targetName;
+    if (QtcRunConfigurationFactory::isReady(target()->project()))
+        return update();
+    return true;
+}
+
+bool QtcRunConfiguration::update()
+{
+    qDebug() << "Updating run configuration for:" << pluginName() << target()->displayName();
 
     QmakeProjectManager::QmakeProject* qMakeProject = qobject_cast<QmakeProjectManager::QmakeProject*>(target()->project());
     QTC_ASSERT(qMakeProject != nullptr, return false);
@@ -123,7 +134,7 @@ bool QtcRunConfiguration::update(const QString& targetName)
     if (!qMakeProject->rootProFile()->validParse())
         return false;
 
-    QmakeProjectManager::QmakeProFile* qMakeProFile = qMakeProject->rootProFile()->findProFile(buildTarget.projectFilePath);
+    QmakeProjectManager::QmakeProFile* qMakeProFile = qMakeProject->rootProFile()->findProFile(mProjectPath);
     QTC_ASSERT(qMakeProFile != nullptr, return false);
 
     if (QDir::isAbsolutePath(qMakeProFile->targetInformation().destDir.toString()))
@@ -147,6 +158,14 @@ bool QtcRunConfiguration::update(const QString& targetName)
     }
 
     return true;
+}
+
+QString QtcRunConfiguration::pluginName(void) const
+{
+    QString name = mProjectPath.fileName();
+    if (name.endsWith(QLatin1String(".pro")))
+            name.chop(4);
+    return name;
 }
 
 ProjectExplorer::Runnable QtcRunConfiguration::runnable(void) const
@@ -180,14 +199,14 @@ bool QtcRunConfiguration::fromMap(const QVariantMap& map)
 {
     if (!ProjectExplorer::RunConfiguration::fromMap(map))
         return false;
-    loadMap(map);
 
     Core::Id id(map.value(ProjectExplorer::ProjectConfiguration::settingsIdKey(), Constants::QtcRunConfigurationId).toString().toLocal8Bit().constData());
-    QString name = id.suffixAfter(Constants::QtcRunConfigurationId);
-    if (!name.isEmpty())
-        setDisplayName(tr("Run Qt Creator with \"%1\"").arg(name));
+    QString projectPath = id.suffixAfter(Constants::QtcRunConfigurationId);
+    loadMap(projectPath, map);
+    if (!pluginName().isEmpty())
+        setDisplayName(tr("Run Qt Creator with \"%1\"").arg(pluginName()));
 
-    return update(name);
+    return connectUpdate();
 }
 
 QStringList QtcRunConfiguration::commandLineArgumentsList(void) const

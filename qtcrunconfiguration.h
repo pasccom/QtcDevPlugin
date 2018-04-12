@@ -196,6 +196,16 @@ public:
     inline QWidget* createConfigurationWidget(void) override {return new QtcRunConfigurationWidget(this);}
 
     /*!
+     * \brief Extra part of the ID.
+     *
+     * This function returns the extra part of this run configuration ID.
+     * This is used to differentiate the multiple run configurations
+     * of the same type, but for different (sub-)projects
+     * \return The extra part of this run configuration ID.
+     */
+    virtual inline QString extraId() const override {return mProjectPath.toString();}
+
+    /*!
      * \brief Command-line arguments list
      *
      * Returns the list of the command-line arguments to be passed to Qt Creator executable.
@@ -239,7 +249,7 @@ public:
      * \return  The name of the plugin.
      * \sa installPath(), targetName()
      */
-    virtual QString pluginName(void) const {return mPluginName;}
+    virtual QString pluginName(void) const;
 
     /*!
      * \brief Conversion to map
@@ -262,24 +272,36 @@ protected:
     /*!
      * \brief Load the map
      *
-     * This function initializes the run configuration
-     * from the data contained in the given map.
-     * It is used internally by fromMap().
-     * \param map he map containing the data of the instance.
+     * This function initializes the run configuration from the given project path
+     * and the data contained in the given map. It is used internally by fromMap().
+     * \param projectPath The path to the project file for this run configuration.
+     * \param map The map containing the data of the instance.
      * \sa fromMap()
      */
-    void loadMap(const QVariantMap& map);
+    void loadMap(const QString& projectPath, const QVariantMap& map);
     /*!
-     * \brief Update the run configuration
+     * \brief Keep the run configuration up to date
      *
-     * Updates the run configuration by looking in the application
-     * build target informations in the target.
-     * \param targetName The name of the target for this run configuration.
+     * Ensures the run configuration is updated
+     * every time the parsing of the project finishes.
+     * Updates immediately the run configuration
+     * if the project has already been parsed.
      * \return \c true on succes, \c false otherwise
+     * \sa update()
      */
-    bool update(const QString& targetName);
+    bool connectUpdate();
+private slots:
+    /*!
+     * \brief Updates the run configuration.
+     *
+     * Updates the run configuration internal variables
+     * to reflect the state of the project.
+     * \return \c true on succes, \c false otherwise
+     * \sa connectUpdate()
+     */
+    bool update();
 private:
-    QString mPluginName;                /*!< The name of the plugin, i.e. the name of the project file without the *.pro extension */
+    Utils::FileName mProjectPath;       /*!< The path to the plugin project */
     Utils::FileName mTargetName;        /*!< The name of the target, i.e. the name of the library file containing the plugin */
     Utils::FileName mDestDir;           /*!< The path where the plugin is output after build. \sa mInstallPath */
     Utils::FileName mInstallPath;       /*!< The path where the plugin is installed. \sa mDestDir */

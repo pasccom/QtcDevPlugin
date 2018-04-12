@@ -54,8 +54,6 @@ QList<ProjectExplorer::BuildTargetInfo> QtcRunConfigurationFactory::availableBui
     Q_UNUSED(mode);
 
     QList<ProjectExplorer::BuildTargetInfo> buildTargets;
-    ProjectExplorer::BuildTargetInfoList appBuildTargets = target->applicationTargets();
-
     if (!canHandle(target) || !isReady(target->project()) || !isUseful(target->project()))
         return buildTargets;
 
@@ -63,19 +61,10 @@ QList<ProjectExplorer::BuildTargetInfo> QtcRunConfigurationFactory::availableBui
         QmakeProjectManager::QmakeProFileNode* qMakeNode = static_cast<QmakeProjectManager::QmakeProFileNode*>(node);
 
         ProjectExplorer::BuildTargetInfo buildTarget;
-        buildTarget.projectFilePath = qMakeNode->filePath();
-
-        QString name = buildTarget.projectFilePath.fileName();
-        if (name.endsWith(QLatin1String(".pro")))
-                name.chop(4);
-        buildTarget.targetName = name;
-
+        buildTarget.targetName = qMakeNode->filePath().toString();
         buildTargets << buildTarget;
-        if (!appBuildTargets.list.contains(buildTarget))
-            appBuildTargets.list.append(buildTarget);
     }
 
-    target->setApplicationTargets(appBuildTargets);
     return buildTargets;
 }
 
