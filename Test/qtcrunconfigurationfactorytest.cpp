@@ -130,12 +130,11 @@ void QtcRunConfigurationFactoryTest::testOpenProject(void)
             QVERIFY(!qtcRunConfig->id().suffixAfter(Core::Id(Constants::QtcRunConfigurationId)).isNull());
 
             bool ok = false;
-            QString pluginProFilePath = qtcRunConfig->id().suffixAfter(Core::Id(Constants::QtcRunConfigurationId));
             foreach (QString qtcPlugin, qtcPlugins) {
                 QDir expectedProFilePath(QLatin1String(TESTS_DIR));
                 expectedProFilePath.cd(qtcPlugin);
 
-                if (QString::compare(pluginProFilePath, expectedProFilePath.absoluteFilePath(qtcPlugin + QLatin1String(".pro")), Qt::CaseSensitive) == 0) {
+                if (QString::compare(qtcRunConfig->extraId(), expectedProFilePath.absoluteFilePath(qtcPlugin + QLatin1String(".pro")), Qt::CaseSensitive) == 0) {
                     ok = true;
                     qtcPluginsFound << qtcPlugin;
                     break;
@@ -172,12 +171,11 @@ void QtcRunConfigurationFactoryTest::testOpenProject(void)
             QVERIFY(!qtcTestRunConfig->id().suffixAfter(Core::Id(Constants::QtcTestRunConfigurationId)).isNull());
 
             bool ok = false;
-            QString pluginProFilePath = qtcTestRunConfig->id().suffixAfter(Core::Id(Constants::QtcTestRunConfigurationId));
             foreach (QString qtcPlugin, qtcPlugins) {
                 QDir expectedProFilePath(QLatin1String(TESTS_DIR));
                 expectedProFilePath.cd(qtcPlugin);
 
-                if (QString::compare(pluginProFilePath, expectedProFilePath.absoluteFilePath(qtcPlugin + QLatin1String(".pro")), Qt::CaseSensitive) == 0) {
+                if (QString::compare(qtcTestRunConfig->extraId(), expectedProFilePath.absoluteFilePath(qtcPlugin + QLatin1String(".pro")), Qt::CaseSensitive) == 0) {
                     ok = true;
                     qtcTestPluginsFound << qtcPlugin;
                     break;

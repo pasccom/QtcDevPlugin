@@ -25,14 +25,20 @@
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/buildinfo.h>
 
-#include <qmakeprojectmanager/qmakeproject.h>
-
 #include <QSignalSpy>
 
 #define QVERIFY(_cond_)                                                       \
     do {                                                                      \
         if (!(_cond_)) {                                                      \
             qDebug() << #_cond_ << "evaluated to false.";                     \
+            return false;                                                     \
+        }                                                                     \
+    } while(false);                                                           \
+
+#define QVERIFY2(_cond_, _msg_)                                               \
+    do {                                                                      \
+        if (!(_cond_)) {                                                      \
+            qDebug() << #_cond_ << "evaluated to false:" << _msg_;            \
             return false;                                                     \
         }                                                                     \
     } while(false);                                                           \
@@ -98,11 +104,9 @@ bool openQMakeProject(const QString& projectFilePath, ProjectExplorer::Project**
     }
     QVERIFY(proj->activeTarget()->activeBuildConfiguration() != NULL);
 
-    // Wait for project evaluated
-    QmakeProjectManager::QmakeProject* qMakeProject = qobject_cast<QmakeProjectManager::QmakeProject*>(proj);
-    QVERIFY(qMakeProject != NULL);
-    QSignalSpy evaluateSpy(qMakeProject, SIGNAL(proFilesEvaluated()));
-    evaluateSpy.wait();
+    // Wait for project parsed
+    QSignalSpy parsedSpy(proj, SIGNAL(parsingFinished(bool)));
+    QVERIFY2(parsedSpy.wait(), "Project parsing takes too long");
 
     // Update targets:
     foreach (ProjectExplorer::Target* target, proj->targets())
