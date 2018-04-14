@@ -6,6 +6,7 @@ debug/
 release/
 doc/
 gcov/
+tests/plugins/*.so
 
 # The output and makefiles :
 Makefile
@@ -32,6 +33,7 @@ qrc_*.cpp
 # Discarded files :
 *~
 *.old
+*.del
 
 # Temporary folder:
 .tmp/

@@ -61,6 +61,10 @@ include($$QTCREATOR_SOURCES/src/qtcreatorplugin.pri)
 # Added stuff to bypass IDE_BUILD_TREE
 DESTDIR = ./bin
 
+INSTALLS =
+target.path = ../plugins
+INSTALLS += target
+
 unix {
     LIBS+= -L$$IDE_BUILD_TREE
     LIBS+= -L$$IDE_BUILD_TREE/plugins

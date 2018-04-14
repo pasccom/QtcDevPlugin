@@ -51,10 +51,12 @@ TRANSLATIONS += \
     DEFINES += TESTS_DIR=\\\"$$PWD/tests\\\"
     SOURCES += \
         Test/testhelper.cpp \
-        Test/qtcrunconfigurationfactorytest.cpp
+        Test/qtcrunconfigurationfactorytest.cpp \
+        Test/qtcpluginrunnertest.cpp
     HEADERS += \
         Test/testhelper.h \
-        Test/qtcrunconfigurationfactorytest.h
+        Test/qtcrunconfigurationfactorytest.h \
+        Test/qtcpluginrunnertest.h
 }
 
 OTHER_FILES += README.md \
