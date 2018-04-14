@@ -169,7 +169,7 @@ private slots:
      * It checks if the associated run configuration is a QtcRunConfiguration
      * of a QtcTestRunConfiguration. If this is the case, it ensures that old
      * versions of the plugin are removed from Qt Creator plugin path
-     * before startin Qt Creator with the right command line arguments.
+     * before starting Qt Creator with the right command line arguments.
      * \param runControl The run control which is starting.
      * \sa handleRunControlStopped()
      */

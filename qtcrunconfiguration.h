@@ -221,6 +221,7 @@ public:
      *  - The command line arguments
      *  - The environment
      *  - The working directory
+     *
      * \return The runnable for this runconfiguration
      */
     virtual ProjectExplorer::Runnable runnable(void) const override;

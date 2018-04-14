@@ -69,12 +69,12 @@ public:
      *
      * \note A more extensive documentation may be available in Qt Creator Developper documentation
      *
-     * \param target The target of the future run configuration.
+     * \param parent The target of the future run configuration.
      * \param mode The creation mode.
      * \return A list of the build targets this factory can create.
      * \sa canCreate()
      */
-    QList<ProjectExplorer::BuildTargetInfo> availableBuildTargets(ProjectExplorer::Target *parent, CreationMode mode = UserCreate) const override;
+    virtual QList<ProjectExplorer::BuildTargetInfo> availableBuildTargets(ProjectExplorer::Target *parent, CreationMode mode = UserCreate) const override;
 
     /*!
      * \brief Whether the project is ready for examination
