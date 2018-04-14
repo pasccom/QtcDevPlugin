@@ -40,11 +40,6 @@
 namespace QtcDevPlugin {
 namespace Test {
 
-QtcRunConfigurationFactoryTest::QtcRunConfigurationFactoryTest(void):
-    QObject(NULL), mProject(NULL)
-{
-}
-
 void QtcRunConfigurationFactoryTest::initTestCase(void)
 {
     QStringList projectPathes;
