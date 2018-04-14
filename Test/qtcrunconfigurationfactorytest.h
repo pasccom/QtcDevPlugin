@@ -35,7 +35,7 @@ public:
     inline QtcRunConfigurationFactoryTest(QObject* parent = nullptr) :
         QObject(parent) {mProject = nullptr;}
 private Q_SLOTS:
-    void init(void);
+    inline void init(void) {mProject = nullptr;}
     void initTestCase(void);
     inline void testOpenProjectCreate_data(void) {testOpenProject_data();}
     inline void testOpenProjectCreate(void) {testOpenProject();}

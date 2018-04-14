@@ -58,14 +58,9 @@ void QtcRunConfigurationFactoryTest::initTestCase(void)
         QVERIFY(removeProjectUserFiles(projectPath));
 }
 
-void QtcRunConfigurationFactoryTest::init(void)
-{
-    mProject = NULL;
-}
-
 void QtcRunConfigurationFactoryTest::cleanup(void)
 {
-    if (mProject != NULL)
+    if (mProject != nullptr)
         closeProject(mProject);
 }
 
@@ -114,9 +109,9 @@ void QtcRunConfigurationFactoryTest::testOpenProject(void)
             Internal::QtcRunConfiguration* qtcRunConfig = qobject_cast<Internal::QtcRunConfiguration*>(runConfig);
             Internal::QtcTestRunConfiguration* qtcTestRunConfig = qobject_cast<Internal::QtcTestRunConfiguration*>(runConfig);
 
-            if (qtcTestRunConfig != NULL)
+            if (qtcTestRunConfig != nullptr)
                 qtcTestRunConfigs << qtcTestRunConfig;
-            else if (qtcRunConfig != NULL)
+            else if (qtcRunConfig != nullptr)
                 qtcRunConfigs << qtcRunConfig;
         }
 
@@ -140,24 +135,24 @@ void QtcRunConfigurationFactoryTest::testOpenProject(void)
             QCOMPARE(qtcRunConfig->displayName(), QString(QLatin1String("Run Qt Creator with \"%1\"")).arg(qtcPluginsFound.last()));
             QVERIFY(qtcRunConfig->runnable().is<ProjectExplorer::StandardRunnable>());
 
+            QStringList args = qtcRunConfig->commandLineArgumentsList();
             ProjectExplorer::StandardRunnable qtcRunnable = qtcRunConfig->runnable().as<ProjectExplorer::StandardRunnable>();
             QCOMPARE(qtcRunnable.runMode, ProjectExplorer::ApplicationLauncher::Gui);
             QCOMPARE(qtcRunnable.executable, QCoreApplication::applicationFilePath());
             QString workingDirectory = target->activeBuildConfiguration()->buildDirectory().toString();
             workingDirectory.replace(QLatin1Char('/'), QDir::separator());
             QCOMPARE(qtcRunnable.workingDirectory, workingDirectory);
-            QCOMPARE(qtcRunnable.commandLineArguments, qtcRunConfig->commandLineArgumentsList().join(QLatin1Char(' ')));
+            QCOMPARE(qtcRunnable.commandLineArguments, args.join(QLatin1Char(' ')));
 
-            int themeIndex = qtcRunConfig->commandLineArgumentsList().indexOf(QLatin1String("-theme"));
+            int themeIndex = args.indexOf(QLatin1String("-theme"));
             QVERIFY(themeIndex != -1);
-            QVERIFY(themeIndex + 1 < qtcRunConfig->commandLineArgumentsList().size());
-            QCOMPARE(qtcRunConfig->commandLineArgumentsList().at(themeIndex + 1), Utils::creatorTheme()->displayName());
+            QVERIFY(themeIndex + 1 < args.size());
+            QCOMPARE(args.at(themeIndex + 1), Utils::creatorTheme()->displayName());
 
-            int pluginIndex = qtcRunConfig->commandLineArgumentsList().indexOf(QLatin1String("-pluginpath"));
+            int pluginIndex = args.indexOf(QLatin1String("-pluginpath"));
             QVERIFY(pluginIndex != -1);
-            QVERIFY(pluginIndex + 1 < qtcRunConfig->commandLineArgumentsList().size());
-            qDebug() << qtcRunConfig->commandLineArgumentsList().at(pluginIndex + 1);
-            QCOMPARE(qtcRunConfig->commandLineArgumentsList().at(pluginIndex + 1), QString(QLatin1String(TESTS_DIR "/%1/./bin")).arg(qtcPluginsFound.last()));
+            QVERIFY(pluginIndex + 1 < args.size());
+            QCOMPARE(args.at(pluginIndex + 1), QString(QLatin1String(TESTS_DIR "/%1/./bin")).arg(qtcPluginsFound.last()));
         }
         QCOMPARE(qtcPlugins.size(), qtcPluginsFound.size());
 
@@ -181,25 +176,34 @@ void QtcRunConfigurationFactoryTest::testOpenProject(void)
             QCOMPARE(qtcTestRunConfig->displayName(), QString(QLatin1String("Run Qt Creator tests for \"%1\"")).arg(qtcTestPluginsFound.last()));
             QVERIFY(qtcTestRunConfig->runnable().is<ProjectExplorer::StandardRunnable>());
 
+            QStringList args = qtcTestRunConfig->commandLineArgumentsList();
             ProjectExplorer::StandardRunnable qtcTestRunnable = qtcTestRunConfig->runnable().as<ProjectExplorer::StandardRunnable>();
             QCOMPARE(qtcTestRunnable.runMode, ProjectExplorer::ApplicationLauncher::Gui);
             QCOMPARE(qtcTestRunnable.executable, QCoreApplication::applicationFilePath());
             QString workingDirectory = target->activeBuildConfiguration()->buildDirectory().toString();
             workingDirectory.replace(QLatin1Char('/'), QDir::separator());
             QCOMPARE(qtcTestRunnable.workingDirectory, workingDirectory);
-            QCOMPARE(qtcTestRunnable.commandLineArguments, qtcTestRunConfig->commandLineArgumentsList().join(QLatin1Char(' ')));
+            QCOMPARE(qtcTestRunnable.commandLineArguments, args.join(QLatin1Char(' ')));
 
-            int themeIndex = qtcTestRunConfig->commandLineArgumentsList().indexOf(QLatin1String("-theme"));
+            int testIndex = args.indexOf(QLatin1String("-test"));
+            QVERIFY(testIndex != -1);
+            QVERIFY(testIndex + 1 < args.size());
+            QCOMPARE(args.at(testIndex + 1), qtcTestPluginsFound.last());
+
+            int loadIndex = args.indexOf(QLatin1String("-load"));
+            QVERIFY(loadIndex != -1);
+            QVERIFY(loadIndex + 1 < args.size());
+            QCOMPARE(args.at(loadIndex + 1), QLatin1String("all"));
+
+            int themeIndex = args.indexOf(QLatin1String("-theme"));
             QVERIFY(themeIndex != -1);
-            QVERIFY(themeIndex + 1 < qtcTestRunConfig->commandLineArgumentsList().size());
-            QCOMPARE(qtcTestRunConfig->commandLineArgumentsList().at(themeIndex + 1), Utils::creatorTheme()->displayName());
+            QVERIFY(themeIndex + 1 < args.size());
+            QCOMPARE(args.at(themeIndex + 1), Utils::creatorTheme()->displayName());
 
-            int pluginIndex = qtcTestRunConfig->commandLineArgumentsList().indexOf(QLatin1String("-pluginpath"));
+            int pluginIndex = args.indexOf(QLatin1String("-pluginpath"));
             QVERIFY(pluginIndex != -1);
-            QVERIFY(pluginIndex + 1 < qtcTestRunConfig->commandLineArgumentsList().size());
-            qDebug() << qtcTestRunConfig->commandLineArgumentsList().at(pluginIndex + 1);
-            QCOMPARE(qtcTestRunConfig->commandLineArgumentsList().at(pluginIndex + 1), QString(QLatin1String(TESTS_DIR "/%1/./bin")).arg(qtcTestPluginsFound.last()));
-
+            QVERIFY(pluginIndex + 1 < args.size());
+            QCOMPARE(args.at(pluginIndex + 1), QString(QLatin1String(TESTS_DIR "/%1/./bin")).arg(qtcTestPluginsFound.last()));
         }
         QCOMPARE(qtcPlugins.size(), qtcTestPluginsFound.size());
     }
