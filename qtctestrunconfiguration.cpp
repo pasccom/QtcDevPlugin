@@ -66,7 +66,7 @@ QStringList QtcTestRunConfiguration::commandLineArgumentsList(void) const
 {
     QStringList cmdArgs =  QtcRunConfiguration::commandLineArgumentsList();
 
-    cmdArgs << QLatin1String("-test") << pluginName();
+    cmdArgs << QLatin1String("-test") << pluginName() << QLatin1String("-load") << QLatin1String("all");
 
     qDebug() << "Run config command line arguments:" << cmdArgs;
     return cmdArgs;
