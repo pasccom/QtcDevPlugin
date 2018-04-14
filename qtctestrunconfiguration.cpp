@@ -72,11 +72,6 @@ QStringList QtcTestRunConfiguration::commandLineArgumentsList(void) const
     return cmdArgs;
 }
 
-QtcTestRunConfigurationWidget::QtcTestRunConfigurationWidget(QtcTestRunConfiguration* runConfig, QWidget* parent)
-    : QtcRunConfigurationWidget(runConfig, parent), mRunConfig(runConfig)
-{
-}
-
 } // Internal
 } // QTestLibPlugin
 

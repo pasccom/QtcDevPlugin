@@ -36,36 +36,6 @@ namespace Internal {
 class QtcTestRunConfiguration;
 
 /*!
- * \brief The QtcTestRunConfigurationWidget class provides a form widget to edit a QtcTestRunConfiguration
- *
- * This class describes a form widget which allows to easily configure:
- *  \li The working directory for the test Qt Creator instance
- *  \li The path to the settings used by the test Qt Creator instance
- *  \li The theme of the test Qt Creator instance
- *
- * \note This class currently does nothing more than its parent, QtcRunConfigurationWidget,
- * it is proposed as a basis for further developments (test case selection, ...)
- *
- * \sa QtcTestRunConfiguration
- */
-class QtcTestRunConfigurationWidget : public QtcRunConfigurationWidget
-{
-    Q_OBJECT
-public:
-    /*!
-     * \brief Constructor
-     *
-     * Construct a new instance of this widget to configure
-     * the given QtcTestRunConfiguration
-     * \param runConfig The run configuration which is configured through this form widget.
-     * \param parent The parent widget
-     */
-    QtcTestRunConfigurationWidget(QtcTestRunConfiguration* runConfig, QWidget* parent = NULL);
-private:
-    QtcTestRunConfiguration* mRunConfig;    /*!< The QtcTestRunConfiguration that is configured by this form widget. */
-};
-
-/*!
  * \brief The QtcTestRunConfiguration class stores information required to start a test instance of Qt Creator
  *
  * When an instance of this class is added to a target, Qt Creator will propose to the user to
@@ -75,10 +45,10 @@ private:
  * so that the current version is the only loaded in the current Qt Creator instance.
  * Otherwide the tests of the other instance could shadow those of the current version being tested.
  *
- * This run configuration can be easily edited using QtcTestRunConfigurationWidget, which
+ * This run configuration can be easily edited using QtcRunConfigurationWidget, which
  * defines a suitable form wigdet to ease this process.
  *
- * \sa QtcTestRunConfigurationWidget
+ * \sa QtcRunConfigurationWidget
  */
 class QtcTestRunConfiguration : public QtcRunConfiguration
 {
@@ -93,15 +63,6 @@ public:
      * \sa initialize()
      */
     QtcTestRunConfiguration(ProjectExplorer::Target *parent, Core::Id id = Core::Id(Constants::QtcTestRunConfigurationId));
-
-    /*!
-     * \brief Creates a configuration widget
-     *
-     * Creates an instance of the configuration widget QtcRunConfigurationWidget
-     * associated to the current instance.
-     * \return The newly allocated instance of the configuration widget.
-     */
-    inline QWidget* createConfigurationWidget(void) override {return new QtcTestRunConfigurationWidget(this);}
 
     /*!
      * \copydoc QtcRunConfiguration::commandLineArgumentsList()

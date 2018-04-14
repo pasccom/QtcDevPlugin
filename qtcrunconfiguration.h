@@ -193,7 +193,7 @@ public:
      * associated to the current instance.
      * \return The newly allocated instance of the configuration widget.
      */
-    inline QWidget* createConfigurationWidget(void) override {return new QtcRunConfigurationWidget(this);}
+    virtual inline QWidget* createConfigurationWidget(void) override {return new QtcRunConfigurationWidget(this);}
 
     /*!
      * \brief Extra part of the ID.
