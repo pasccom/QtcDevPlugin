@@ -21,7 +21,6 @@
 #include "qtcdevpluginconstants.h"
 #include "qtcrunconfigurationfactory.h"
 #include "qtcrunconfiguration.h"
-#include "qtcpluginrunner.h"
 
 #ifdef BUILD_TESTS
 #   include "Test/qtcrunconfigurationfactorytest.h"
@@ -79,11 +78,8 @@ bool QtcDeveloperPlugin::initialize(const QStringList &arguments, QString *error
     addAutoReleasedObject(new QtcRunConfigurationFactory(this));
     addAutoReleasedObject(new QtcTestRunConfigurationFactory(this));
 
-    ProjectExplorer::RunControl::registerWorker<QtcPluginRunner>(ProjectExplorer::Constants::NORMAL_RUN_MODE, [] (ProjectExplorer::RunConfiguration* runConfig) {
-        qDebug() << "Checking" << runConfig->id() << runConfig->id().suffixAfter(Constants::QtcRunConfigurationId).isNull() << runConfig->id().suffixAfter(Constants::QtcTestRunConfigurationId).isNull();
-        return !runConfig->id().suffixAfter(Constants::QtcRunConfigurationId).isNull() ||
-               !runConfig->id().suffixAfter(Constants::QtcTestRunConfigurationId).isNull();
-    }, 99);
+    connect(ProjectExplorer::ProjectExplorerPlugin::instance(), SIGNAL(aboutToExecuteRunControl(ProjectExplorer::RunControl*, Core::Id)),
+            this, SLOT(handleRunControlStarted(ProjectExplorer::RunControl*)), Qt::DirectConnection);
 
     return true;
 }
@@ -101,6 +97,43 @@ ExtensionSystem::IPlugin::ShutdownFlag QtcDeveloperPlugin::aboutToShutdown()
     // Disconnect from signals that are not needed during shutdown
     // Hide UI (if you add UI that is not in the main window directly)
     return SynchronousShutdown;
+}
+
+void QtcDeveloperPlugin::handleRunControlStarted(ProjectExplorer::RunControl* runControl)
+{
+    qDebug() << "Starting" << runControl->runConfiguration()->id();
+
+    if ((runControl->runConfiguration()->id() != Core::Id(Constants::QtcRunConfigurationId)) &&
+        (runControl->runConfiguration()->id() != Core::Id(Constants::QtcTestRunConfigurationId)))
+        return;
+
+    connect(runControl, SIGNAL(stopped()), this, SLOT(handleRunControlStopped()));
+
+    QtcRunConfiguration* runConfig = static_cast<QtcRunConfiguration*>(runControl->runConfiguration());
+    QString targetAbsPath = runConfig->installPath().toString() + QDir::separator() + runConfig->targetName().toString();
+    qDebug() << targetAbsPath << QFile(targetAbsPath).exists() << QFile(targetAbsPath + QLatin1String(".del")).exists();
+
+    if (QFile(targetAbsPath).exists())
+        QFile::rename(targetAbsPath, targetAbsPath + QLatin1String(".del"));
+}
+
+void QtcDeveloperPlugin::handleRunControlStopped()
+{
+    ProjectExplorer::RunControl* runControl = qobject_cast<ProjectExplorer::RunControl*>(sender());
+    QTC_ASSERT(runControl != nullptr, return);
+
+    qDebug() << "End of" << runControl->runConfiguration()->id();
+
+    if ((runControl->runConfiguration()->id() != Core::Id(Constants::QtcRunConfigurationId)) &&
+        (runControl->runConfiguration()->id() != Core::Id(Constants::QtcTestRunConfigurationId)))
+        return;
+
+    QtcRunConfiguration* runConfig = static_cast<QtcRunConfiguration*>(runControl->runConfiguration());
+    QString targetAbsPath = runConfig->installPath().toString() + QDir::separator() + runConfig->targetName().toString();
+    qDebug() << targetAbsPath << QFile(targetAbsPath).exists() << QFile(targetAbsPath + QLatin1String(".del")).exists();
+
+    if (QFile(targetAbsPath + QLatin1String(".del")).exists())
+        QFile::rename(targetAbsPath + QLatin1String(".del"), targetAbsPath);
 }
 
 #ifdef BUILD_TESTS

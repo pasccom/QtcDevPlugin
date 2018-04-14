@@ -161,6 +161,29 @@ public:
      */
     QList<QObject *> createTestObjects(void) const override;
 #endif
+private slots:
+    /*!
+     * \brief Slot called on run control start.
+     *
+     * This slot is called whenever a run control is started.
+     * It checks if the associated run configuration is a QtcRunConfiguration
+     * of a QtcTestRunConfiguration. If this is the case, it ensures that old
+     * versions of the plugin are removed from Qt Creator plugin path
+     * before startin Qt Creator with the right command line arguments.
+     * \param runControl The run control which is starting.
+     * \sa handleRunControlStopped()
+     */
+    void handleRunControlStarted(ProjectExplorer::RunControl* runControl);
+    /*!
+     * \brief Slot called on run control end.
+     *
+     * This slot is called whenever a run control enters stopped state.
+     * It restores old versions of the plugin (which have been removed by
+     * handleRunControlStarted()). The sender is expected to be
+     * the run control which is finishing.
+     * \sa handleRunControlStarted()
+     */
+    void handleRunControlStopped();
 };
 
 } // namespace Internal
