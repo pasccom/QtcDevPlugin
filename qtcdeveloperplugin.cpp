@@ -24,6 +24,7 @@
 
 #ifdef BUILD_TESTS
 #   include "Test/qtcrunconfigurationfactorytest.h"
+#   include "Test/qtcrunconfigurationtest.h"
 #   include "Test/qtcpluginrunnertest.h"
 #endif
 
@@ -142,8 +143,9 @@ QList<QObject *> QtcDeveloperPlugin::createTestObjects(void) const
 {
     QList<QObject *> testObjects;
 
-    testObjects << new Test::QtcRunConfigurationFactoryTest;
-    testObjects << new Test::QtcPluginRunnerTest;
+    //testObjects << new Test::QtcRunConfigurationFactoryTest;
+    testObjects << new Test::QtcRunConfigurationTest;
+    //testObjects << new Test::QtcPluginRunnerTest;
 
     return testObjects;
 }

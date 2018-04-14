@@ -52,10 +52,12 @@ TRANSLATIONS += \
     SOURCES += \
         Test/testhelper.cpp \
         Test/qtcrunconfigurationfactorytest.cpp \
+        Test/qtcrunconfigurationtest.cpp \
         Test/qtcpluginrunnertest.cpp
     HEADERS += \
         Test/testhelper.h \
         Test/qtcrunconfigurationfactorytest.h \
+        Test/qtcrunconfigurationtest.h \
         Test/qtcpluginrunnertest.h
 }
 
