@@ -1,7 +1,7 @@
 {
     \"Name\" : \"QtcDevPlugin\",
-    \"Version\" : \"0.0.7\",
-    \"CompatVersion\" : \"0.0.7\",
+    \"Version\" : \"0.0.8\",
+    \"CompatVersion\" : \"0.0.8\",
     \"Vendor\" : \"Pascal COMBES\",
     \"Copyright\" : \"(C) Pascal COMBES <pascom@orange.fr>\",
     \"License\" : \"GPLv3\",

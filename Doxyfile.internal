@@ -38,7 +38,7 @@ PROJECT_NAME           = "Qt Creator Plugin Developer Plugin (developper)"
 # could be handy for archiving the generated documentation or if some version
 # control system is used.
 
-PROJECT_NUMBER         = 0.0.7
+PROJECT_NUMBER         = 0.0.8
 
 # Using the PROJECT_BRIEF tag one can provide an optional one line description
 # for a project that appears at the top of each page and should give viewer a
@@ -2023,9 +2023,8 @@ SEARCH_INCLUDES        = YES
 # preprocessor.
 # This tag requires that the tag SEARCH_INCLUDES is set to YES.
 
-INCLUDE_PATH           = /home/pascal/Téléchargements/Logiciels/Dev/qt-creator-opensource-src-4.0.1/ \
-			 /home/shared/Telechargements/Dev/qt-creator-4.0.1/ \
-			 /e/Telechargements/Dev/qt-creator-4.0.1/
+INCLUDE_PATH           = /usr/include/qtcreator/
+
 
 # You can use the INCLUDE_FILE_PATTERNS tag to specify one or more wildcard
 # patterns (like *.h and *.hpp) to filter out the header-files in the
