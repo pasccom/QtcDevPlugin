@@ -142,7 +142,10 @@ bool QtcRunConfiguration::update()
     else
         mDestDir = qMakeProFile->targetInformation().buildDir.appendPath(qMakeProFile->targetInformation().destDir.toString());
 
-    mInstallPath = Utils::FileName::fromString(qMakeProFile->installsList().targetPath);
+    if (QDir::isAbsolutePath(qMakeProFile->installsList().targetPath))
+        mInstallPath = Utils::FileName::fromString(qMakeProFile->installsList().targetPath);
+    else
+        mInstallPath = qMakeProFile->targetInformation().buildDir.appendPath(qMakeProFile->installsList().targetPath);
 
     QStringList shLibExtension = qMakeProFile->variableValue(QmakeProjectManager::Variable::ShLibExtension);
     if (!shLibExtension.isEmpty()) {
