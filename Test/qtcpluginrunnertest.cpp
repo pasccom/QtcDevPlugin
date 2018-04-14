@@ -21,9 +21,18 @@ namespace Test {
 
 void QtcPluginRunnerTest::initTestCase(void)
 {
-    QString projectPath(TESTS_DIR "/QtcPluginTest/QtcPluginTest.pro");
-    QVERIFY(openQMakeProject(projectPath, &mProject));
-    QCOMPARE(mProject->projectFilePath().toString(), projectPath);
+    QDir projectPath(TESTS_DIR "/QtcPluginTest");
+
+    QVERIFY(removeProjectUserFiles(projectPath.absolutePath()));
+    QVERIFY(openQMakeProject(projectPath.absoluteFilePath("QtcPluginTest.pro"), &mProject));
+    QCOMPARE(mProject->projectFilePath().toString(), projectPath.absoluteFilePath("QtcPluginTest.pro"));
+
+    QList<ProjectExplorer::Target*> targets = mProject->targets();
+    foreach (ProjectExplorer::Target* target, targets) {
+        QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(target->kit());
+        if (qtVersion->qtVersion().majorVersion < 5)
+            mProject->removeTarget(target);
+    }
 }
 
 void QtcPluginRunnerTest::testRunner_data(void)
@@ -43,13 +52,6 @@ void QtcPluginRunnerTest::testRunner(void)
     QFETCH(Core::Id, runModeId);
     QFETCH(Core::Id, runConfigId);
     QFETCH(QString, runControlDisplayName);
-
-    QList<ProjectExplorer::Target*> targets = mProject->targets();
-    foreach (ProjectExplorer::Target* target, targets) {
-        QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(target->kit());
-        if (qtVersion->qtVersion().majorVersion < 5)
-            mProject->removeTarget(target);
-    }
 
     ProjectExplorer::RunConfiguration* runConfig = Utils::findOrDefault(mProject->activeTarget()->runConfigurations(), [runConfigId](ProjectExplorer::RunConfiguration* rc) {
         return rc->id() == runConfigId;
