@@ -1,7 +1,10 @@
 #include "qtcpluginrunnertest.h"
-#include "qtcrunconfiguration.h"
-#include "qtctestrunconfiguration.h"
 #include "testhelper.h"
+
+#include "../qtcrunconfiguration.h"
+#include "../qtctestrunconfiguration.h"
+
+#include <qtsupport/qtkitinformation.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorer.h>
@@ -41,9 +44,14 @@ void QtcPluginRunnerTest::testRunner(void)
     QFETCH(Core::Id, runConfigId);
     QFETCH(QString, runControlDisplayName);
 
-    ProjectExplorer::RunConfiguration* runConfig;
+    QList<ProjectExplorer::Target*> targets = mProject->targets();
+    foreach (ProjectExplorer::Target* target, targets) {
+        QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(target->kit());
+        if (qtVersion->qtVersion().majorVersion < 5)
+            mProject->removeTarget(target);
+    }
 
-    runConfig = Utils::findOrDefault(mProject->activeTarget()->runConfigurations(), [runConfigId](ProjectExplorer::RunConfiguration* rc) {
+    ProjectExplorer::RunConfiguration* runConfig = Utils::findOrDefault(mProject->activeTarget()->runConfigurations(), [runConfigId](ProjectExplorer::RunConfiguration* rc) {
         return rc->id() == runConfigId;
     });
     QVERIFY(runConfig != nullptr);

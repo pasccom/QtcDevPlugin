@@ -143,9 +143,9 @@ QList<QObject *> QtcDeveloperPlugin::createTestObjects(void) const
 {
     QList<QObject *> testObjects;
 
-    //testObjects << new Test::QtcRunConfigurationFactoryTest;
+    testObjects << new Test::QtcRunConfigurationFactoryTest;
     testObjects << new Test::QtcRunConfigurationTest;
-    //testObjects << new Test::QtcPluginRunnerTest;
+    testObjects << new Test::QtcPluginRunnerTest;
 
     return testObjects;
 }
