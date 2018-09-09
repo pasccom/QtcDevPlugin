@@ -29,6 +29,7 @@ namespace ProjectExplorer {
 
 namespace QmakeProjectManager {
     class QmakeProFileNode;
+    class QmakeProFile;
 }
 
 namespace QtcDevPlugin {
@@ -51,17 +52,16 @@ class QtcRunConfiguration;
  *
  * \sa QtcRunConfiguration
  */
-class QtcRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
+class QtcRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
 {
-    Q_OBJECT
 public:
     /*!
      * \brief Constructor
      *
-     * The constructor currently does nothing.
-     * \param parent The parent object.
+     * Constructs an new run configuration factory instance
+     * for QMake projects with desktop target.
      */
-    QtcRunConfigurationFactory(QObject *parent = NULL);
+    QtcRunConfigurationFactory(void);
     /*!
      * \brief The build targets this factory can create
      *
@@ -70,11 +70,10 @@ public:
      * \note A more extensive documentation may be available in Qt Creator Developper documentation
      *
      * \param parent The target of the future run configuration.
-     * \param mode The creation mode.
      * \return A list of the build targets this factory can create.
      * \sa canCreate()
      */
-    virtual QList<ProjectExplorer::BuildTargetInfo> availableBuildTargets(ProjectExplorer::Target *parent, CreationMode mode = UserCreate) const override;
+    virtual QList<ProjectExplorer::RunConfigurationCreationInfo> availableCreators(ProjectExplorer::Target *parent) const override;
 
     /*!
      * \brief Whether the project is ready for examination
@@ -96,6 +95,15 @@ public:
      * \sa canHandle(), canCreate(), canRestore(), canClone()
      */
     static bool isUseful(ProjectExplorer::Project* project);
+
+    /*!
+     * \brief Set display name pattern
+     *
+     * Sets the pattern used for generating a display name for this run configuration.
+     * If %1 is used, it will be replaced by the plugin name.
+     * \param pattern The display name pattern
+     */
+    inline void setDisplayNamePattern(const QString& pattern) {mDisplayNamePattern = pattern;}
 private:
 
     /*!
@@ -140,6 +148,24 @@ private:
      * \sa findQtcPluginPri(), isQtCreatorPlugin(), hasQtCreatorPlugin()
      */
     static QList<ProjectExplorer::ProjectNode*> qtCreatorPlugins(ProjectExplorer::ProjectNode* node);
+    /*!
+     * \brief Path where the target is built
+     *
+     * Returns the path where the target of the given project file is built.
+     * \param proFile A QMake project file.
+     * \return The path where the target of the given project file is built.
+     */
+    static Utils::FileName targetBuildPath(QmakeProjectManager::QmakeProFile* proFile);
+    /*!
+     * \brief Path where the target is installed
+     *
+     * Returns the path where the target of the given project file is installed.
+     * \param proFile A QMake project file.
+     * \return The path where the target of the given project file is installed.
+     */
+    static Utils::FileName targetInstallPath(QmakeProjectManager::QmakeProFile* proFile);
+
+    QString mDisplayNamePattern; /*!< The display name pattern */
 };
 
 /*!
@@ -159,15 +185,14 @@ private:
  */
 class QtcTestRunConfigurationFactory : public QtcRunConfigurationFactory
 {
-    Q_OBJECT
 public:
     /*!
      * \brief Constructor
      *
-     * The constructor currently does nothing.
-     * \param parent The parent object.
+     * Constructs an new run configuration factory instance
+     * for QMake projects with desktop target.
      */
-    QtcTestRunConfigurationFactory(QObject *parent = NULL);
+    QtcTestRunConfigurationFactory(void);
 };
 
 } // Internal

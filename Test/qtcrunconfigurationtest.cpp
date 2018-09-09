@@ -24,7 +24,6 @@
 #include "../qtcdevpluginconstants.h"
 
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/runnables.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/kitmanager.h>
@@ -77,8 +76,7 @@ void QtcRunConfigurationTest::testRestoreSettings(void)
             map.insert(QtcDevPlugin::Constants::WorkingDirectoryKey, QLatin1String("."));
             runConfig->fromMap(map);
 
-            QVERIFY(runConfig->runnable().is<ProjectExplorer::StandardRunnable>());
-            ProjectExplorer::StandardRunnable runnable = runConfig->runnable().as<ProjectExplorer::StandardRunnable>();
+            ProjectExplorer::Runnable runnable = runConfig->runnable();
             QCOMPARE(runnable.workingDirectory, QLatin1String("."));
 
             QStringList args = runnable.commandLineArguments.split(QLatin1Char(' '));
@@ -109,8 +107,7 @@ void QtcRunConfigurationTest::testRestoreSettings(void)
             qDebug() << "Restored run configuration" << runConfig->displayName()
                      << "for target" << target->displayName();
 
-            QVERIFY(runConfig->runnable().is<ProjectExplorer::StandardRunnable>());
-            ProjectExplorer::StandardRunnable runnable = runConfig->runnable().as<ProjectExplorer::StandardRunnable>();
+            ProjectExplorer::Runnable runnable = runConfig->runnable();
             QCOMPARE(runnable.workingDirectory, QLatin1String("."));
 
             QStringList args = runnable.commandLineArguments.split(QLatin1Char(' '));

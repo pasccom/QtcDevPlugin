@@ -196,16 +196,6 @@ public:
     virtual inline QWidget* createConfigurationWidget(void) override {return new QtcRunConfigurationWidget(this);}
 
     /*!
-     * \brief Extra part of the ID.
-     *
-     * This function returns the extra part of this run configuration ID.
-     * This is used to differentiate the multiple run configurations
-     * of the same type, but for different (sub-)projects
-     * \return The extra part of this run configuration ID.
-     */
-    virtual inline QString extraId() const override {return mProjectPath.toString();}
-
-    /*!
      * \brief Command-line arguments list
      *
      * Returns the list of the command-line arguments to be passed to Qt Creator executable.
@@ -227,30 +217,22 @@ public:
     virtual ProjectExplorer::Runnable runnable(void) const override;
 
     /*!
-     * \brief The path where the plugin should be installed
+     * \brief The path of the plugin when installed
      *
-     * Returns the pathe where plugin library file should be installed,
-     * which is the path to the target.
-     * \return The pathe where the plugin should be installed
-     * \sa targetName(), pluginName()
+     * Returns the path of plugin library file when it has been installed,
+     * which is the path to the installed target.
+     * \return The path where of plugin library file when installed
+     * \sa pluginName()
      */
-    virtual Utils::FileName installPath(void) const {return mInstallPath;}
-    /*!
-     * \brief The name of the target
-     *
-     * Returns the name of the target: The name of the library file containing the plugin.
-     * \return  The name of the target.
-     * \sa installPath(), pluginName()
-     */
-    virtual Utils::FileName targetName(void) const {return mTargetName;}
+    inline Utils::FileName targetFilePath(void) const {return buildTargetInfo().targetFilePath;}
     /*!
      * \brief The name of the plugin
      *
      * Returns the name of the plugin: This is the project file name without the *.pro extension.
      * \return  The name of the plugin.
-     * \sa installPath(), targetName()
+     * \sa targetFilePath()
      */
-    virtual QString pluginName(void) const;
+    QString pluginName(void) const;
 
     /*!
      * \brief Conversion to map
@@ -269,44 +251,7 @@ public:
      * \sa toMap()
      */
     virtual bool fromMap(const QVariantMap& map) override;
-protected:
-    /*!
-     * \brief Load the map
-     *
-     * This function initializes the run configuration from the given project path
-     * and the data contained in the given map. It is used internally by fromMap().
-     * \param projectPath The path to the project file for this run configuration.
-     * \param map The map containing the data of the instance.
-     * \sa fromMap()
-     */
-    void loadMap(const QString& projectPath, const QVariantMap& map);
-    /*!
-     * \brief Keep the run configuration up to date
-     *
-     * Ensures the run configuration is updated
-     * every time the parsing of the project finishes.
-     * Updates immediately the run configuration
-     * if the project has already been parsed.
-     * \return \c true on succes, \c false otherwise
-     * \sa update()
-     */
-    bool connectUpdate();
-private slots:
-    /*!
-     * \brief Updates the run configuration.
-     *
-     * Updates the run configuration internal variables
-     * to reflect the state of the project.
-     * \return \c true on succes, \c false otherwise
-     * \sa connectUpdate()
-     */
-    bool update();
 private:
-    Utils::FileName mProjectPath;       /*!< The path to the plugin project */
-    Utils::FileName mTargetName;        /*!< The name of the target, i.e. the name of the library file containing the plugin */
-    Utils::FileName mDestDir;           /*!< The path where the plugin is output after build. \sa mInstallPath */
-    Utils::FileName mInstallPath;       /*!< The path where the plugin is installed. \sa mDestDir */
-
     Utils::FileName mWorkingDirectory;  /*!< The path to the working directory */
     Utils::FileName mSettingsPath;      /*!< The path to Qt Creator settings */
     QString mThemeName;                 /*!< Qt Creator theme to be used */

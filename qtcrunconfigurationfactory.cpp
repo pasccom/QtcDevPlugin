@@ -23,6 +23,7 @@
 #include "qtcdevpluginconstants.h"
 
 #include <projectexplorer/target.h>
+#include <projectexplorer/kitinformation.h>
 
 #include <qmakeprojectmanager/qmakeproject.h>
 #include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
@@ -32,40 +33,78 @@
 namespace QtcDevPlugin {
 namespace Internal {
 
-QtcRunConfigurationFactory::QtcRunConfigurationFactory(QObject *parent) :
-    IRunConfigurationFactory(parent)
+QtcRunConfigurationFactory::QtcRunConfigurationFactory(void) :
+    ProjectExplorer::RunConfigurationFactory()
 {
     addSupportedProjectType(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
-    setSupportedTargetDeviceTypes({ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE});
+    addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
 
     setDisplayNamePattern(QCoreApplication::translate("QtcDevPlugin::Internal::QtcRunConfiguration", "Run Qt Creator with \"%1\""));
     registerRunConfiguration<QtcRunConfiguration>(Core::Id(Constants::QtcRunConfigurationId));
 }
 
-QtcTestRunConfigurationFactory::QtcTestRunConfigurationFactory(QObject *parent) :
-    QtcRunConfigurationFactory(parent)
+QtcTestRunConfigurationFactory::QtcTestRunConfigurationFactory(void) :
+    QtcRunConfigurationFactory()
 {
     setDisplayNamePattern(QCoreApplication::translate("QtcDevPlugin::Internal::QtcTestRunConfiguration", "Run Qt Creator tests for \"%1\""));
     registerRunConfiguration<QtcTestRunConfiguration>(Core::Id(Constants::QtcTestRunConfigurationId));
 }
 
-QList<ProjectExplorer::BuildTargetInfo> QtcRunConfigurationFactory::availableBuildTargets(ProjectExplorer::Target *target, CreationMode mode) const
+QList<ProjectExplorer::RunConfigurationCreationInfo> QtcRunConfigurationFactory::availableCreators(ProjectExplorer::Target *target) const
 {
-    Q_UNUSED(mode);
+    QList<ProjectExplorer::RunConfigurationCreationInfo> creators;
 
-    QList<ProjectExplorer::BuildTargetInfo> buildTargets;
-    if (!canHandle(target) || !isReady(target->project()) || !isUseful(target->project()))
-        return buildTargets;
+    if (!isReady(target->project()) || !isUseful(target->project()))
+        return creators;
 
-    foreach (ProjectExplorer::ProjectNode* node, qtCreatorPlugins(target->project()->rootProjectNode())) {
+    ProjectExplorer::BuildTargetInfoList buildInfos = target->applicationTargets();
+    qDebug() << "BuildTargetInfoList size:" << buildInfos.list.size();
+    foreach (ProjectExplorer::ProjectNode *node, qtCreatorPlugins(target->project()->rootProjectNode())) {
         QmakeProjectManager::QmakeProFileNode* qMakeNode = static_cast<QmakeProjectManager::QmakeProFileNode*>(node);
 
-        ProjectExplorer::BuildTargetInfo buildTarget;
-        buildTarget.targetName = qMakeNode->filePath().toString();
-        buildTargets << buildTarget;
-    }
+        QFileInfo proFileInfo = qMakeNode->filePath().toFileInfo();
+        ProjectExplorer::BuildTargetInfo info = buildInfos.buildTargetInfo(proFileInfo.canonicalFilePath());
 
-    return buildTargets;
+        if (info.buildKey != proFileInfo.canonicalFilePath()) {
+            qDebug() << __func__ << "Creating:" << proFileInfo.canonicalFilePath() << proFileInfo.baseName() << targetBuildPath(qMakeNode->proFile()) << targetInstallPath(qMakeNode->proFile());
+
+            info.displayName = proFileInfo.baseName();
+            info.buildKey = proFileInfo.canonicalFilePath();
+            info.projectFilePath = qMakeNode->filePath();
+            info.workingDirectory = targetBuildPath(qMakeNode->proFile());
+            info.targetFilePath = targetInstallPath(qMakeNode->proFile());
+            buildInfos.list << info;
+        }
+
+        ProjectExplorer::RunConfigurationCreationInfo creator;
+        creator.factory = this;
+        creator.id = runConfigurationBaseId();
+        creator.buildKey = info.buildKey;
+        creator.displayName = mDisplayNamePattern.arg(info.displayName);
+
+        creators << creator;
+    }
+    target->setApplicationTargets(buildInfos);
+
+    return creators;
+}
+
+Utils::FileName QtcRunConfigurationFactory::targetBuildPath(QmakeProjectManager::QmakeProFile* proFile)
+{
+    QDir targetPath(proFile->targetInformation().destDir.toString());
+    if (!targetPath.isAbsolute())
+        targetPath.setPath(proFile->targetInformation().buildDir.appendPath(targetPath.path()).toString());
+    return  Utils::FileName::fromString(targetPath.absolutePath());
+}
+
+Utils::FileName QtcRunConfigurationFactory::targetInstallPath(QmakeProjectManager::QmakeProFile* proFile)
+{
+    QDir targetPath(proFile->installsList().targetPath);
+    if (!targetPath.isAbsolute())
+        targetPath.setPath(proFile->targetInformation().buildDir.appendPath(targetPath.path()).toString());
+
+    QString targetName = "lib" + proFile->targetInformation().target + '.' + proFile->singleVariableValue(QmakeProjectManager::Variable::ShLibExtension);
+    return Utils::FileName::fromString(targetPath.absoluteFilePath(targetName));
 }
 
 bool QtcRunConfigurationFactory::isReady(ProjectExplorer::Project* project)

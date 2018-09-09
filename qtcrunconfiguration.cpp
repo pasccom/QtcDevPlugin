@@ -21,7 +21,6 @@
 #include "qtcdevpluginconstants.h"
 #include "Widgets/filetypevalidatinglineedit.h"
 
-#include <projectexplorer/runnables.h>
 #include <projectexplorer/localenvironmentaspect.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
@@ -98,82 +97,14 @@ QtcRunConfiguration::QtcRunConfiguration(ProjectExplorer::Target *parent, Core::
     addExtraAspect(new ProjectExplorer::LocalEnvironmentAspect(this, ProjectExplorer::LocalEnvironmentAspect::BaseEnvironmentModifier()));
 }
 
-void QtcRunConfiguration::loadMap(const QString& projectPath, const QVariantMap& map)
-{
-    mProjectPath = Utils::FileName::fromString(projectPath);
-    mWorkingDirectory = Utils::FileName::fromString(map.value(Constants::WorkingDirectoryKey, QLatin1String("%{buildDir}")).toString());
-    mSettingsPath = Utils::FileName::fromString(map.value(Constants::SettingsPathKey, QString()).toString());
-
-    QStringList themes = availableThemes();
-    QString theme = map.value(Constants::ThemeKey, QString()).toString();
-    if (themes.contains(theme))
-        mThemeName = theme;
-}
-
-bool QtcRunConfiguration::connectUpdate()
-{
-    QMetaObject::Connection updateConnection = connect(target()->project(), &ProjectExplorer::Project::parsingFinished, this, &QtcRunConfiguration::update);
-    connect(target(), &ProjectExplorer::Target::removedRunConfiguration,
-            this, [updateConnection] (ProjectExplorer::RunConfiguration* rc) {
-        qDebug() << "QTC run configuration removed: " << rc;
-        disconnect(updateConnection);
-    });
-
-    if (QtcRunConfigurationFactory::isReady(target()->project()))
-        return update();
-    return true;
-}
-
-bool QtcRunConfiguration::update()
-{
-    qDebug() << "Updating run configuration for:" << pluginName() << target()->displayName();
-
-    QmakeProjectManager::QmakeProject* qMakeProject = qobject_cast<QmakeProjectManager::QmakeProject*>(target()->project());
-    QTC_ASSERT(qMakeProject != nullptr, return false);
-
-    if (!qMakeProject->rootProFile()->validParse())
-        return false;
-
-    QmakeProjectManager::QmakeProFile* qMakeProFile = qMakeProject->rootProFile()->findProFile(mProjectPath);
-    QTC_ASSERT(qMakeProFile != nullptr, return false);
-
-    if (QDir::isAbsolutePath(qMakeProFile->targetInformation().destDir.toString()))
-        mDestDir = qMakeProFile->targetInformation().destDir;
-    else
-        mDestDir = qMakeProFile->targetInformation().buildDir.appendPath(qMakeProFile->targetInformation().destDir.toString());
-
-    if (QDir::isAbsolutePath(qMakeProFile->installsList().targetPath))
-        mInstallPath = Utils::FileName::fromString(qMakeProFile->installsList().targetPath);
-    else
-        mInstallPath = qMakeProFile->targetInformation().buildDir.appendPath(qMakeProFile->installsList().targetPath);
-
-    QStringList shLibExtension = qMakeProFile->variableValue(QmakeProjectManager::Variable::ShLibExtension);
-    if (!shLibExtension.isEmpty()) {
-        QTC_ASSERT(shLibExtension.size() == 1,);
-        if (Utils::HostOsInfo::isWindowsHost())
-            mTargetName = Utils::FileName::fromString(qMakeProFile->targetInformation().target + QLatin1Char('.') + shLibExtension.first());
-        else
-            mTargetName = Utils::FileName::fromString(QLatin1String("lib") + qMakeProFile->targetInformation().target + QLatin1Char('.') + shLibExtension.first());
-    } else if (Utils::HostOsInfo::isWindowsHost()) {
-            mTargetName = Utils::FileName::fromString(qMakeProFile->targetInformation().target + QLatin1String(".dll"));
-    } else {
-        mTargetName = Utils::FileName::fromString(QLatin1String("lib") + qMakeProFile->targetInformation().target + QLatin1String(".so"));
-    }
-
-    return true;
-}
-
 QString QtcRunConfiguration::pluginName(void) const
 {
-    QString name = mProjectPath.fileName();
-    if (name.endsWith(QLatin1String(".pro")))
-            name.chop(4);
-    return name;
+    return buildTargetInfo().projectFilePath.toFileInfo().baseName();
 }
 
 ProjectExplorer::Runnable QtcRunConfiguration::runnable(void) const
 {
-    ProjectExplorer::StandardRunnable runnable;
+    ProjectExplorer::Runnable runnable;
     runnable.executable = QCoreApplication::applicationFilePath();
     runnable.commandLineArguments = commandLineArgumentsList().join(QLatin1Char(' '));;
     if (macroExpander() != NULL)
@@ -203,13 +134,18 @@ bool QtcRunConfiguration::fromMap(const QVariantMap& map)
     if (!ProjectExplorer::RunConfiguration::fromMap(map))
         return false;
 
-    Core::Id id(map.value(ProjectExplorer::ProjectConfiguration::settingsIdKey(), Constants::QtcRunConfigurationId).toString().toLocal8Bit().constData());
-    QString projectPath = id.suffixAfter(Constants::QtcRunConfigurationId);
-    loadMap(projectPath, map);
+    mWorkingDirectory = Utils::FileName::fromString(map.value(Constants::WorkingDirectoryKey, QLatin1String("%{buildDir}")).toString());
+    mSettingsPath = Utils::FileName::fromString(map.value(Constants::SettingsPathKey, QString()).toString());
+
+    QStringList themes = availableThemes();
+    QString theme = map.value(Constants::ThemeKey, QString()).toString();
+    if (themes.contains(theme))
+        mThemeName = theme;
+
     if (!pluginName().isEmpty())
         setDisplayName(tr("Run Qt Creator with \"%1\"").arg(pluginName()));
 
-    return connectUpdate();
+    return true;
 }
 
 QStringList QtcRunConfiguration::commandLineArgumentsList(void) const
@@ -218,7 +154,7 @@ QStringList QtcRunConfiguration::commandLineArgumentsList(void) const
 
     cmdArgs << QLatin1String("-theme") << mThemeName;
 
-    QString pluginsPath = mDestDir.toString();
+    QString pluginsPath = buildTargetInfo().workingDirectory.toString();
     pluginsPath.replace(QLatin1Char('"'), QLatin1String("\\\""));
     if (pluginsPath.contains(QLatin1Char(' ')))
         pluginsPath.prepend(QLatin1Char('"')).append(QLatin1Char('"'));

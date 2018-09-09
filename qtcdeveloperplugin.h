@@ -24,6 +24,7 @@
 #include <extensionsystem/iplugin.h>
 
 namespace ProjectExplorer {
+    class RunConfigurationFactory;
     class RunControl;
 }
 
@@ -187,6 +188,8 @@ private slots:
      * \sa handleRunControlStarted()
      */
     void handleRunControlStopped();
+private:
+    QList<ProjectExplorer::RunConfigurationFactory*> mRunConfigurationFactories; /*!< List of run configuration factories created by this plugin (for deletion) */
 };
 
 } // namespace Internal

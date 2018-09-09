@@ -45,6 +45,7 @@ QtcDeveloperPlugin::~QtcDeveloperPlugin()
 {
     // Unregister objects from the plugin manager's object pool
     // Delete members
+    qDeleteAll(mRunConfigurationFactories);
 }
 
 bool QtcDeveloperPlugin::initialize(const QStringList &arguments, QString *errorString)
@@ -77,8 +78,8 @@ bool QtcDeveloperPlugin::initialize(const QStringList &arguments, QString *error
         qWarning() << qPrintable(QString(QLatin1String("Translator file \"%1\" not found")).arg(qmFile));
     }
 
-    addAutoReleasedObject(new QtcRunConfigurationFactory(this));
-    addAutoReleasedObject(new QtcTestRunConfigurationFactory(this));
+    mRunConfigurationFactories << new QtcRunConfigurationFactory();
+    mRunConfigurationFactories << new QtcTestRunConfigurationFactory();
 
     connect(ProjectExplorer::ProjectExplorerPlugin::instance(), SIGNAL(aboutToExecuteRunControl(ProjectExplorer::RunControl*, Core::Id)),
             this, SLOT(handleRunControlStarted(ProjectExplorer::RunControl*)), Qt::DirectConnection);
@@ -112,11 +113,16 @@ void QtcDeveloperPlugin::handleRunControlStarted(ProjectExplorer::RunControl* ru
     connect(runControl, SIGNAL(stopped()), this, SLOT(handleRunControlStopped()));
 
     QtcRunConfiguration* runConfig = static_cast<QtcRunConfiguration*>(runControl->runConfiguration());
-    QString targetAbsPath = runConfig->installPath().toString() + QDir::separator() + runConfig->targetName().toString();
-    qDebug() << targetAbsPath << QFile(targetAbsPath).exists() << QFile(targetAbsPath + QLatin1String(".del")).exists();
+    Utils::FileName oldTargetPath(runConfig->targetFilePath()); // runConfig->installPath().toString() + QDir::separator() + runConfig->targetName().toString();
+    Utils::FileName newTargetPath(runConfig->targetFilePath());
+    newTargetPath.appendString(QLatin1String(".del"));
 
-    if (QFile(targetAbsPath).exists())
-        QFile::rename(targetAbsPath, targetAbsPath + QLatin1String(".del"));
+    qDebug() << oldTargetPath << oldTargetPath.toFileInfo().exists() << newTargetPath << newTargetPath.toFileInfo().exists();
+
+    if (oldTargetPath.toFileInfo().exists()) {
+        QTC_CHECK(QFile::rename(oldTargetPath.toString(), newTargetPath.toString()));
+    }
+    QTC_CHECK(!oldTargetPath.toFileInfo().exists() && newTargetPath.toFileInfo().exists());
 }
 
 void QtcDeveloperPlugin::handleRunControlStopped()
@@ -131,11 +137,16 @@ void QtcDeveloperPlugin::handleRunControlStopped()
         return;
 
     QtcRunConfiguration* runConfig = static_cast<QtcRunConfiguration*>(runControl->runConfiguration());
-    QString targetAbsPath = runConfig->installPath().toString() + QDir::separator() + runConfig->targetName().toString();
-    qDebug() << targetAbsPath << QFile(targetAbsPath).exists() << QFile(targetAbsPath + QLatin1String(".del")).exists();
+    Utils::FileName oldTargetPath(runConfig->targetFilePath()); // runConfig->installPath().toString() + QDir::separator() + runConfig->targetName().toString();
+    Utils::FileName newTargetPath(runConfig->targetFilePath());
+    oldTargetPath.appendString(QLatin1String(".del"));
 
-    if (QFile(targetAbsPath + QLatin1String(".del")).exists())
-        QFile::rename(targetAbsPath + QLatin1String(".del"), targetAbsPath);
+    qDebug() << oldTargetPath << oldTargetPath.toFileInfo().exists() << newTargetPath << newTargetPath.toFileInfo().exists();
+
+    if (oldTargetPath.toFileInfo().exists()) {
+        QTC_CHECK(QFile::rename(oldTargetPath.toString(), newTargetPath.toString()));
+    }
+    QTC_CHECK(!oldTargetPath.toFileInfo().exists() && newTargetPath.toFileInfo().exists());
 }
 
 #ifdef BUILD_TESTS

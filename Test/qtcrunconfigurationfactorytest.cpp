@@ -24,7 +24,6 @@
 #include "../qtcdevpluginconstants.h"
 
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/runnables.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/kitmanager.h>
@@ -117,14 +116,12 @@ void QtcRunConfigurationFactoryTest::testOpenProject(void)
 
         QStringList qtcPluginsFound;
         foreach (Internal::QtcRunConfiguration* qtcRunConfig, qtcRunConfigs) {
-            QVERIFY(!qtcRunConfig->id().suffixAfter(Core::Id(Constants::QtcRunConfigurationId)).isNull());
-
             bool ok = false;
             foreach (QString qtcPlugin, qtcPlugins) {
                 QDir expectedProFilePath(QLatin1String(TESTS_DIR));
                 expectedProFilePath.cd(qtcPlugin);
 
-                if (QString::compare(qtcRunConfig->extraId(), expectedProFilePath.absoluteFilePath(qtcPlugin + QLatin1String(".pro")), Qt::CaseSensitive) == 0) {
+                if (QString::compare(qtcRunConfig->buildTargetInfo().buildKey, expectedProFilePath.absoluteFilePath(qtcPlugin + QLatin1String(".pro")), Qt::CaseSensitive) == 0) {
                     ok = true;
                     qtcPluginsFound << qtcPlugin;
                     break;
@@ -133,10 +130,9 @@ void QtcRunConfigurationFactoryTest::testOpenProject(void)
             QVERIFY2(ok, qPrintable(QString(QLatin1String("Unexpected run configuration: %1")).arg(qtcRunConfig->id().suffixAfter(Core::Id(Constants::QtcRunConfigurationId)))));
 
             QCOMPARE(qtcRunConfig->displayName(), QString(QLatin1String("Run Qt Creator with \"%1\"")).arg(qtcPluginsFound.last()));
-            QVERIFY(qtcRunConfig->runnable().is<ProjectExplorer::StandardRunnable>());
 
             QStringList args = qtcRunConfig->commandLineArgumentsList();
-            ProjectExplorer::StandardRunnable qtcRunnable = qtcRunConfig->runnable().as<ProjectExplorer::StandardRunnable>();
+            ProjectExplorer::Runnable qtcRunnable = qtcRunConfig->runnable();
             QCOMPARE(qtcRunnable.runMode, ProjectExplorer::ApplicationLauncher::Gui);
             QCOMPARE(qtcRunnable.executable, QCoreApplication::applicationFilePath());
             QString workingDirectory = target->activeBuildConfiguration()->buildDirectory().toString();
@@ -152,20 +148,18 @@ void QtcRunConfigurationFactoryTest::testOpenProject(void)
             int pluginIndex = args.indexOf(QLatin1String("-pluginpath"));
             QVERIFY(pluginIndex != -1);
             QVERIFY(pluginIndex + 1 < args.size());
-            QCOMPARE(args.at(pluginIndex + 1), QString(QLatin1String(TESTS_DIR "/%1/./bin")).arg(qtcPluginsFound.last()));
+            QCOMPARE(args.at(pluginIndex + 1), QString(QLatin1String(TESTS_DIR "/%1/bin")).arg(qtcPluginsFound.last()));
         }
         QCOMPARE(qtcPlugins.size(), qtcPluginsFound.size());
 
         QStringList qtcTestPluginsFound;
         foreach (Internal::QtcTestRunConfiguration* qtcTestRunConfig, qtcTestRunConfigs) {
-            QVERIFY(!qtcTestRunConfig->id().suffixAfter(Core::Id(Constants::QtcTestRunConfigurationId)).isNull());
-
             bool ok = false;
             foreach (QString qtcPlugin, qtcPlugins) {
                 QDir expectedProFilePath(QLatin1String(TESTS_DIR));
                 expectedProFilePath.cd(qtcPlugin);
 
-                if (QString::compare(qtcTestRunConfig->extraId(), expectedProFilePath.absoluteFilePath(qtcPlugin + QLatin1String(".pro")), Qt::CaseSensitive) == 0) {
+                if (QString::compare(qtcTestRunConfig->buildTargetInfo().buildKey, expectedProFilePath.absoluteFilePath(qtcPlugin + QLatin1String(".pro")), Qt::CaseSensitive) == 0) {
                     ok = true;
                     qtcTestPluginsFound << qtcPlugin;
                     break;
@@ -174,10 +168,9 @@ void QtcRunConfigurationFactoryTest::testOpenProject(void)
             QVERIFY2(ok, qPrintable(QString(QLatin1String("Unexpected run configuration: %1")).arg(qtcTestRunConfig->id().suffixAfter(Core::Id(Constants::QtcTestRunConfigurationId)))));
 
             QCOMPARE(qtcTestRunConfig->displayName(), QString(QLatin1String("Run Qt Creator tests for \"%1\"")).arg(qtcTestPluginsFound.last()));
-            QVERIFY(qtcTestRunConfig->runnable().is<ProjectExplorer::StandardRunnable>());
 
             QStringList args = qtcTestRunConfig->commandLineArgumentsList();
-            ProjectExplorer::StandardRunnable qtcTestRunnable = qtcTestRunConfig->runnable().as<ProjectExplorer::StandardRunnable>();
+            ProjectExplorer::Runnable qtcTestRunnable = qtcTestRunConfig->runnable();
             QCOMPARE(qtcTestRunnable.runMode, ProjectExplorer::ApplicationLauncher::Gui);
             QCOMPARE(qtcTestRunnable.executable, QCoreApplication::applicationFilePath());
             QString workingDirectory = target->activeBuildConfiguration()->buildDirectory().toString();
@@ -203,7 +196,7 @@ void QtcRunConfigurationFactoryTest::testOpenProject(void)
             int pluginIndex = args.indexOf(QLatin1String("-pluginpath"));
             QVERIFY(pluginIndex != -1);
             QVERIFY(pluginIndex + 1 < args.size());
-            QCOMPARE(args.at(pluginIndex + 1), QString(QLatin1String(TESTS_DIR "/%1/./bin")).arg(qtcTestPluginsFound.last()));
+            QCOMPARE(args.at(pluginIndex + 1), QString(QLatin1String(TESTS_DIR "/%1/bin")).arg(qtcTestPluginsFound.last()));
         }
         QCOMPARE(qtcPlugins.size(), qtcTestPluginsFound.size());
     }

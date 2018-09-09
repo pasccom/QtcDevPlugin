@@ -42,7 +42,7 @@ void QtcPluginRunnerTest::testRunner_data(void)
     QTest::addColumn<QString>("runControlDisplayName");
 
     QTest::newRow("Normal run") << Core::Id(ProjectExplorer::Constants::NORMAL_RUN_MODE) << Core::Id(QtcDevPlugin::Constants::QtcRunConfigurationId) << "Run Qt Creator with \"QtcPluginTest\"";
-    //QTest::newRow("Debug run") << Core::Id(ProjectExplorer::Constants::DEBUG_RUN_MODE) << Core::Id(QtcDevPlugin::Constants::QtcRunConfigurationId) << "Run Qt Creator with \"QtcPluginTest\"";
+    QTest::newRow("Debug run") << Core::Id(ProjectExplorer::Constants::DEBUG_RUN_MODE) << Core::Id(QtcDevPlugin::Constants::QtcRunConfigurationId) << "Run Qt Creator with \"QtcPluginTest\"";
     QTest::newRow("Normal test") << Core::Id(ProjectExplorer::Constants::NORMAL_RUN_MODE) << Core::Id(QtcDevPlugin::Constants::QtcTestRunConfigurationId) << "Run Qt Creator tests for \"QtcPluginTest\"";
     QTest::newRow("Debug test") << Core::Id(ProjectExplorer::Constants::DEBUG_RUN_MODE) << Core::Id(QtcDevPlugin::Constants::QtcTestRunConfigurationId) << "Run Qt Creator tests for \"QtcPluginTest\"";
 }
@@ -62,9 +62,9 @@ void QtcPluginRunnerTest::testRunner(void)
     QCOMPARE(mProject->activeTarget()->activeRunConfiguration(), runConfig);
 
     QtcDevPlugin::Internal::QtcRunConfiguration* qtcRunConfig = static_cast<QtcDevPlugin::Internal::QtcRunConfiguration*>(runConfig);
-    QString targetInstallPath = qtcRunConfig->installPath().appendPath(qtcRunConfig->targetName().toString()).toString();
+    Utils::FileName targetInstallPath = qtcRunConfig->targetFilePath();
     qDebug() << targetInstallPath;
-    QVERIFY2(QFile(targetInstallPath).exists(), "Please install QtcPluginTest before running tests");
+    QVERIFY2(targetInstallPath.toFileInfo().exists(), "Please install QtcPluginTest before running tests");
 
     QSignalSpy runControlAboutToStartSpy(ProjectExplorer::ProjectExplorerPlugin::instance(),
                                     SIGNAL(aboutToExecuteRunControl(ProjectExplorer::RunControl*, Core::Id)));
@@ -76,7 +76,7 @@ void QtcPluginRunnerTest::testRunner(void)
     mRunControl = runControlAboutToStartSpy.at(0).at(0).value<ProjectExplorer::RunControl*>();
     QCOMPARE(mRunControl->displayName(), runControlDisplayName);
 
-    QVERIFY(!QFile(targetInstallPath).exists());
+    QVERIFY(!targetInstallPath.toFileInfo().exists());
 
     if (!mRunControl->isRunning()) {
         QSignalSpy runControlStartedSpy(mRunControl, SIGNAL(started()));
@@ -87,7 +87,7 @@ void QtcPluginRunnerTest::testRunner(void)
     mRunControl->initiateStop();
     QVERIFY2(runControlStoppedSpy.wait(15000), "Run control takes too long to stop");
 
-    QVERIFY(QFile(targetInstallPath).exists());
+    QVERIFY(targetInstallPath.toFileInfo().exists());
 }
 
 void QtcPluginRunnerTest::cleanup(void)
