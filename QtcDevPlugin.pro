@@ -108,31 +108,20 @@ lrelease.CONFIG += no_link
 QMAKE_EXTRA_COMPILERS += lrelease
 POST_TARGETDEPS += compiler_lrelease_make_all
 
-###### Translation files installation (not handled yet by Qt Creator)
-COMPILED_TRANSLATIONS =
-for (TRANSLATION, TRANSLATIONS) {
-    COMPILED_TRANSLATIONS += "./bin/$$replace(TRANSLATION, ".ts", ".qm")"
+###### Ressource path
+win32 {
+    USERDATAAPPNAME = "qtcreator"
+    USERDATABASE = "$$(APPDATA)"
+    isEmpty(USERDATABASE):USERDATABASE="$$(USERPROFILE)\Local Settings\Application Data"
+} else:macx {
+    USERDATAAPPNAME = "Qt Creator"
+    USERDATABASE = "$$(HOME)/Library/Application Support"
+} else:unix {
+    USERDATAAPPNAME = "qtcreator"
+    USERDATABASE = "$$(XDG_DATA_HOME)"
+    isEmpty(USERDATABASE):USERDATABASE = "$$(HOME)/.config"
+    else:USERDATABASE = "$$USERDATABASE/data"
 }
-isEmpty(USE_USER_DESTDIR) {
-    translations.path = "$$IDE_DATA_PATH/translations"
-} else {
-    win32 {
-        USERDATAAPPNAME = "qtcreator"
-        USERDATABASE = "$$(APPDATA)"
-        isEmpty(USERDATABASE):USERDATABASE="$$(USERPROFILE)\Local Settings\Application Data"
-    } else:macx {
-        USERDATAAPPNAME = "Qt Creator"
-        USERDATABASE = "$$(HOME)/Library/Application Support"
-    } else:unix {
-        USERDATAAPPNAME = "qtcreator"
-        USERDATABASE = "$$(XDG_DATA_HOME)"
-        isEmpty(USERDATABASE):USERDATABASE = "$$(HOME)/.config"
-        else:USERDATABASE = "$$USERDATABASE/data"
-    }
-    translations.path = "$$USERDATABASE/QtProject/$$USERDATAAPPNAME/translations"
-}
-translations.files = $$COMPILED_TRANSLATIONS
-INSTALLS += translations
 
 ###### Special tuning for output dir on Win32
 win32 {
@@ -186,8 +175,26 @@ win32 {
         }
     }
 }
-###### Added stuff to bypass IDE_BUILD_TREE
-target.path = $$DESTDIR
+
+###### Translation files installation (not handled yet by Qt Creator)
+COMPILED_TRANSLATIONS =
+for (TRANSLATION, TRANSLATIONS) {
+    COMPILED_TRANSLATIONS += "./bin/$$replace(TRANSLATION, ".ts", ".qm")"
+}
+isEmpty(USE_USER_DESTDIR) {
+    translations.path = "$$IDE_DATA_PATH/translations"
+} else {
+    translations.path = "$$USERDATABASE/QtProject/$$USERDATAAPPNAME/translations"
+}
+translations.files = $$COMPILED_TRANSLATIONS
+INSTALLS += translations
+
+###### Plugin library file installation (to by pass what is done by Qt Creator)
+isEmpty(USE_USER_DESTDIR) {
+    target.path="$$IDE_PLUGIN_PATH"
+} else {
+    target.path="$$DESTDIRBASE/QtProject/$$DESTDIRAPPNAME/plugins/$$QTCREATOR_VERSION"
+}
 INSTALLS += target
 DESTDIR = ./bin
 
