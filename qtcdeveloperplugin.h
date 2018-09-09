@@ -30,6 +30,7 @@ namespace ProjectExplorer {
 
 namespace QtcDevPlugin {
 namespace Internal {
+    class QtcRunConfiguration;
 
 /*!
  * \mainpage QtcDev plugin: Qt Creator plugin to develop plugins.
@@ -189,6 +190,19 @@ private slots:
      */
     void handleRunControlStopped();
 private:
+    /*!
+     * \brief Moves the plugin file
+     *
+     * Moves the plugin file (obtained by the target install path of the run configuration)
+     * from one suffixed path to the other.
+     * This allows to delete and undelete easily the plugin from Qt Creator plugin path.
+     * \param runConfig The run configuration whose target to rename.
+     * \param oldSuffix The current suffix of the target.
+     * \param newSuffix The desired suffix of the target.
+     * \sa handleRunControlStarted(), handleRunControlStopped()
+     */
+    void movePluginFile(QtcRunConfiguration* runConfig, const QString& oldSuffix, const QString& newSuffix);
+
     QList<ProjectExplorer::RunConfigurationFactory*> mRunConfigurationFactories; /*!< List of run configuration factories created by this plugin (for deletion) */
 };
 

@@ -112,17 +112,7 @@ void QtcDeveloperPlugin::handleRunControlStarted(ProjectExplorer::RunControl* ru
 
     connect(runControl, SIGNAL(stopped()), this, SLOT(handleRunControlStopped()));
 
-    QtcRunConfiguration* runConfig = static_cast<QtcRunConfiguration*>(runControl->runConfiguration());
-    Utils::FileName oldTargetPath(runConfig->targetFilePath()); // runConfig->installPath().toString() + QDir::separator() + runConfig->targetName().toString();
-    Utils::FileName newTargetPath(runConfig->targetFilePath());
-    newTargetPath.appendString(QLatin1String(".del"));
-
-    qDebug() << oldTargetPath << oldTargetPath.toFileInfo().exists() << newTargetPath << newTargetPath.toFileInfo().exists();
-
-    if (oldTargetPath.toFileInfo().exists()) {
-        QTC_CHECK(QFile::rename(oldTargetPath.toString(), newTargetPath.toString()));
-    }
-    QTC_CHECK(!oldTargetPath.toFileInfo().exists() && newTargetPath.toFileInfo().exists());
+    movePluginFile(static_cast<QtcRunConfiguration*>(runControl->runConfiguration()), QString::null, QLatin1String(".del"));
 }
 
 void QtcDeveloperPlugin::handleRunControlStopped()
@@ -136,10 +126,15 @@ void QtcDeveloperPlugin::handleRunControlStopped()
         (runControl->runConfiguration()->id() != Core::Id(Constants::QtcTestRunConfigurationId)))
         return;
 
-    QtcRunConfiguration* runConfig = static_cast<QtcRunConfiguration*>(runControl->runConfiguration());
-    Utils::FileName oldTargetPath(runConfig->targetFilePath()); // runConfig->installPath().toString() + QDir::separator() + runConfig->targetName().toString();
+    movePluginFile(static_cast<QtcRunConfiguration*>(runControl->runConfiguration()), QLatin1String(".del"), QString::null);
+}
+
+void QtcDeveloperPlugin::movePluginFile(QtcRunConfiguration* runConfig, const QString& oldSuffix, const QString& newSuffix)
+{
+    Utils::FileName oldTargetPath(runConfig->targetFilePath());
     Utils::FileName newTargetPath(runConfig->targetFilePath());
-    oldTargetPath.appendString(QLatin1String(".del"));
+    oldTargetPath.appendString(oldSuffix);
+    newTargetPath.appendString(newSuffix);
 
     qDebug() << oldTargetPath << oldTargetPath.toFileInfo().exists() << newTargetPath << newTargetPath.toFileInfo().exists();
 
