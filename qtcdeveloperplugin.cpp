@@ -112,7 +112,7 @@ void QtcDeveloperPlugin::handleRunControlStarted(ProjectExplorer::RunControl* ru
 
     connect(runControl, SIGNAL(stopped()), this, SLOT(handleRunControlStopped()));
 
-    movePluginFile(static_cast<QtcRunConfiguration*>(runControl->runConfiguration()), QString::null, QLatin1String(".del"));
+    movePluginFile(static_cast<QtcRunConfiguration*>(runControl->runConfiguration()), QString(), QLatin1String(".del"));
 }
 
 void QtcDeveloperPlugin::handleRunControlStopped()
@@ -126,7 +126,7 @@ void QtcDeveloperPlugin::handleRunControlStopped()
         (runControl->runConfiguration()->id() != Core::Id(Constants::QtcTestRunConfigurationId)))
         return;
 
-    movePluginFile(static_cast<QtcRunConfiguration*>(runControl->runConfiguration()), QLatin1String(".del"), QString::null);
+    movePluginFile(static_cast<QtcRunConfiguration*>(runControl->runConfiguration()), QLatin1String(".del"), QString());
 }
 
 void QtcDeveloperPlugin::movePluginFile(QtcRunConfiguration* runConfig, const QString& oldSuffix, const QString& newSuffix)

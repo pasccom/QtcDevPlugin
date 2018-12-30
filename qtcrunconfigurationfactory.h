@@ -60,8 +60,9 @@ public:
      *
      * Constructs an new run configuration factory instance
      * for QMake projects with desktop target.
+     * \param registerRunConfig Whether to register run configuration (to allow inheritence)
      */
-    QtcRunConfigurationFactory(void);
+    QtcRunConfigurationFactory(bool registerRunConfig = true);
     /*!
      * \brief The build targets this factory can create
      *
@@ -191,8 +192,9 @@ public:
      *
      * Constructs an new run configuration factory instance
      * for QMake projects with desktop target.
+     * \param registerRunConfig Whether to register run configuration (to allow inheritence)
      */
-    QtcTestRunConfigurationFactory(void);
+    QtcTestRunConfigurationFactory(bool registerRunConfig = true);
 };
 
 } // Internal

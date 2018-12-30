@@ -62,7 +62,7 @@ include($$QTCREATOR_SOURCES/src/qtcreatorplugin.pri)
 DESTDIR = ./bin
 
 INSTALLS =
-target.path = ../plugins
+target.path = ../plugins/$$QTCREATOR_VERSION
 INSTALLS += target
 
 unix {

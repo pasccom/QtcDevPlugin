@@ -94,7 +94,7 @@ QtcRunConfiguration::QtcRunConfiguration(ProjectExplorer::Target *parent, Core::
      * and addAspects() should only add aspects provided bu runnable RunControl factories.
      * 2.Alternatively, ValgrindPlugin, should ensure the extra aspects are added to
      * sensible RunConfiguration and RunConfiguration::addExtraAspects() should be removed. */
-    addExtraAspect(new ProjectExplorer::LocalEnvironmentAspect(this, ProjectExplorer::LocalEnvironmentAspect::BaseEnvironmentModifier()));
+    addAspect<ProjectExplorer::LocalEnvironmentAspect>(parent, ProjectExplorer::LocalEnvironmentAspect::BaseEnvironmentModifier());
 }
 
 QString QtcRunConfiguration::pluginName(void) const
@@ -111,8 +111,7 @@ ProjectExplorer::Runnable QtcRunConfiguration::runnable(void) const
         runnable.workingDirectory = macroExpander()->expand(mWorkingDirectory.toString());
     else
         runnable.workingDirectory = mWorkingDirectory.toString();
-    runnable.environment = extraAspect<ProjectExplorer::LocalEnvironmentAspect>()->environment();
-    runnable.runMode = ProjectExplorer::ApplicationLauncher::Gui;
+    runnable.environment = aspect<ProjectExplorer::LocalEnvironmentAspect>()->environment();
     runnable.device = ProjectExplorer::DeviceManager::instance()->defaultDevice(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
     return runnable;
 }

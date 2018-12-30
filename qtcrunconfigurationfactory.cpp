@@ -33,21 +33,33 @@
 namespace QtcDevPlugin {
 namespace Internal {
 
-QtcRunConfigurationFactory::QtcRunConfigurationFactory(void) :
+QtcRunConfigurationFactory::QtcRunConfigurationFactory(bool registerRunConfig) :
     ProjectExplorer::RunConfigurationFactory()
 {
     addSupportedProjectType(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
     addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
 
-    setDisplayNamePattern(QCoreApplication::translate("QtcDevPlugin::Internal::QtcRunConfiguration", "Run Qt Creator with \"%1\""));
-    registerRunConfiguration<QtcRunConfiguration>(Core::Id(Constants::QtcRunConfigurationId));
+    if (registerRunConfig) {
+        setDisplayNamePattern(QCoreApplication::translate("QtcDevPlugin::Internal::QtcRunConfiguration", "Run Qt Creator with \"%1\""));
+        registerRunConfiguration<QtcRunConfiguration>(Core::Id(Constants::QtcRunConfigurationId));
+
+        ProjectExplorer::RunControl::registerWorker<ProjectExplorer::SimpleTargetRunner>(ProjectExplorer::Constants::NORMAL_RUN_MODE, [](ProjectExplorer::RunConfiguration* rc) {
+            return rc->id() == Core::Id(Constants::QtcRunConfigurationId);
+        });
+    }
 }
 
-QtcTestRunConfigurationFactory::QtcTestRunConfigurationFactory(void) :
-    QtcRunConfigurationFactory()
+QtcTestRunConfigurationFactory::QtcTestRunConfigurationFactory(bool registerRunConfig) :
+    QtcRunConfigurationFactory(false)
 {
-    setDisplayNamePattern(QCoreApplication::translate("QtcDevPlugin::Internal::QtcTestRunConfiguration", "Run Qt Creator tests for \"%1\""));
-    registerRunConfiguration<QtcTestRunConfiguration>(Core::Id(Constants::QtcTestRunConfigurationId));
+    if (registerRunConfig) {
+        setDisplayNamePattern(QCoreApplication::translate("QtcDevPlugin::Internal::QtcTestRunConfiguration", "Run Qt Creator tests for \"%1\""));
+        registerRunConfiguration<QtcTestRunConfiguration>(Core::Id(Constants::QtcTestRunConfigurationId));
+
+        ProjectExplorer::RunControl::registerWorker<ProjectExplorer::SimpleTargetRunner>(ProjectExplorer::Constants::NORMAL_RUN_MODE, [](ProjectExplorer::RunConfiguration* rc) {
+            return rc->id() == Core::Id(Constants::QtcTestRunConfigurationId);
+        });
+    }
 }
 
 QList<ProjectExplorer::RunConfigurationCreationInfo> QtcRunConfigurationFactory::availableCreators(ProjectExplorer::Target *target) const

@@ -42,9 +42,9 @@ void QtcPluginRunnerTest::testRunner_data(void)
     QTest::addColumn<QString>("runControlDisplayName");
 
     QTest::newRow("Normal run") << Core::Id(ProjectExplorer::Constants::NORMAL_RUN_MODE) << Core::Id(QtcDevPlugin::Constants::QtcRunConfigurationId) << "Run Qt Creator with \"QtcPluginTest\"";
-    QTest::newRow("Debug run") << Core::Id(ProjectExplorer::Constants::DEBUG_RUN_MODE) << Core::Id(QtcDevPlugin::Constants::QtcRunConfigurationId) << "Run Qt Creator with \"QtcPluginTest\"";
+    //QTest::newRow("Debug run") << Core::Id(ProjectExplorer::Constants::DEBUG_RUN_MODE) << Core::Id(QtcDevPlugin::Constants::QtcRunConfigurationId) << "Run Qt Creator with \"QtcPluginTest\"";
     QTest::newRow("Normal test") << Core::Id(ProjectExplorer::Constants::NORMAL_RUN_MODE) << Core::Id(QtcDevPlugin::Constants::QtcTestRunConfigurationId) << "Run Qt Creator tests for \"QtcPluginTest\"";
-    QTest::newRow("Debug test") << Core::Id(ProjectExplorer::Constants::DEBUG_RUN_MODE) << Core::Id(QtcDevPlugin::Constants::QtcTestRunConfigurationId) << "Run Qt Creator tests for \"QtcPluginTest\"";
+    //QTest::newRow("Debug test") << Core::Id(ProjectExplorer::Constants::DEBUG_RUN_MODE) << Core::Id(QtcDevPlugin::Constants::QtcTestRunConfigurationId) << "Run Qt Creator tests for \"QtcPluginTest\"";
 }
 
 void QtcPluginRunnerTest::testRunner(void)
