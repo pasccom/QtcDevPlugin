@@ -81,25 +81,25 @@ bool openQMakeProject(const QString& projectFilePath, ProjectExplorer::Project**
     // Initialize build confirgurations if required
     foreach (ProjectExplorer::Target* target, proj->targets()) {
         if (target->activeBuildConfiguration() == NULL) {
-            ProjectExplorer::IBuildConfigurationFactory* factory = ProjectExplorer::IBuildConfigurationFactory::find(target);
+            ProjectExplorer::BuildConfigurationFactory* factory = ProjectExplorer::BuildConfigurationFactory::find(target);
             QVERIFY(factory != NULL);
-            QList<ProjectExplorer::BuildInfo *> buildInfos = factory->availableBuilds(target);
-            ProjectExplorer::BuildInfo* releaseBuildInfo = NULL;
-            ProjectExplorer::BuildInfo* debugBuildInfo = NULL;
-            foreach (ProjectExplorer::BuildInfo* bi, buildInfos) {
-                if (QString::compare(bi->typeName, QLatin1String("Release"), Qt::CaseInsensitive) == 0) {
+            QList<ProjectExplorer::BuildInfo> buildInfos = factory->allAvailableBuilds(target);
+            ProjectExplorer::BuildInfo releaseBuildInfo;
+            ProjectExplorer::BuildInfo debugBuildInfo;
+            foreach (ProjectExplorer::BuildInfo bi, buildInfos) {
+                if (QString::compare(bi.typeName, QLatin1String("Release"), Qt::CaseInsensitive) == 0) {
                     releaseBuildInfo = bi;
-                    releaseBuildInfo->displayName = bi->typeName;
-                } else if (QString::compare(bi->typeName, QLatin1String("Release"), Qt::CaseInsensitive) == 0) {
+                    releaseBuildInfo.displayName = bi.typeName;
+                } else if (QString::compare(bi.typeName, QLatin1String("Release"), Qt::CaseInsensitive) == 0) {
                     debugBuildInfo = bi;
-                    debugBuildInfo->displayName = bi->typeName;
+                    debugBuildInfo.displayName = bi.typeName;
                 }
             }
-            QVERIFY((releaseBuildInfo != NULL) || (debugBuildInfo != NULL));
-            if (debugBuildInfo != NULL)
-                target->addBuildConfiguration(factory->create(target, debugBuildInfo));
-            else
+            QVERIFY(!((releaseBuildInfo == ProjectExplorer::BuildInfo()) && (debugBuildInfo == ProjectExplorer::BuildInfo())));
+            if (debugBuildInfo == ProjectExplorer::BuildInfo())
                 target->addBuildConfiguration(factory->create(target, releaseBuildInfo));
+            else
+                target->addBuildConfiguration(factory->create(target, debugBuildInfo));
         }
     }
     QVERIFY(proj->activeTarget()->activeBuildConfiguration() != NULL);
