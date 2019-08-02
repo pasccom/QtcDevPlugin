@@ -22,6 +22,7 @@
 #include "qtcdevplugin_global.h"
 
 #include <extensionsystem/iplugin.h>
+#include <utils/fileutils.h>
 
 namespace ProjectExplorer {
     class RunConfigurationFactory;
@@ -198,12 +199,12 @@ private:
      * Moves the plugin file (obtained by the target install path of the run configuration)
      * from one suffixed path to the other.
      * This allows to delete and undelete easily the plugin from Qt Creator plugin path.
-     * \param runConfig The run configuration whose target to rename.
+     * \param targetPath The path to the target to rename.
      * \param oldSuffix The current suffix of the target.
      * \param newSuffix The desired suffix of the target.
      * \sa handleRunControlStarted(), handleRunControlStopped()
      */
-    void movePluginFile(QtcRunConfiguration* runConfig, const QString& oldSuffix, const QString& newSuffix);
+    void movePluginFile(const Utils::FileName& targetPath, const QString& oldSuffix, const QString& newSuffix);
 
     QList<ProjectExplorer::RunConfigurationFactory*> mRunConfigurationFactories; /*!< List of run configuration factories created by this plugin (for deletion) */
 };

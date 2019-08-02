@@ -112,7 +112,7 @@ void QtcDeveloperPlugin::handleRunControlStarted(ProjectExplorer::RunControl* ru
 
     connect(runControl, SIGNAL(stopped()), this, SLOT(handleRunControlStopped()));
 
-    movePluginFile(static_cast<QtcRunConfiguration*>(runControl->runConfiguration()), QString(), QLatin1String(".del"));
+    movePluginFile(static_cast<QtcRunConfiguration*>(runControl->runConfiguration())->targetFilePath(), QString(), QLatin1String(".del"));
 }
 
 void QtcDeveloperPlugin::handleRunControlStopped()
@@ -126,13 +126,13 @@ void QtcDeveloperPlugin::handleRunControlStopped()
         (runControl->runConfiguration()->id() != Core::Id(Constants::QtcTestRunConfigurationId)))
         return;
 
-    movePluginFile(static_cast<QtcRunConfiguration*>(runControl->runConfiguration()), QLatin1String(".del"), QString());
+    movePluginFile(static_cast<QtcRunConfiguration*>(runControl->runConfiguration())->targetFilePath(), QLatin1String(".del"), QString());
 }
 
-void QtcDeveloperPlugin::movePluginFile(QtcRunConfiguration* runConfig, const QString& oldSuffix, const QString& newSuffix)
+void QtcDeveloperPlugin::movePluginFile(const Utils::FileName& targetPath, const QString& oldSuffix, const QString& newSuffix)
 {
-    Utils::FileName oldTargetPath(runConfig->targetFilePath());
-    Utils::FileName newTargetPath(runConfig->targetFilePath());
+    Utils::FileName oldTargetPath(targetPath);
+    Utils::FileName newTargetPath(targetPath);
     oldTargetPath.appendString(oldSuffix);
     newTargetPath.appendString(newSuffix);
 
