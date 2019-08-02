@@ -23,6 +23,12 @@ void QtcPluginRunnerTest::initTestCase(void)
 {
     QDir projectPath(TESTS_DIR "/QtcPluginTest");
 
+    // Install the project:
+    QProcess makeProcess(this);
+    makeProcess.setWorkingDirectory(projectPath.absolutePath());
+    makeProcess.start("make", QStringList() << "install");
+    QVERIFY2(makeProcess.waitForFinished(), "Failed to execute \"make install\" for QtcPluginTest. Please do it manually");
+
     QVERIFY(removeProjectUserFiles(projectPath.absolutePath()));
     QVERIFY(openQMakeProject(projectPath.absoluteFilePath("QtcPluginTest.pro"), &mProject));
     QCOMPARE(mProject->projectFilePath().toString(), projectPath.absoluteFilePath("QtcPluginTest.pro"));
@@ -64,7 +70,7 @@ void QtcPluginRunnerTest::testRunner(void)
     QtcDevPlugin::Internal::QtcRunConfiguration* qtcRunConfig = static_cast<QtcDevPlugin::Internal::QtcRunConfiguration*>(runConfig);
     Utils::FileName targetInstallPath = qtcRunConfig->targetFilePath();
     qDebug() << targetInstallPath;
-    QVERIFY2(targetInstallPath.toFileInfo().exists(), "Please install QtcPluginTest before running tests");
+    QVERIFY2(targetInstallPath.toFileInfo().exists(), "Please ensure QtcPluginTest is installed before running tests");
 
     QSignalSpy runControlAboutToStartSpy(ProjectExplorer::ProjectExplorerPlugin::instance(),
                                     SIGNAL(aboutToExecuteRunControl(ProjectExplorer::RunControl*, Core::Id)));
