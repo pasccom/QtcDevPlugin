@@ -55,6 +55,7 @@ TRANSLATIONS += \
         Test/qtcrunconfigurationtest.cpp \
         Test/qtcpluginrunnertest.cpp
     HEADERS += \
+        Test/qttestsubfunction.h \
         Test/testhelper.h \
         Test/qtcrunconfigurationfactorytest.h \
         Test/qtcrunconfigurationtest.h \

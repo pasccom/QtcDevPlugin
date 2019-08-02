@@ -21,17 +21,26 @@
 
 #include <QObject>
 
+#include <coreplugin/id.h>
+
+#include "qttestsubfunction.h"
+
 namespace ProjectExplorer {
     class Project;
     class RunControl;
 }
 
 namespace QtcDevPlugin {
+namespace Internal {
+    class QtcRunConfiguration;
+}
+
 namespace Test {
 
 class QtcPluginRunnerTest : public QObject
 {
     Q_OBJECT
+    HAS_SUB_TEST_FUNCTIONS
 public:
     inline QtcPluginRunnerTest(QObject* parent = nullptr) :
         QObject(parent) {mProject = nullptr; mRunControl = nullptr;}
@@ -43,6 +52,8 @@ private Q_SLOTS:
     void cleanup(void);
     void cleanupTestCase(void);
 private:
+    void qtcRunConfiguration(const Core::Id& runConfigId, QtcDevPlugin::Internal::QtcRunConfiguration** qtcRunConfig);
+
     ProjectExplorer::Project* mProject;
     ProjectExplorer::RunControl* mRunControl;
 };

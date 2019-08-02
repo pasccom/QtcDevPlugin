@@ -206,6 +206,8 @@ private:
      */
     void movePluginFile(const Utils::FileName& targetPath, const QString& oldSuffix, const QString& newSuffix);
 
+    QLinkedList<Utils::FileName> pluginPaths(const QString& fileName);
+
     QList<ProjectExplorer::RunConfigurationFactory*> mRunConfigurationFactories; /*!< List of run configuration factories created by this plugin (for deletion) */
 };
 

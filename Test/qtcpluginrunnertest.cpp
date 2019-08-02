@@ -11,8 +11,6 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 
-#include <coreplugin/id.h>
-
 #include <QtTest>
 
 namespace QtcDevPlugin {
@@ -53,21 +51,33 @@ void QtcPluginRunnerTest::testRunner_data(void)
     //QTest::newRow("Debug test") << Core::Id(ProjectExplorer::Constants::DEBUG_RUN_MODE) << Core::Id(QtcDevPlugin::Constants::QtcTestRunConfigurationId) << "Run Qt Creator tests for \"QtcPluginTest\"";
 }
 
-void QtcPluginRunnerTest::testRunner(void)
+void QtcPluginRunnerTest::qtcRunConfiguration(const Core::Id& runConfigId, QtcDevPlugin::Internal::QtcRunConfiguration** qtcRunConfig)
 {
-    QFETCH(Core::Id, runModeId);
-    QFETCH(Core::Id, runConfigId);
-    QFETCH(QString, runControlDisplayName);
+    BEGIN_SUB_TEST_FUNCTION
 
     ProjectExplorer::RunConfiguration* runConfig = Utils::findOrDefault(mProject->activeTarget()->runConfigurations(), [runConfigId](ProjectExplorer::RunConfiguration* rc) {
         return rc->id() == runConfigId;
     });
     QVERIFY(runConfig != nullptr);
     QVERIFY(runConfig->id() == runConfigId);
-    mProject->activeTarget()->setActiveRunConfiguration(runConfig);
-    QCOMPARE(mProject->activeTarget()->activeRunConfiguration(), runConfig);
 
-    QtcDevPlugin::Internal::QtcRunConfiguration* qtcRunConfig = static_cast<QtcDevPlugin::Internal::QtcRunConfiguration*>(runConfig);
+    QVERIFY(qtcRunConfig != nullptr);
+    *qtcRunConfig = static_cast<QtcDevPlugin::Internal::QtcRunConfiguration*>(runConfig);
+
+    END_SUB_TEST_FUNCTION
+}
+
+void QtcPluginRunnerTest::testRunner(void)
+{
+    QFETCH(Core::Id, runModeId);
+    QFETCH(Core::Id, runConfigId);
+    QFETCH(QString, runControlDisplayName);
+
+    QtcDevPlugin::Internal::QtcRunConfiguration* qtcRunConfig;
+    SUB_TEST_FUNCTION(qtcRunConfiguration(runConfigId, &qtcRunConfig));
+    mProject->activeTarget()->setActiveRunConfiguration(qtcRunConfig);
+    QCOMPARE(mProject->activeTarget()->activeRunConfiguration(), qtcRunConfig);
+
     Utils::FileName targetInstallPath = qtcRunConfig->targetFilePath();
     qDebug() << targetInstallPath;
     QVERIFY2(targetInstallPath.toFileInfo().exists(), "Please ensure QtcPluginTest is installed before running tests");
