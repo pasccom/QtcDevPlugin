@@ -25,6 +25,7 @@
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/kit.h>
 
 #include <qtsupport/qtsupportconstants.h>
@@ -94,7 +95,7 @@ QtcRunConfiguration::QtcRunConfiguration(ProjectExplorer::Target *parent, Core::
      * and addAspects() should only add aspects provided bu runnable RunControl factories.
      * 2.Alternatively, ValgrindPlugin, should ensure the extra aspects are added to
      * sensible RunConfiguration and RunConfiguration::addExtraAspects() should be removed. */
-    addAspect<ProjectExplorer::LocalEnvironmentAspect>(parent, ProjectExplorer::LocalEnvironmentAspect::BaseEnvironmentModifier());
+    addAspect<ProjectExplorer::LocalEnvironmentAspect>(parent);
 }
 
 QString QtcRunConfiguration::pluginName(void) const
@@ -121,7 +122,7 @@ QVariantMap QtcRunConfiguration::toMap(void) const
     QVariantMap map(ProjectExplorer::RunConfiguration::toMap());
     if (QString::compare(mWorkingDirectory.toString(), QLatin1String("%{buildDir}"), Utils::HostOsInfo::fileNameCaseSensitivity()) != 0)
         map.insert(Constants::WorkingDirectoryKey, mWorkingDirectory.toString());
-    if (!mSettingsPath.isNull())
+    if (!mSettingsPath.isEmpty())
         map.insert(Constants::SettingsPathKey, mSettingsPath.toString());
     map.insert(Constants::ThemeKey, mThemeName);
 
@@ -165,7 +166,7 @@ QStringList QtcRunConfiguration::commandLineArgumentsList(void) const
     settingsPath.replace(QLatin1Char('"'), QLatin1String("\\\""));
     if (settingsPath.contains(QLatin1Char(' ')))
         settingsPath.prepend(QLatin1Char('"')).append(QLatin1Char('"'));
-    if (!mSettingsPath.isNull())
+    if (!mSettingsPath.isEmpty())
         cmdArgs << QLatin1String("-settingspath") << settingsPath;
 
     qDebug() << "Run config command line arguments:" << cmdArgs;
@@ -240,7 +241,7 @@ void QtcRunConfigurationWidget::showEvent(QShowEvent *se)
     mWorkingDirectoryEdit->setText(mRunConfig->mWorkingDirectory.toString());
 
     mSettingsPathEdit->setText(mRunConfig->mSettingsPath.toString());
-    mSettingsPathCheck->setChecked(!mRunConfig->mSettingsPath.isNull());
+    mSettingsPathCheck->setChecked(!mRunConfig->mSettingsPath.isEmpty());
 
     int currentThemeIndex = 0;
     while ((currentThemeIndex < mThemeCombo->count()) &&

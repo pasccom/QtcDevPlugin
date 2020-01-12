@@ -29,6 +29,7 @@
 #endif
 
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/runcontrol.h>
 
 #include <coreplugin/icore.h>
 
@@ -144,17 +145,15 @@ QLinkedList<Utils::FileName> QtcDeveloperPlugin::pluginPaths(const QString& file
     QLinkedList<Utils::FileName> ans;
 
     foreach (QString pluginPath, ExtensionSystem::PluginManager::pluginPaths())
-        ans << Utils::FileName::fromString(pluginPath).appendPath(fileName);
+        ans << Utils::FileName::fromString(pluginPath).pathAppended(fileName);
 
     return ans;
 }
 
 void QtcDeveloperPlugin::movePluginFile(const Utils::FileName& targetPath, const QString& oldSuffix, const QString& newSuffix)
 {
-    Utils::FileName oldTargetPath(targetPath);
-    Utils::FileName newTargetPath(targetPath);
-    oldTargetPath.appendString(oldSuffix);
-    newTargetPath.appendString(newSuffix);
+    Utils::FileName oldTargetPath = Utils::FileName(targetPath).stringAppended(oldSuffix);
+    Utils::FileName newTargetPath = Utils::FileName(targetPath).stringAppended(newSuffix);
 
     qDebug() << oldTargetPath << oldTargetPath.toFileInfo().exists() << newTargetPath << newTargetPath.toFileInfo().exists();
 
@@ -165,9 +164,9 @@ void QtcDeveloperPlugin::movePluginFile(const Utils::FileName& targetPath, const
 }
 
 #ifdef BUILD_TESTS
-QList<QObject *> QtcDeveloperPlugin::createTestObjects(void) const
+QVector<QObject *> QtcDeveloperPlugin::createTestObjects(void) const
 {
-    QList<QObject *> testObjects;
+    QVector<QObject *> testObjects;
 
     testObjects << new Test::QtcRunConfigurationFactoryTest;
     testObjects << new Test::QtcRunConfigurationTest;

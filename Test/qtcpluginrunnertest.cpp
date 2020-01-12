@@ -10,6 +10,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/runcontrol.h>
 
 #include <QtTest>
 
@@ -33,7 +34,7 @@ void QtcPluginRunnerTest::initTestCase(void)
 
     QList<ProjectExplorer::Target*> targets = mProject->targets();
     foreach (ProjectExplorer::Target* target, targets) {
-        QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(target->kit());
+        QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(target->kit());
         if (qtVersion->qtVersion().majorVersion < 5)
             mProject->removeTarget(target);
     }

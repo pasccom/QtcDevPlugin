@@ -23,6 +23,7 @@
 #include "qtcdevpluginconstants.h"
 
 #include <projectexplorer/target.h>
+#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/kitinformation.h>
 
 #include <qmakeprojectmanager/qmakeproject.h>
@@ -69,13 +70,13 @@ QList<ProjectExplorer::RunConfigurationCreationInfo> QtcRunConfigurationFactory:
     if (!isReady(target->project()) || !isUseful(target->project()))
         return creators;
 
-    ProjectExplorer::BuildTargetInfoList buildInfos = target->applicationTargets();
-    qDebug() << "BuildTargetInfoList size:" << buildInfos.list.size();
+    QList<ProjectExplorer::BuildTargetInfo> buildInfos = target->applicationTargets();
+    qDebug() << "BuildTargetInfoList size:" << buildInfos.size();
     foreach (ProjectExplorer::ProjectNode *node, qtCreatorPlugins(target->project()->rootProjectNode())) {
         QmakeProjectManager::QmakeProFileNode* qMakeNode = static_cast<QmakeProjectManager::QmakeProFileNode*>(node);
 
         QFileInfo proFileInfo = qMakeNode->filePath().toFileInfo();
-        ProjectExplorer::BuildTargetInfo info = buildInfos.buildTargetInfo(proFileInfo.canonicalFilePath());
+        ProjectExplorer::BuildTargetInfo info = target->buildTarget(proFileInfo.canonicalFilePath());
 
         if (info.buildKey != proFileInfo.canonicalFilePath()) {
             qDebug() << __func__ << "Creating:" << proFileInfo.canonicalFilePath() << proFileInfo.baseName() << targetBuildPath(qMakeNode->proFile()) << targetInstallPath(qMakeNode->proFile());
@@ -85,7 +86,7 @@ QList<ProjectExplorer::RunConfigurationCreationInfo> QtcRunConfigurationFactory:
             info.projectFilePath = qMakeNode->filePath();
             info.workingDirectory = targetBuildPath(qMakeNode->proFile());
             info.targetFilePath = targetInstallPath(qMakeNode->proFile());
-            buildInfos.list << info;
+            buildInfos << info;
         }
 
         ProjectExplorer::RunConfigurationCreationInfo creator;
@@ -105,7 +106,7 @@ Utils::FileName QtcRunConfigurationFactory::targetBuildPath(QmakeProjectManager:
 {
     QDir targetPath(proFile->targetInformation().destDir.toString());
     if (!targetPath.isAbsolute())
-        targetPath.setPath(proFile->targetInformation().buildDir.appendPath(targetPath.path()).toString());
+        targetPath.setPath(proFile->targetInformation().buildDir.pathAppended(targetPath.path()).toString());
     return  Utils::FileName::fromString(targetPath.absolutePath());
 }
 
@@ -113,7 +114,7 @@ Utils::FileName QtcRunConfigurationFactory::targetInstallPath(QmakeProjectManage
 {
     QDir targetPath(proFile->installsList().targetPath);
     if (!targetPath.isAbsolute())
-        targetPath.setPath(proFile->targetInformation().buildDir.appendPath(targetPath.path()).toString());
+        targetPath.setPath(proFile->targetInformation().buildDir.pathAppended(targetPath.path()).toString());
 
     QString targetName = "lib" + proFile->targetInformation().target + '.' + proFile->singleVariableValue(QmakeProjectManager::Variable::ShLibExtension);
     return Utils::FileName::fromString(targetPath.absoluteFilePath(targetName));

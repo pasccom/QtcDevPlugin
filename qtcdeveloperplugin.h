@@ -167,7 +167,7 @@ public:
      * \note This function of this method is extensively described in Qt Creator developper documentation.
      * \return A list of instances of test classes.
      */
-    QList<QObject *> createTestObjects(void) const override;
+    QVector<QObject *> createTestObjects(void) const override;
 #endif
 private slots:
     /*!
