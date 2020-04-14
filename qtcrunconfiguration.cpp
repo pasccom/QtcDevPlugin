@@ -84,7 +84,7 @@ QStringList availableThemes(void)
 QtcRunConfiguration::QtcRunConfiguration(ProjectExplorer::Target *parent, Core::Id id):
     ProjectExplorer::RunConfiguration(parent, id)
 {
-    mWorkingDirectory = Utils::FileName::fromString(QLatin1String("%{buildDir}"));
+    mWorkingDirectory = Utils::FilePath::fromString(QLatin1String("%{buildDir}"));
     mThemeName = Utils::creatorTheme()->displayName();
 
     setDefaultDisplayName(tr("Run Qt Creator"));
@@ -106,7 +106,7 @@ QString QtcRunConfiguration::pluginName(void) const
 ProjectExplorer::Runnable QtcRunConfiguration::runnable(void) const
 {
     ProjectExplorer::Runnable runnable;
-    runnable.executable = QCoreApplication::applicationFilePath();
+    runnable.executable = Utils::FilePath::fromString(QCoreApplication::applicationFilePath());
     runnable.commandLineArguments = commandLineArgumentsList().join(QLatin1Char(' '));;
     if (macroExpander() != NULL)
         runnable.workingDirectory = macroExpander()->expand(mWorkingDirectory.toString());
@@ -134,8 +134,8 @@ bool QtcRunConfiguration::fromMap(const QVariantMap& map)
     if (!ProjectExplorer::RunConfiguration::fromMap(map))
         return false;
 
-    mWorkingDirectory = Utils::FileName::fromString(map.value(Constants::WorkingDirectoryKey, QLatin1String("%{buildDir}")).toString());
-    mSettingsPath = Utils::FileName::fromString(map.value(Constants::SettingsPathKey, QString()).toString());
+    mWorkingDirectory = Utils::FilePath::fromString(map.value(Constants::WorkingDirectoryKey, QLatin1String("%{buildDir}")).toString());
+    mSettingsPath = Utils::FilePath::fromString(map.value(Constants::SettingsPathKey, QString()).toString());
 
     QStringList themes = availableThemes();
     QString theme = map.value(Constants::ThemeKey, QString()).toString();
@@ -257,13 +257,13 @@ void QtcRunConfigurationWidget::showEvent(QShowEvent *se)
 void QtcRunConfigurationWidget::updateWorkingDirectory(bool valid)
 {
     if (valid)
-        mRunConfig->mWorkingDirectory = Utils::FileName::fromUserInput(mWorkingDirectoryEdit->text());
+        mRunConfig->mWorkingDirectory = Utils::FilePath::fromUserInput(mWorkingDirectoryEdit->text());
 }
 
 void QtcRunConfigurationWidget::updateWorkingDirectory(void)
 {
     if (mWorkingDirectoryEdit->isValid())
-        mRunConfig->mWorkingDirectory = Utils::FileName::fromUserInput(mWorkingDirectoryEdit->text());
+        mRunConfig->mWorkingDirectory = Utils::FilePath::fromUserInput(mWorkingDirectoryEdit->text());
     mWorkingDirectoryEdit->setText(mRunConfig->mWorkingDirectory.toString());
 }
 
@@ -272,7 +272,7 @@ void QtcRunConfigurationWidget::browseWorkingDirectory(void)
     QString wd = QFileDialog::getExistingDirectory(this, tr("Choose working directory"), mRunConfig->mWorkingDirectory.toString());
 
     if (!wd.isNull())
-        mRunConfig->mWorkingDirectory = Utils::FileName::fromString(wd);
+        mRunConfig->mWorkingDirectory = Utils::FilePath::fromString(wd);
     mWorkingDirectoryEdit->setText(mRunConfig->mWorkingDirectory.toString());
 }
 
@@ -280,19 +280,19 @@ void QtcRunConfigurationWidget::updateSettingsPathState(bool checked)
 {
     mSettingsPathEdit->setEnabled(checked);
     mSettingsPathButton->setEnabled(checked);
-    mRunConfig->mSettingsPath = checked ? Utils::FileName::fromUserInput(mSettingsPathEdit->text()) : Utils::FileName();
+    mRunConfig->mSettingsPath = checked ? Utils::FilePath::fromUserInput(mSettingsPathEdit->text()) : Utils::FilePath();
 }
 
 void QtcRunConfigurationWidget::updateSettingsPath(bool valid)
 {
     if (valid)
-        mRunConfig->mSettingsPath = Utils::FileName::fromUserInput(mSettingsPathEdit->text());
+        mRunConfig->mSettingsPath = Utils::FilePath::fromUserInput(mSettingsPathEdit->text());
 }
 
 void QtcRunConfigurationWidget::updateSettingsPath(void)
 {
     if (mSettingsPathEdit->isValid())
-        mRunConfig->mSettingsPath = Utils::FileName::fromUserInput(mSettingsPathEdit->text());
+        mRunConfig->mSettingsPath = Utils::FilePath::fromUserInput(mSettingsPathEdit->text());
     mSettingsPathEdit->setText(mRunConfig->mSettingsPath.toString());
 }
 
@@ -301,7 +301,7 @@ void QtcRunConfigurationWidget::browseSettingsPath(void)
     QString wd = QFileDialog::getExistingDirectory(this, tr("Choose alternative settings path"), mRunConfig->mSettingsPath.toString());
 
     if (!wd.isNull())
-        mRunConfig->mSettingsPath = Utils::FileName::fromString(wd);
+        mRunConfig->mSettingsPath = Utils::FilePath::fromString(wd);
     mSettingsPathEdit->setText(mRunConfig->mSettingsPath.toString());
 }
 

@@ -224,7 +224,7 @@ public:
      * \return The path where of plugin library file when installed
      * \sa pluginName()
      */
-    inline Utils::FileName targetFilePath(void) const {return buildTargetInfo().targetFilePath;}
+    inline Utils::FilePath targetFilePath(void) const {return buildTargetInfo().targetFilePath;}
     /*!
      * \brief The name of the plugin
      *
@@ -252,8 +252,8 @@ public:
      */
     virtual bool fromMap(const QVariantMap& map) override;
 private:
-    Utils::FileName mWorkingDirectory;  /*!< The path to the working directory */
-    Utils::FileName mSettingsPath;      /*!< The path to Qt Creator settings */
+    Utils::FilePath mWorkingDirectory;  /*!< The path to the working directory */
+    Utils::FilePath mSettingsPath;      /*!< The path to Qt Creator settings */
     QString mThemeName;                 /*!< Qt Creator theme to be used */
 
     friend class QtcRunConfigurationWidget;

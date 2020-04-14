@@ -102,22 +102,22 @@ QList<ProjectExplorer::RunConfigurationCreationInfo> QtcRunConfigurationFactory:
     return creators;
 }
 
-Utils::FileName QtcRunConfigurationFactory::targetBuildPath(QmakeProjectManager::QmakeProFile* proFile)
+Utils::FilePath QtcRunConfigurationFactory::targetBuildPath(QmakeProjectManager::QmakeProFile* proFile)
 {
     QDir targetPath(proFile->targetInformation().destDir.toString());
     if (!targetPath.isAbsolute())
         targetPath.setPath(proFile->targetInformation().buildDir.pathAppended(targetPath.path()).toString());
-    return  Utils::FileName::fromString(targetPath.absolutePath());
+    return  Utils::FilePath::fromString(targetPath.absolutePath());
 }
 
-Utils::FileName QtcRunConfigurationFactory::targetInstallPath(QmakeProjectManager::QmakeProFile* proFile)
+Utils::FilePath QtcRunConfigurationFactory::targetInstallPath(QmakeProjectManager::QmakeProFile* proFile)
 {
     QDir targetPath(proFile->installsList().targetPath);
     if (!targetPath.isAbsolute())
         targetPath.setPath(proFile->targetInformation().buildDir.pathAppended(targetPath.path()).toString());
 
     QString targetName = "lib" + proFile->targetInformation().target + '.' + proFile->singleVariableValue(QmakeProjectManager::Variable::ShLibExtension);
-    return Utils::FileName::fromString(targetPath.absoluteFilePath(targetName));
+    return Utils::FilePath::fromString(targetPath.absoluteFilePath(targetName));
 }
 
 bool QtcRunConfigurationFactory::isReady(ProjectExplorer::Project* project)

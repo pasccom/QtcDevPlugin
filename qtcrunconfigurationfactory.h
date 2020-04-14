@@ -156,7 +156,7 @@ private:
      * \param proFile A QMake project file.
      * \return The path where the target of the given project file is built.
      */
-    static Utils::FileName targetBuildPath(QmakeProjectManager::QmakeProFile* proFile);
+    static Utils::FilePath targetBuildPath(QmakeProjectManager::QmakeProFile* proFile);
     /*!
      * \brief Path where the target is installed
      *
@@ -164,7 +164,7 @@ private:
      * \param proFile A QMake project file.
      * \return The path where the target of the given project file is installed.
      */
-    static Utils::FileName targetInstallPath(QmakeProjectManager::QmakeProFile* proFile);
+    static Utils::FilePath targetInstallPath(QmakeProjectManager::QmakeProFile* proFile);
 
     QString mDisplayNamePattern; /*!< The display name pattern */
 };

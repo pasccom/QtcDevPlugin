@@ -79,7 +79,7 @@ void QtcPluginRunnerTest::testRunner(void)
     mProject->activeTarget()->setActiveRunConfiguration(qtcRunConfig);
     QCOMPARE(mProject->activeTarget()->activeRunConfiguration(), qtcRunConfig);
 
-    Utils::FileName targetInstallPath = qtcRunConfig->targetFilePath();
+    Utils::FilePath targetInstallPath = qtcRunConfig->targetFilePath();
     qDebug() << targetInstallPath;
     QVERIFY2(targetInstallPath.toFileInfo().exists(), "Please ensure QtcPluginTest is installed before running tests");
 

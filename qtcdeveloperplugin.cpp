@@ -115,10 +115,10 @@ void QtcDeveloperPlugin::handleRunControlStarted(ProjectExplorer::RunControl* ru
 
     connect(runControl, SIGNAL(stopped()), this, SLOT(handleRunControlStopped()));
 
-    Utils::FileName targetFilePath(static_cast<QtcRunConfiguration*>(runControl->runConfiguration())->targetFilePath());
+    Utils::FilePath targetFilePath(static_cast<QtcRunConfiguration*>(runControl->runConfiguration())->targetFilePath());
 
     movePluginFile(targetFilePath, QString(), QLatin1String(".del"));
-    foreach (Utils::FileName pluginFilePath, pluginPaths(targetFilePath.fileName()))
+    foreach (Utils::FilePath pluginFilePath, pluginPaths(targetFilePath.fileName()))
         movePluginFile(pluginFilePath, QString(), QLatin1String(".del"));
 }
 
@@ -133,27 +133,27 @@ void QtcDeveloperPlugin::handleRunControlStopped()
         (runControl->runConfiguration()->id() != Core::Id(Constants::QtcTestRunConfigurationId)))
         return;
 
-    Utils::FileName targetFilePath(static_cast<QtcRunConfiguration*>(runControl->runConfiguration())->targetFilePath());
+    Utils::FilePath targetFilePath(static_cast<QtcRunConfiguration*>(runControl->runConfiguration())->targetFilePath());
 
     movePluginFile(targetFilePath, QLatin1String(".del"), QString());
-    foreach (Utils::FileName pluginFilePath, pluginPaths(targetFilePath.fileName()))
+    foreach (Utils::FilePath pluginFilePath, pluginPaths(targetFilePath.fileName()))
         movePluginFile(pluginFilePath, QLatin1String(".del"), QString());
 }
 
-QLinkedList<Utils::FileName> QtcDeveloperPlugin::pluginPaths(const QString& fileName)
+QLinkedList<Utils::FilePath> QtcDeveloperPlugin::pluginPaths(const QString& fileName)
 {
-    QLinkedList<Utils::FileName> ans;
+    QLinkedList<Utils::FilePath> ans;
 
     foreach (QString pluginPath, ExtensionSystem::PluginManager::pluginPaths())
-        ans << Utils::FileName::fromString(pluginPath).pathAppended(fileName);
+        ans << Utils::FilePath::fromString(pluginPath).pathAppended(fileName);
 
     return ans;
 }
 
-void QtcDeveloperPlugin::movePluginFile(const Utils::FileName& targetPath, const QString& oldSuffix, const QString& newSuffix)
+void QtcDeveloperPlugin::movePluginFile(const Utils::FilePath& targetPath, const QString& oldSuffix, const QString& newSuffix)
 {
-    Utils::FileName oldTargetPath = Utils::FileName(targetPath).stringAppended(oldSuffix);
-    Utils::FileName newTargetPath = Utils::FileName(targetPath).stringAppended(newSuffix);
+    Utils::FilePath oldTargetPath = Utils::FilePath(targetPath).stringAppended(oldSuffix);
+    Utils::FilePath newTargetPath = Utils::FilePath(targetPath).stringAppended(newSuffix);
 
     qDebug() << oldTargetPath << oldTargetPath.toFileInfo().exists() << newTargetPath << newTargetPath.toFileInfo().exists();
 

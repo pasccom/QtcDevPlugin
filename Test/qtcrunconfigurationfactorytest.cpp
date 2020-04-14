@@ -134,7 +134,7 @@ void QtcRunConfigurationFactoryTest::testOpenProject(void)
 
             QStringList args = qtcRunConfig->commandLineArgumentsList();
             ProjectExplorer::Runnable qtcRunnable = qtcRunConfig->runnable();
-            QCOMPARE(qtcRunnable.executable, QCoreApplication::applicationFilePath());
+            QCOMPARE(qtcRunnable.executable, Utils::FilePath::fromString(QCoreApplication::applicationFilePath()));
             QString workingDirectory = target->activeBuildConfiguration()->buildDirectory().toString();
             workingDirectory.replace(QLatin1Char('/'), QDir::separator());
             QCOMPARE(qtcRunnable.workingDirectory, workingDirectory);
@@ -171,7 +171,7 @@ void QtcRunConfigurationFactoryTest::testOpenProject(void)
 
             QStringList args = qtcTestRunConfig->commandLineArgumentsList();
             ProjectExplorer::Runnable qtcTestRunnable = qtcTestRunConfig->runnable();
-            QCOMPARE(qtcTestRunnable.executable, QCoreApplication::applicationFilePath());
+            QCOMPARE(qtcTestRunnable.executable, Utils::FilePath::fromString(QCoreApplication::applicationFilePath()));
             QString workingDirectory = target->activeBuildConfiguration()->buildDirectory().toString();
             workingDirectory.replace(QLatin1Char('/'), QDir::separator());
             QCOMPARE(qtcTestRunnable.workingDirectory, workingDirectory);

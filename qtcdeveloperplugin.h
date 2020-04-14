@@ -206,9 +206,9 @@ private:
      * \param newSuffix The desired suffix of the target.
      * \sa handleRunControlStarted(), handleRunControlStopped()
      */
-    void movePluginFile(const Utils::FileName& targetPath, const QString& oldSuffix, const QString& newSuffix);
+    void movePluginFile(const Utils::FilePath& targetPath, const QString& oldSuffix, const QString& newSuffix);
 
-    QLinkedList<Utils::FileName> pluginPaths(const QString& fileName);
+    QLinkedList<Utils::FilePath> pluginPaths(const QString& fileName);
 
     QList<ProjectExplorer::RunConfigurationFactory*> mRunConfigurationFactories; /*!< List of run configuration factories created by this plugin (for deletion) */
 };
