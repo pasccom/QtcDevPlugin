@@ -37,6 +37,7 @@ COMPATIBILITY TABLE
 | 0.0.10       | 4.8.0      |  `P`  |   `P`   |  `?`   |
 | 0.0.11       | 4.9.0      |  `P`  |   `P`   |  `?`   |
 | 0.0.12       | 4.10.0     |  `P`  |   `P`   |  `?`   |
+| 0.0.13       | 4.11.0     |  `P`  |   `P`   |  `?`   |
 
 A `Y` means that QtcDevPlugin was tested against this Qt Creator version
 under the given operating system. A `N` means that the version of the plugin
