@@ -70,7 +70,7 @@ bool openQMakeProject(const QString& projectFilePath, ProjectExplorer::Project**
     // Initialize targets if required
     if (proj->activeTarget() == NULL) {
         foreach (ProjectExplorer::Kit* kit, ProjectExplorer::KitManager::kits())
-            proj->addTarget(proj->createTarget(kit));
+            proj->addTargetForKit(kit);
         foreach (ProjectExplorer::Target* target, proj->targets()) {
             if (target->kit() == ProjectExplorer::KitManager::defaultKit())
                 ProjectExplorer::SessionManager::setActiveTarget(proj, target, ProjectExplorer::SetActive::Cascade);
