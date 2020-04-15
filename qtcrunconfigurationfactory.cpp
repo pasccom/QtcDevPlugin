@@ -34,36 +34,28 @@
 namespace QtcDevPlugin {
 namespace Internal {
 
-QtcRunConfigurationFactory::QtcRunConfigurationFactory(bool registerRunConfig) :
+BaseQtcRunConfigurationFactory::BaseQtcRunConfigurationFactory(void) :
     ProjectExplorer::RunConfigurationFactory()
 {
     addSupportedProjectType(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
     addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
-
-    if (registerRunConfig) {
-        setDisplayNamePattern(QCoreApplication::translate("QtcDevPlugin::Internal::QtcRunConfiguration", "Run Qt Creator with \"%1\""));
-        registerRunConfiguration<QtcRunConfiguration>(Core::Id(Constants::QtcRunConfigurationId));
-
-        ProjectExplorer::RunControl::registerWorker<ProjectExplorer::SimpleTargetRunner>(ProjectExplorer::Constants::NORMAL_RUN_MODE, [](ProjectExplorer::RunConfiguration* rc) {
-            return rc->id() == Core::Id(Constants::QtcRunConfigurationId);
-        });
-    }
 }
 
-QtcTestRunConfigurationFactory::QtcTestRunConfigurationFactory(bool registerRunConfig) :
-    QtcRunConfigurationFactory(false)
+QtcRunConfigurationFactory::QtcRunConfigurationFactory(void) :
+    BaseQtcRunConfigurationFactory()
 {
-    if (registerRunConfig) {
-        setDisplayNamePattern(QCoreApplication::translate("QtcDevPlugin::Internal::QtcTestRunConfiguration", "Run Qt Creator tests for \"%1\""));
-        registerRunConfiguration<QtcTestRunConfiguration>(Core::Id(Constants::QtcTestRunConfigurationId));
-
-        ProjectExplorer::RunControl::registerWorker<ProjectExplorer::SimpleTargetRunner>(ProjectExplorer::Constants::NORMAL_RUN_MODE, [](ProjectExplorer::RunConfiguration* rc) {
-            return rc->id() == Core::Id(Constants::QtcTestRunConfigurationId);
-        });
-    }
+    setDisplayNamePattern(QCoreApplication::translate("QtcDevPlugin::Internal::QtcRunConfiguration", "Run Qt Creator with \"%1\""));
+    registerRunConfiguration<QtcRunConfiguration>(Core::Id(Constants::QtcRunConfigurationId));
 }
 
-QList<ProjectExplorer::RunConfigurationCreationInfo> QtcRunConfigurationFactory::availableCreators(ProjectExplorer::Target *target) const
+QtcTestRunConfigurationFactory::QtcTestRunConfigurationFactory(void) :
+    BaseQtcRunConfigurationFactory()
+{
+    setDisplayNamePattern(QCoreApplication::translate("QtcDevPlugin::Internal::QtcTestRunConfiguration", "Run Qt Creator tests for \"%1\""));
+    registerRunConfiguration<QtcTestRunConfiguration>(Core::Id(Constants::QtcTestRunConfigurationId));
+}
+
+QList<ProjectExplorer::RunConfigurationCreationInfo> BaseQtcRunConfigurationFactory::availableCreators(ProjectExplorer::Target *target) const
 {
     QList<ProjectExplorer::RunConfigurationCreationInfo> creators;
 
@@ -102,7 +94,7 @@ QList<ProjectExplorer::RunConfigurationCreationInfo> QtcRunConfigurationFactory:
     return creators;
 }
 
-Utils::FilePath QtcRunConfigurationFactory::targetBuildPath(QmakeProjectManager::QmakeProFile* proFile)
+Utils::FilePath BaseQtcRunConfigurationFactory::targetBuildPath(QmakeProjectManager::QmakeProFile* proFile)
 {
     QDir targetPath(proFile->targetInformation().destDir.toString());
     if (!targetPath.isAbsolute())
@@ -110,7 +102,7 @@ Utils::FilePath QtcRunConfigurationFactory::targetBuildPath(QmakeProjectManager:
     return  Utils::FilePath::fromString(targetPath.absolutePath());
 }
 
-Utils::FilePath QtcRunConfigurationFactory::targetInstallPath(QmakeProjectManager::QmakeProFile* proFile)
+Utils::FilePath BaseQtcRunConfigurationFactory::targetInstallPath(QmakeProjectManager::QmakeProFile* proFile)
 {
     QDir targetPath(proFile->installsList().targetPath);
     if (!targetPath.isAbsolute())
@@ -120,7 +112,7 @@ Utils::FilePath QtcRunConfigurationFactory::targetInstallPath(QmakeProjectManage
     return Utils::FilePath::fromString(targetPath.absoluteFilePath(targetName));
 }
 
-bool QtcRunConfigurationFactory::isReady(ProjectExplorer::Project* project)
+bool BaseQtcRunConfigurationFactory::isReady(ProjectExplorer::Project* project)
 {
     QmakeProjectManager::QmakeProject* qMakeProject = qobject_cast<QmakeProjectManager::QmakeProject*>(project);
     if (qMakeProject == NULL)
@@ -128,7 +120,7 @@ bool QtcRunConfigurationFactory::isReady(ProjectExplorer::Project* project)
     return qMakeProject->rootProFile()->validParse();
 }
 
-bool QtcRunConfigurationFactory::isUseful(ProjectExplorer::Project* project)
+bool BaseQtcRunConfigurationFactory::isUseful(ProjectExplorer::Project* project)
 {
     QmakeProjectManager::QmakeProject* qMakeProject = static_cast<QmakeProjectManager::QmakeProject*>(project);
 
@@ -139,7 +131,7 @@ bool QtcRunConfigurationFactory::isUseful(ProjectExplorer::Project* project)
     return hasQtCreatorPlugin(project->rootProjectNode());
 }
 
-bool QtcRunConfigurationFactory::findQtcPluginPri(ProjectExplorer::ProjectNode* node)
+bool BaseQtcRunConfigurationFactory::findQtcPluginPri(ProjectExplorer::ProjectNode* node)
 {
     foreach(ProjectExplorer::FileNode* subNode, node->fileNodes()) {
         if (QString::compare(subNode->filePath().fileName(), Constants::QtCreatorPluginPriName, Utils::HostOsInfo::fileNameCaseSensitivity()) == 0)
@@ -159,7 +151,7 @@ bool QtcRunConfigurationFactory::findQtcPluginPri(ProjectExplorer::ProjectNode* 
     return false;
 }
 
-bool QtcRunConfigurationFactory::isQtCreatorPlugin(ProjectExplorer::ProjectNode* node)
+bool BaseQtcRunConfigurationFactory::isQtCreatorPlugin(ProjectExplorer::ProjectNode* node)
 {
     QmakeProjectManager::QmakeProFileNode* qMakeNode = dynamic_cast<QmakeProjectManager::QmakeProFileNode*>(node);
     if (qMakeNode == NULL)
@@ -170,7 +162,7 @@ bool QtcRunConfigurationFactory::isQtCreatorPlugin(ProjectExplorer::ProjectNode*
     return findQtcPluginPri(node);
 }
 
-bool QtcRunConfigurationFactory::hasQtCreatorPlugin(ProjectExplorer::ProjectNode* node)
+bool BaseQtcRunConfigurationFactory::hasQtCreatorPlugin(ProjectExplorer::ProjectNode* node)
 {
     if (isQtCreatorPlugin(node))
         return true;
@@ -185,7 +177,7 @@ bool QtcRunConfigurationFactory::hasQtCreatorPlugin(ProjectExplorer::ProjectNode
     return false;
 }
 
-QList<ProjectExplorer::ProjectNode*> QtcRunConfigurationFactory::qtCreatorPlugins(ProjectExplorer::ProjectNode* node)
+QList<ProjectExplorer::ProjectNode*> BaseQtcRunConfigurationFactory::qtCreatorPlugins(ProjectExplorer::ProjectNode* node)
 {
     QList<ProjectExplorer::ProjectNode*> qtcPlugins;
 

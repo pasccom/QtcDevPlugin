@@ -19,7 +19,10 @@
 #ifndef QTCRUNCONFIGURATIONFACTORY_H
 #define QTCRUNCONFIGURATIONFACTORY_H
 
+#include "qtcdevpluginconstants.h"
+
 #include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/runcontrol.h>
 
 namespace ProjectExplorer {
     class ProjectNode;
@@ -38,9 +41,9 @@ namespace Internal {
 class QtcRunConfiguration;
 
 /*!
- * \brief The QtcRunConfigurationFactory class creates QtcRunConfiguration for supported \c qMake projects.
+ * \brief The BaseQtcRunConfigurationFactory class implements basic common functionnality for QtcRunConfigurationFactory and QtcTestRunConfigurationFactory.
  *
- * This class is in charge of find out whether a project is supported
+ * This class is in charge of finding out whether a project is supported
  * by QtcRunConfiguration. For this is uses the standard methods provided by
  * ProjectExplorer::IRunConfigurationFactory (i.e. project type id and
  * target device id.
@@ -52,7 +55,7 @@ class QtcRunConfiguration;
  *
  * \sa QtcRunConfiguration
  */
-class QtcRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
+class BaseQtcRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
 {
 public:
     /*!
@@ -60,9 +63,8 @@ public:
      *
      * Constructs an new run configuration factory instance
      * for QMake projects with desktop target.
-     * \param registerRunConfig Whether to register run configuration (to allow inheritence)
      */
-    QtcRunConfigurationFactory(bool registerRunConfig = true);
+    BaseQtcRunConfigurationFactory(void);
     /*!
      * \brief The build targets this factory can create
      *
@@ -170,21 +172,15 @@ private:
 };
 
 /*!
- * \brief The QtcTestRunConfigurationFactory class creates QtcTestRunConfiguration for supported \c qMake projects.
+ * \brief The QtcRunConfigurationFactory class creates QtcRunConfiguration for supported \c qMake projects.
  *
- * This class is in charge of finding out whether a project is supported
- * by QtcTestRunConfiguration. For this is uses the standard methods provided by
- * ProjectExplorer::IRunConfigurationFactory (i.e. project type id and
- * target device id.
- *
- * It handles only desktop targets and is usefull only for \c qMake projects
- * including the project include for Qt Crator plugins. When this file is included
- * by multiple subprojects multiple run configurations can be created (one for each
- * sub project including Qt Creator plugin.
+ * This class specializes the basic functionnality provided
+ * by BaseQtcRunConfigurationFactory to create QtcRunConfiguration
+ * for supported \c qMake projects.
  *
  * \sa QtcTestRunConfiguration
  */
-class QtcTestRunConfigurationFactory : public QtcRunConfigurationFactory
+class QtcRunConfigurationFactory : public BaseQtcRunConfigurationFactory
 {
 public:
     /*!
@@ -192,9 +188,41 @@ public:
      *
      * Constructs an new run configuration factory instance
      * for QMake projects with desktop target.
-     * \param registerRunConfig Whether to register run configuration (to allow inheritence)
      */
-    QtcTestRunConfigurationFactory(bool registerRunConfig = true);
+    QtcRunConfigurationFactory();
+private:
+    ProjectExplorer::RunWorkerFactory mRunWorkerFactory {
+        ProjectExplorer::RunWorkerFactory::make<ProjectExplorer::SimpleTargetRunner>(),
+        {ProjectExplorer::Constants::NORMAL_RUN_MODE, ProjectExplorer::Constants::DEBUG_RUN_MODE},
+        {Core::Id(Constants::QtcRunConfigurationId)}
+    };
+};
+
+/*!
+ * \brief The QtcTestRunConfigurationFactory class creates QtcTestRunConfiguration for supported \c qMake projects.
+ *
+ * This class specializes the basic functionnality provided
+ * by BaseQtcRunConfigurationFactory to create QtcTestRunConfiguration
+ * for supported \c qMake projects.
+ *
+ * \sa QtcRunConfiguration
+ */
+class QtcTestRunConfigurationFactory : public BaseQtcRunConfigurationFactory
+{
+public:
+    /*!
+     * \brief Constructor
+     *
+     * Constructs an new run configuration factory instance
+     * for QMake projects with desktop target.
+     */
+    QtcTestRunConfigurationFactory();
+private:
+    ProjectExplorer::RunWorkerFactory mRunWorkerFactory {
+        ProjectExplorer::RunWorkerFactory::make<ProjectExplorer::SimpleTargetRunner>(),
+        {ProjectExplorer::Constants::NORMAL_RUN_MODE, ProjectExplorer::Constants::DEBUG_RUN_MODE},
+        {Core::Id(Constants::QtcTestRunConfigurationId)}
+    };
 };
 
 } // Internal
