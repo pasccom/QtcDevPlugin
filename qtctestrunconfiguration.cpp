@@ -43,22 +43,6 @@ QtcTestRunConfiguration::QtcTestRunConfiguration(ProjectExplorer::Target *parent
     setDefaultDisplayName(tr("Run Qt Creator tests"));
 }
 
-QVariantMap QtcTestRunConfiguration::toMap(void) const
-{
-    return QtcRunConfiguration::toMap();
-}
-
-bool QtcTestRunConfiguration::fromMap(const QVariantMap& map)
-{
-    if (!QtcRunConfiguration::fromMap(map))
-        return false;
-
-    if (!pluginName().isEmpty())
-        setDisplayName(tr("Run Qt Creator tests for \"%1\"").arg(pluginName()));
-
-    return true;
-}
-
 QStringList QtcTestRunConfiguration::commandLineArgumentsList(void) const
 {
     QStringList cmdArgs =  QtcRunConfiguration::commandLineArgumentsList();

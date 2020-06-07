@@ -68,26 +68,6 @@ public:
      * \copydoc QtcRunConfiguration::commandLineArgumentsList()
      */
     virtual QStringList commandLineArgumentsList(void) const override;
-
-    /*!
-     * \brief Conversion to map
-     *
-     * Converts the instance into a QVariantMap by initializing the fields of the given map.
-     * \return The map initialized with the contents of the instance
-     * \sa fromMap()
-     */
-    virtual QVariantMap toMap(void) const override;
-    /*!
-     * \brief Conversion from map
-     *
-     * Initializes the instance with the given QVariantMap.
-     * \param map The map containing the data of the instance
-     * \return \c true when the initialization of the instance was sucessful, \c false otherwise
-     * \sa toMap()
-     */
-    virtual bool fromMap(const QVariantMap& map) override;
-
-    friend class QtcTestRunConfigurationWidget;
 };
 
 } // Internal

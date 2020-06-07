@@ -105,7 +105,7 @@ bool openQMakeProject(const QString& projectFilePath, ProjectExplorer::Project**
     QVERIFY(proj->activeTarget()->activeBuildConfiguration() != NULL);
 
     // Wait for project parsed
-    QSignalSpy parsedSpy(proj, SIGNAL(parsingFinished(bool)));
+    QSignalSpy parsedSpy(proj->activeTarget(), SIGNAL(parsingFinished(bool)));
     QVERIFY2(parsedSpy.wait(), "Project parsing takes too long");
 
     // Update targets:

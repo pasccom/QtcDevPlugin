@@ -19,6 +19,7 @@
 #include "qtcrunconfigurationtest.h"
 #include "testhelper.h"
 
+#include "../pathaspect.h"
 #include "../qtcrunconfiguration.h"
 #include "../qtctestrunconfiguration.h"
 #include "../qtcdevpluginconstants.h"
@@ -32,6 +33,7 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/projectconfigurationaspects.h>
 
 #include <qmakeprojectmanager/qmakeproject.h>
 
@@ -58,9 +60,9 @@ void QtcRunConfigurationTest::testRestoreSettings(void)
     QVERIFY(openQMakeProject(projectPath, &mProject));
     QCOMPARE(mProject->projectFilePath().toString(), projectPath);
 
-    QString theme = "default";
+    QString theme = "Classic";
     if (Utils::creatorTheme()->displayName() == theme)
-        theme = "dark";
+        theme = "Dark";
 
     foreach (ProjectExplorer::Target* target, mProject->targets()) {
         foreach (ProjectExplorer::RunConfiguration* runConfig, target->runConfigurations()) {
@@ -71,11 +73,17 @@ void QtcRunConfigurationTest::testRestoreSettings(void)
             qDebug() << "Created run configuration" << runConfig->displayName()
                      << "for target" << target->displayName();
 
-            QVariantMap map = runConfig->toMap();
-            map.insert(QtcDevPlugin::Constants::ThemeKey, theme);
-            map.insert(QtcDevPlugin::Constants::SettingsPathKey, QLatin1String("."));
-            map.insert(QtcDevPlugin::Constants::WorkingDirectoryKey, QLatin1String("."));
-            runConfig->fromMap(map);
+            QVERIFY(runConfig->aspect(QtcDevPlugin::Constants::ThemeId) != nullptr);
+            QVERIFY(qobject_cast<ProjectExplorer::BaseSelectionAspect*>(runConfig->aspect(QtcDevPlugin::Constants::ThemeId)) != nullptr);
+            static_cast<ProjectExplorer::BaseSelectionAspect*>(runConfig->aspect(QtcDevPlugin::Constants::ThemeId))->setValue(1);
+
+            QVERIFY(runConfig->aspect(QtcDevPlugin::Constants::SettingsPathId) != nullptr);
+            QVERIFY(qobject_cast<QtcDevPlugin::Internal::PathAspect*>(runConfig->aspect(QtcDevPlugin::Constants::SettingsPathId)) != nullptr);
+            static_cast<QtcDevPlugin::Internal::PathAspect*>(runConfig->aspect(QtcDevPlugin::Constants::SettingsPathId))->setValue(Utils::FilePath::fromString("."));
+
+            QVERIFY(runConfig->aspect(QtcDevPlugin::Constants::WorkingDirectoryId) != nullptr);
+            QVERIFY(qobject_cast<QtcDevPlugin::Internal::PathAspect*>(runConfig->aspect(QtcDevPlugin::Constants::WorkingDirectoryId)) != nullptr);
+            static_cast<QtcDevPlugin::Internal::PathAspect*>(runConfig->aspect(QtcDevPlugin::Constants::WorkingDirectoryId))->setValue(Utils::FilePath::fromString("."));
 
             ProjectExplorer::Runnable runnable = runConfig->runnable();
             QCOMPARE(runnable.workingDirectory, QLatin1String("."));

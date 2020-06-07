@@ -89,7 +89,8 @@ QList<ProjectExplorer::RunConfigurationCreationInfo> BaseQtcRunConfigurationFact
 
         creators << creator;
     }
-    target->setApplicationTargets(buildInfos);
+    if (target->buildSystem() != nullptr)
+        target->buildSystem()->setApplicationTargets(buildInfos);
 
     return creators;
 }
@@ -114,20 +115,13 @@ Utils::FilePath BaseQtcRunConfigurationFactory::targetInstallPath(QmakeProjectMa
 
 bool BaseQtcRunConfigurationFactory::isReady(ProjectExplorer::Project* project)
 {
-    QmakeProjectManager::QmakeProject* qMakeProject = qobject_cast<QmakeProjectManager::QmakeProject*>(project);
-    if (qMakeProject == NULL)
+    if(project->rootProjectNode() == nullptr)
         return false;
-    return qMakeProject->rootProFile()->validParse();
+    return project->rootProjectNode()->validParse();
 }
 
 bool BaseQtcRunConfigurationFactory::isUseful(ProjectExplorer::Project* project)
 {
-    QmakeProjectManager::QmakeProject* qMakeProject = static_cast<QmakeProjectManager::QmakeProject*>(project);
-
-    QTC_ASSERT(qMakeProject != NULL, return false);
-    QTC_ASSERT(qMakeProject->rootProFile() != NULL, return false);
-    QTC_ASSERT(qMakeProject->rootProFile()->validParse(), return false);
-
     return hasQtCreatorPlugin(project->rootProjectNode());
 }
 

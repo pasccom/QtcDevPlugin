@@ -26,6 +26,9 @@ namespace Constants {
 
 #define QTC_RUN_CONFIGURATION_ID "QtcDevPlugin.QtcRunConfiguration"
 #define QTC_TEST_RUN_CONFIGURATION_ID "QtcDevPlugin.QtcTestRunConfiguration"
+#define QTC_WORKING_DIRECTORY_ID QTC_RUN_CONFIGURATION_ID ".WorkingDirectory"
+#define QTC_SETTINGS_PATH_ID QTC_RUN_CONFIGURATION_ID ".SettingsPath"
+#define QTC_THEME_ID QTC_RUN_CONFIGURATION_ID ".Theme"
 
 /*!
  * \defgroup QtcDevPluginConstants QtcDevPlugin constants
@@ -40,6 +43,9 @@ const QString QtCreatorPluginPriName = QLatin1String("qtcreatorplugin.pri");    
  */
 const char QtcRunConfigurationId [] = QTC_RUN_CONFIGURATION_ID;                                     /*!< Id for Internal::QtcRunConfiguration */
 const char QtcTestRunConfigurationId [] = QTC_TEST_RUN_CONFIGURATION_ID;                            /*!< Id for Internal::QtcTestRunConfiguration */
+const char WorkingDirectoryId [] = QTC_WORKING_DIRECTORY_ID;
+const char SettingsPathId [] = QTC_SETTINGS_PATH_ID;
+const char ThemeId [] = QTC_THEME_ID;
 /*!@}*/
 
 /*!
