@@ -44,7 +44,7 @@ bool FileTypeValidatingLineEdit::validate(const QString& value, QString *errorMe
     QString expandedValue = value;
     if (mMacroExpander != NULL)
         expandedValue = mMacroExpander->expand(value);
-    qDebug() << expandedValue;
+    qDebug() << __func__ << expandedValue;
 
     if ((mAccepted & AcceptNew) && !QFileInfo::exists(expandedValue))
         return validateName(expandedValue, errorMessage);

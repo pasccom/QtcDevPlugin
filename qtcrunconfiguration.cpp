@@ -89,14 +89,14 @@ QtcRunConfiguration::QtcRunConfiguration(ProjectExplorer::Target *parent, Core::
     auto workingDirectoryAspect = addAspect<PathAspect>();
     workingDirectoryAspect->setId(Core::Id(Constants::WorkingDirectoryId));
     workingDirectoryAspect->setSettingsKey(Constants::WorkingDirectoryKey);
-    workingDirectoryAspect->setDisplayName(tr("Working directory:"));
-    workingDirectoryAspect->setDefaultValue(QLatin1String("%{buildDir}"));
+    workingDirectoryAspect->setDisplayName(tr("Working directory"));
     workingDirectoryAspect->setMacroExpanderProvider([this] {return macroExpander();});
+    workingDirectoryAspect->setDefaultValue(QLatin1String("%{buildDir}"));
 
     auto settingsPathAspect = addAspect<PathAspect>();
     settingsPathAspect->setId(Core::Id(Constants::SettingsPathId));
     settingsPathAspect->setSettingsKey(Constants::SettingsPathKey);
-    settingsPathAspect->setDisplayName(tr("Alternative settings path:"));
+    settingsPathAspect->setDisplayName(tr("Alternative settings path"));
     settingsPathAspect->setCheckable(true);
     settingsPathAspect->setMacroExpanderProvider([this] {return macroExpander();});
 

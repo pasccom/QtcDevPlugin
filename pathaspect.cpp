@@ -10,8 +10,6 @@
 namespace QtcDevPlugin {
 namespace Internal {
 
-
-
 void PathAspect::fromMap(const QVariantMap& map)
 {
     QTC_ASSERT(!settingsKey().isEmpty(), return);
@@ -48,9 +46,9 @@ void PathAspect::setValue(Utils::FilePath value)
 void PathAspect::addToLayout(ProjectExplorer::LayoutBuilder &builder)
 {
     mEdit = new Widgets::FileTypeValidatingLineEdit;
-    mEdit->setText(mValue.toString());
-    mEdit->setAcceptDirectories(true);
     mEdit->setMacroExpander(mMacroExpanderProvider());
+    mEdit->setAcceptDirectories(true);
+    mEdit->setText(mValue.toString());
 
     if (mMacroExpanderProvider != nullptr) {
         Core::VariableChooser* variableChooser = new Core::VariableChooser(builder.layout()->parentWidget());
@@ -69,7 +67,7 @@ void PathAspect::addToLayout(ProjectExplorer::LayoutBuilder &builder)
     fieldLayout->addWidget(mButton);
 
     if (mCheckable) {
-        mCheckbox = new QCheckBox(displayName());
+        mCheckbox = new QCheckBox(displayName() + ":");
         mCheckbox->setChecked(QString::compare(mValue.toString(), mDefaultValue, Utils::HostOsInfo::fileNameCaseSensitivity()) != 0);
         mEdit->setEnabled(mCheckbox->isChecked());
         mButton->setEnabled(mCheckbox->isChecked());
@@ -78,7 +76,7 @@ void PathAspect::addToLayout(ProjectExplorer::LayoutBuilder &builder)
 
         builder.addItems(mCheckbox, fieldLayout);
     } else {
-        mLabel = new QLabel(displayName());
+        mLabel = new QLabel(displayName() + ":");
         mLabel->setBuddy(mEdit);
 
         builder.addItems(mLabel, fieldLayout);
