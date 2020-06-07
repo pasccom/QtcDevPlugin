@@ -2,15 +2,48 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="en_US">
 <context>
+    <name>QCoreApplication</name>
+    <message>
+        <location filename="qtcrunconfiguration.cpp" line="61"/>
+        <location filename="qtcrunconfiguration.cpp" line="70"/>
+        <source>unnamed</source>
+        <translation>unnamed</translation>
+    </message>
+</context>
+<context>
+    <name>QtcDevPlugin::Internal::PathAspect</name>
+    <message>
+        <location filename="pathaspect.cpp" line="59"/>
+        <source>Browse...</source>
+        <translation>Browse...</translation>
+    </message>
+</context>
+<context>
     <name>QtcDevPlugin::Internal::QtcRunConfiguration</name>
     <message>
-        <location filename="qtcrunconfiguration.cpp" line="89"/>
+        <location filename="qtcrunconfiguration.cpp" line="87"/>
         <source>Run Qt Creator</source>
         <translation>Run Qt Creator</translation>
     </message>
     <message>
-        <location filename="qtcrunconfiguration.cpp" line="146"/>
-        <location filename="qtcrunconfigurationfactory.cpp" line="42"/>
+        <location filename="qtcrunconfiguration.cpp" line="92"/>
+        <source>Working directory</source>
+        <oldsource>Working directory:</oldsource>
+        <translation>Working directory</translation>
+    </message>
+    <message>
+        <location filename="qtcrunconfiguration.cpp" line="99"/>
+        <source>Alternative settings path</source>
+        <oldsource>Alternative settings path:</oldsource>
+        <translation>Alternative settings path</translation>
+    </message>
+    <message>
+        <location filename="qtcrunconfiguration.cpp" line="106"/>
+        <source>Theme:</source>
+        <translation>Theme:</translation>
+    </message>
+    <message>
+        <location filename="qtcrunconfigurationfactory.cpp" line="47"/>
         <source>Run Qt Creator with &quot;%1&quot;</source>
         <translation>%1 (Qt Creator)</translation>
     </message>
@@ -18,42 +51,34 @@
 <context>
     <name>QtcDevPlugin::Internal::QtcRunConfigurationWidget</name>
     <message>
-        <location filename="qtcrunconfiguration.cpp" line="182"/>
         <source>Working directory:</source>
-        <translation>Working directory:</translation>
+        <translation type="vanished">Working directory:</translation>
     </message>
     <message>
-        <location filename="qtcrunconfiguration.cpp" line="184"/>
-        <location filename="qtcrunconfiguration.cpp" line="192"/>
         <source>Browse...</source>
-        <translation>Browse...</translation>
+        <translation type="vanished">Browse...</translation>
     </message>
     <message>
-        <location filename="qtcrunconfiguration.cpp" line="190"/>
         <source>Use alternative settings path</source>
-        <translation>Use alternative settings path</translation>
+        <translation type="vanished">Use alternative settings path</translation>
     </message>
     <message>
-        <location filename="qtcrunconfiguration.cpp" line="197"/>
         <source>Theme:</source>
-        <translation>Theme:</translation>
+        <translation type="vanished">Theme:</translation>
     </message>
     <message>
-        <location filename="qtcrunconfiguration.cpp" line="272"/>
         <source>Choose working directory</source>
-        <translation>Choose working directory</translation>
+        <translation type="vanished">Choose working directory</translation>
     </message>
     <message>
-        <location filename="qtcrunconfiguration.cpp" line="301"/>
         <source>Choose alternative settings path</source>
-        <translation>Choose alternative settings path</translation>
+        <translation type="vanished">Choose alternative settings path</translation>
     </message>
 </context>
 <context>
     <name>QtcDevPlugin::Internal::QtcTestRunConfiguration</name>
     <message>
-        <location filename="qtcrunconfigurationfactory.cpp" line="49"/>
-        <location filename="qtctestrunconfiguration.cpp" line="57"/>
+        <location filename="qtcrunconfigurationfactory.cpp" line="54"/>
         <source>Run Qt Creator tests for &quot;%1&quot;</source>
         <translation>Test %1 (Qt Creator)</translation>
     </message>
