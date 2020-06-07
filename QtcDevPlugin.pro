@@ -31,6 +31,7 @@ SOURCES += \
     qtcrunconfigurationfactory.cpp \
     qtcrunconfiguration.cpp \
     qtctestrunconfiguration.cpp \
+    pathaspect.cpp \
     Widgets/filetypevalidatinglineedit.cpp
 
 HEADERS += \
@@ -40,6 +41,7 @@ HEADERS += \
     qtcrunconfigurationfactory.h \
     qtcrunconfiguration.h \
     qtctestrunconfiguration.h \
+    pathaspect.h \
     Widgets/filetypevalidatinglineedit.h
 
 TRANSLATIONS += \
