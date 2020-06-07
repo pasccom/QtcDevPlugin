@@ -6,7 +6,13 @@ debug/
 release/
 doc/
 gcov/
-tests/plugins/*.so
+/tests/plugins/
+
+# Ideas:
+/ideas/
+
+# Test configs:
+/testConfig-*/
 
 # The output and makefiles :
 Makefile
