@@ -234,6 +234,25 @@ public:
     inline bool acceptNew(void) const {return mAccepted & AcceptNew;}
 
     /*!
+     * \brief Set accept flags
+     *
+     * Note this function allows to directly set accept flags.
+     * \warning End-users should use the other convenience functions.
+     * \param accepted Accept flags to set
+     * \sa acceptFlags()
+     */
+    inline void setAcceptFlags(Accepts accepted) {mAccepted = accepted;}
+    /*!
+     * \brief Get accept flags
+     *
+     * Note this function allows to directly get accept flags.
+     * \warning End-users should use the other convenience functions.
+     * \return The current accept flags
+     * \sa setAcceptFlags()
+     */
+    inline Accepts acceptFlags(void) const {return mAccepted;}
+
+    /*!
      * \brief Set the macro expander
      *
      * Sets Qt Creator macro expander associated with this line edit.

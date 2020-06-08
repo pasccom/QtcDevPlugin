@@ -91,7 +91,7 @@ QtcRunConfiguration::QtcRunConfiguration(ProjectExplorer::Target *parent, Core::
     workingDirectoryAspect->setSettingsKey(Constants::WorkingDirectoryKey);
     workingDirectoryAspect->setDisplayName(tr("Working directory"));
     workingDirectoryAspect->setMacroExpanderProvider([this] {return macroExpander();});
-    workingDirectoryAspect->setDefaultValue(QLatin1String("%{buildDir}"));
+    workingDirectoryAspect->setDefaultValue(Utils::FilePath::fromString("%{buildDir}"));
 
     auto settingsPathAspect = addAspect<PathAspect>();
     settingsPathAspect->setId(Core::Id(Constants::SettingsPathId));
