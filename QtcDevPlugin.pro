@@ -68,7 +68,8 @@ OTHER_FILES += README.md \
                QtCreator.local.pri.example \
                QtcDevPlugin.local.pri.example \
                Doxyfile \
-               Doxyfile.internal
+               Doxyfile.internal \
+               qtcreator-test.sh
 
 # Qt Creator from environment
 # Set the QTC_SOURCE environment variable to override the setting here
