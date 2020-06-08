@@ -13,7 +13,7 @@
 <context>
     <name>QtcDevPlugin::Internal::PathAspect</name>
     <message>
-        <location filename="pathaspect.cpp" line="59"/>
+        <location filename="pathaspect.cpp" line="77"/>
         <source>Browse...</source>
         <translation>Parcourir...</translation>
     </message>

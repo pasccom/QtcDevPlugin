@@ -1,6 +1,5 @@
 #! /bin/bash
-
-# Copyright 2015 Pascal COMBES <pascom@orange.fr>
+# Copyright 2015-2020 Pascal COMBES <pascom@orange.fr>
 #
 # This file is part of QtcDevPlugin.
 #

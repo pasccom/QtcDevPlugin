@@ -1,4 +1,4 @@
-# Copyright 2016 Pascal COMBES <pascom@orange.fr>
+# Copyright 2016-2020 Pascal COMBES <pascom@orange.fr>
 # 
 # This file is part of QtcDevPlugin.
 # 
