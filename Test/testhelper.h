@@ -30,7 +30,7 @@ namespace Test {
 
 bool removeProjectUserFiles(const QString& projectPath);
 bool openQMakeProject(const QString& projectFilePath, ProjectExplorer::Project** project);
-void closeProject(ProjectExplorer::Project* project);
+bool closeProject(ProjectExplorer::Project* project);
 
 } // Test
 } // QtcDevPlugin

@@ -106,7 +106,7 @@ bool openQMakeProject(const QString& projectFilePath, ProjectExplorer::Project**
 
     // Wait for project parsed
     QSignalSpy parsedSpy(proj->activeTarget(), SIGNAL(parsingFinished(bool)));
-    QVERIFY2(parsedSpy.wait(), "Project parsing takes too long");
+    QVERIFY2((parsedSpy.count() > 0) || parsedSpy.wait(), "Project parsing takes too long");
 
     // Update targets:
     foreach (ProjectExplorer::Target* target, proj->targets())
@@ -117,10 +117,17 @@ bool openQMakeProject(const QString& projectFilePath, ProjectExplorer::Project**
     return true;
 }
 
-void closeProject(ProjectExplorer::Project* project)
+bool closeProject(ProjectExplorer::Project* project)
 {
-    if (project != NULL)
-        ProjectExplorer::SessionManager::removeProject(project);
+    if (project == NULL)
+        return false;
+
+    qRegisterMetaType<ProjectExplorer::Project*>();
+    QSignalSpy removedSpy(ProjectExplorer::SessionManager::instance(), &ProjectExplorer::SessionManager::projectRemoved);
+    ProjectExplorer::SessionManager::removeProject(project);
+    QVERIFY2((removedSpy.count() > 0) || removedSpy.wait(), "Project removal takes too long");
+
+    return true;
 }
 
 } // Test

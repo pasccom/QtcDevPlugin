@@ -141,8 +141,8 @@ void QtcPluginRunnerTest::cleanup(void)
 
 void QtcPluginRunnerTest::cleanupTestCase(void)
 {
-    if (mProject != NULL)
-        closeProject(mProject);
+    if (mProject != nullptr)
+        QVERIFY(closeProject(mProject));
 }
 
 } // Test

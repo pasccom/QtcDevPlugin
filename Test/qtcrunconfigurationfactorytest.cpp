@@ -61,7 +61,7 @@ void QtcRunConfigurationFactoryTest::initTestCase(void)
 void QtcRunConfigurationFactoryTest::cleanup(void)
 {
     if (mProject != nullptr)
-        closeProject(mProject);
+        QVERIFY(closeProject(mProject));
 }
 
 void QtcRunConfigurationFactoryTest::testOpenProject_data(void)

@@ -49,8 +49,8 @@ void QtcRunConfigurationTest::initTestCase(void)
 
 void QtcRunConfigurationTest::cleanup(void)
 {
-    if (mProject != NULL)
-        closeProject(mProject);
+    if (mProject != nullptr)
+        QVERIFY(closeProject(mProject));
 }
 
 void QtcRunConfigurationTest::testRestoreSettings(void)
