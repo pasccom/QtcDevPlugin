@@ -62,7 +62,7 @@ QList<ProjectExplorer::RunConfigurationCreationInfo> BaseQtcRunConfigurationFact
     if (!isReady(target->project()) || !isUseful(target->project()))
         return creators;
 
-    QList<ProjectExplorer::BuildTargetInfo> buildInfos = target->applicationTargets();
+    QList<ProjectExplorer::BuildTargetInfo> buildInfos = target->buildSystem()->applicationTargets();
     qDebug() << "BuildTargetInfoList size:" << buildInfos.size();
     foreach (ProjectExplorer::ProjectNode *node, qtCreatorPlugins(target->project()->rootProjectNode())) {
         QmakeProjectManager::QmakeProFileNode* qMakeNode = static_cast<QmakeProjectManager::QmakeProFileNode*>(node);
@@ -83,7 +83,6 @@ QList<ProjectExplorer::RunConfigurationCreationInfo> BaseQtcRunConfigurationFact
 
         ProjectExplorer::RunConfigurationCreationInfo creator;
         creator.factory = this;
-        creator.id = runConfigurationBaseId();
         creator.buildKey = info.buildKey;
         creator.displayName = mDisplayNamePattern.arg(info.displayName);
 
