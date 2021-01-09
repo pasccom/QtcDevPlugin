@@ -21,7 +21,7 @@
 
 #include <QObject>
 
-#include <coreplugin/id.h>
+#include <utils/id.h>
 
 #include "qttestsubfunction.h"
 
@@ -52,7 +52,7 @@ private Q_SLOTS:
     void cleanup(void);
     void cleanupTestCase(void);
 private:
-    void qtcRunConfiguration(const Core::Id& runConfigId, QtcDevPlugin::Internal::QtcRunConfiguration** qtcRunConfig);
+    void qtcRunConfiguration(const Utils::Id& runConfigId, QtcDevPlugin::Internal::QtcRunConfiguration** qtcRunConfig);
 
     ProjectExplorer::Project* mProject;
     ProjectExplorer::RunControl* mRunControl;

@@ -62,7 +62,7 @@ public:
      * \param id The id for the run configuration
      * \sa initialize()
      */
-    QtcTestRunConfiguration(ProjectExplorer::Target *parent, Core::Id id = Core::Id(Constants::QtcTestRunConfigurationId));
+    QtcTestRunConfiguration(ProjectExplorer::Target *parent, Utils::Id id = Utils::Id(Constants::QtcTestRunConfigurationId));
 
     /*!
      * \copydoc QtcRunConfiguration::commandLineArgumentsList()

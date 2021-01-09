@@ -63,7 +63,7 @@ public:
      * \param id The id for the run configuration
      * \sa initialize()
      */
-    QtcRunConfiguration(ProjectExplorer::Target *parent, Core::Id id = Core::Id(Constants::QtcRunConfigurationId));
+    QtcRunConfiguration(ProjectExplorer::Target *parent, Utils::Id id = Utils::Id(Constants::QtcRunConfigurationId));
 
     /*!
      * \brief Command-line arguments list

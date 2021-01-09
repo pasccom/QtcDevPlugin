@@ -128,7 +128,7 @@ void QtcRunConfigurationFactoryTest::testOpenProject(void)
                     break;
                 }
             }
-            QVERIFY2(ok, qPrintable(QString(QLatin1String("Unexpected run configuration: %1")).arg(qtcRunConfig->id().suffixAfter(Core::Id(Constants::QtcRunConfigurationId)))));
+            QVERIFY2(ok, qPrintable(QString(QLatin1String("Unexpected run configuration: %1")).arg(qtcRunConfig->id().suffixAfter(Utils::Id(Constants::QtcRunConfigurationId)))));
 
             QCOMPARE(qtcRunConfig->displayName(), QString(QLatin1String("Run Qt Creator with \"%1\"")).arg(qtcPluginsFound.last()));
 
@@ -165,7 +165,7 @@ void QtcRunConfigurationFactoryTest::testOpenProject(void)
                     break;
                 }
             }
-            QVERIFY2(ok, qPrintable(QString(QLatin1String("Unexpected run configuration: %1")).arg(qtcTestRunConfig->id().suffixAfter(Core::Id(Constants::QtcTestRunConfigurationId)))));
+            QVERIFY2(ok, qPrintable(QString(QLatin1String("Unexpected run configuration: %1")).arg(qtcTestRunConfig->id().suffixAfter(Utils::Id(Constants::QtcTestRunConfigurationId)))));
 
             QCOMPARE(qtcTestRunConfig->displayName(), QString(QLatin1String("Run Qt Creator tests for \"%1\"")).arg(qtcTestPluginsFound.last()));
 

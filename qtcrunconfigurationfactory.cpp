@@ -45,14 +45,14 @@ QtcRunConfigurationFactory::QtcRunConfigurationFactory(void) :
     BaseQtcRunConfigurationFactory()
 {
     setDisplayNamePattern(QCoreApplication::translate("QtcDevPlugin::Internal::QtcRunConfiguration", "Run Qt Creator with \"%1\""));
-    registerRunConfiguration<QtcRunConfiguration>(Core::Id(Constants::QtcRunConfigurationId));
+    registerRunConfiguration<QtcRunConfiguration>(Utils::Id(Constants::QtcRunConfigurationId));
 }
 
 QtcTestRunConfigurationFactory::QtcTestRunConfigurationFactory(void) :
     BaseQtcRunConfigurationFactory()
 {
     setDisplayNamePattern(QCoreApplication::translate("QtcDevPlugin::Internal::QtcTestRunConfiguration", "Run Qt Creator tests for \"%1\""));
-    registerRunConfiguration<QtcTestRunConfiguration>(Core::Id(Constants::QtcTestRunConfigurationId));
+    registerRunConfiguration<QtcTestRunConfiguration>(Utils::Id(Constants::QtcTestRunConfigurationId));
 }
 
 QList<ProjectExplorer::RunConfigurationCreationInfo> BaseQtcRunConfigurationFactory::availableCreators(ProjectExplorer::Target *target) const

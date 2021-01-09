@@ -34,6 +34,7 @@
 
 #include <coreplugin/icore.h>
 
+#include <utils/macroexpander.h>
 #include <utils/theme/theme.h>
 
 #include <QtDebug>
@@ -81,27 +82,30 @@ QStringList availableThemes(void)
     return themes;
 }
 
-QtcRunConfiguration::QtcRunConfiguration(ProjectExplorer::Target *parent, Core::Id id):
+QtcRunConfiguration::QtcRunConfiguration(ProjectExplorer::Target *parent, Utils::Id id):
     ProjectExplorer::RunConfiguration(parent, id)
 {
     setDefaultDisplayName(tr("Run Qt Creator"));
 
     auto workingDirectoryAspect = addAspect<PathAspect>();
-    workingDirectoryAspect->setId(Core::Id(Constants::WorkingDirectoryId));
+    workingDirectoryAspect->setId(Utils::Id(Constants::WorkingDirectoryId));
     workingDirectoryAspect->setSettingsKey(Constants::WorkingDirectoryKey);
     workingDirectoryAspect->setDisplayName(tr("Working directory"));
-    workingDirectoryAspect->setMacroExpanderProvider([this] {return macroExpander();});
+    workingDirectoryAspect->setAcceptDirectories(true);
+    workingDirectoryAspect->setMacroExpanderProvider([this] {return const_cast<Utils::MacroExpander*>(macroExpander());});
     workingDirectoryAspect->setDefaultValue(Utils::FilePath::fromString("%{buildDir}"));
 
     auto settingsPathAspect = addAspect<PathAspect>();
-    settingsPathAspect->setId(Core::Id(Constants::SettingsPathId));
+    settingsPathAspect->setId(Utils::Id(Constants::SettingsPathId));
     settingsPathAspect->setSettingsKey(Constants::SettingsPathKey);
     settingsPathAspect->setDisplayName(tr("Alternative settings path"));
+    settingsPathAspect->setAcceptDirectories(true);
+    settingsPathAspect->setRequireWritable(true);
     settingsPathAspect->setCheckable(true);
-    settingsPathAspect->setMacroExpanderProvider([this] {return macroExpander();});
+    settingsPathAspect->setMacroExpanderProvider([this] {return const_cast<Utils::MacroExpander*>(macroExpander());});
 
     auto themeAspect = addAspect<ProjectExplorer::BaseSelectionAspect>();
-    themeAspect->setId(Core::Id(Constants::ThemeId));
+    themeAspect->setId(Utils::Id(Constants::ThemeId));
     themeAspect->setSettingsKey(Constants::ThemeKey);
     themeAspect->setDisplayName(tr("Theme:"));
     themeAspect->setDisplayStyle(ProjectExplorer::BaseSelectionAspect::DisplayStyle::ComboBox);
@@ -127,7 +131,7 @@ ProjectExplorer::Runnable QtcRunConfiguration::runnable(void) const
     ProjectExplorer::Runnable runnable;
     runnable.executable = Utils::FilePath::fromString(QCoreApplication::applicationFilePath());
     runnable.commandLineArguments = commandLineArgumentsList().join(QLatin1Char(' '));
-    runnable.workingDirectory = static_cast<PathAspect*>(aspect(Core::Id(Constants::WorkingDirectoryId)))->value().toString();
+    runnable.workingDirectory = static_cast<PathAspect*>(aspect(Utils::Id(Constants::WorkingDirectoryId)))->value().toString();
     if (macroExpander() != NULL)
         runnable.workingDirectory = macroExpander()->expand(runnable.workingDirectory);
     runnable.environment = aspect<ProjectExplorer::LocalEnvironmentAspect>()->environment();
@@ -140,7 +144,7 @@ QStringList QtcRunConfiguration::commandLineArgumentsList(void) const
     QStringList cmdArgs;
 
     QStringList themes = availableThemes();
-    int themeIndex = static_cast<ProjectExplorer::BaseSelectionAspect*>(aspect(Core::Id(Constants::ThemeId)))->value();
+    int themeIndex = static_cast<ProjectExplorer::BaseSelectionAspect*>(aspect(Utils::Id(Constants::ThemeId)))->value();
     if ((themeIndex >= 0) && (themeIndex < themes.size()))
         cmdArgs << QLatin1String("-theme") << themes[themeIndex];
 
@@ -150,7 +154,7 @@ QStringList QtcRunConfiguration::commandLineArgumentsList(void) const
         pluginsPath.prepend(QLatin1Char('"')).append(QLatin1Char('"'));
     cmdArgs << QLatin1String("-pluginpath") << pluginsPath;
 
-    QString settingsPath = static_cast<PathAspect*>(aspect(Core::Id(Constants::SettingsPathId)))->value().toString();
+    QString settingsPath = static_cast<PathAspect*>(aspect(Utils::Id(Constants::SettingsPathId)))->value().toString();
     if (macroExpander() != NULL)
         settingsPath = macroExpander()->expand(settingsPath);
     settingsPath.replace(QLatin1Char('"'), QLatin1String("\\\""));

@@ -84,7 +84,7 @@ bool QtcDeveloperPlugin::initialize(const QStringList &arguments, QString *error
     mRunConfigurationFactories << new QtcRunConfigurationFactory();
     mRunConfigurationFactories << new QtcTestRunConfigurationFactory();
 
-    connect(ProjectExplorer::ProjectExplorerPlugin::instance(), SIGNAL(aboutToExecuteRunControl(ProjectExplorer::RunControl*, Core::Id)),
+    connect(ProjectExplorer::ProjectExplorerPlugin::instance(), SIGNAL(aboutToExecuteRunControl(ProjectExplorer::RunControl*, Utils::Id)),
             this, SLOT(handleRunControlStarted(ProjectExplorer::RunControl*)), Qt::DirectConnection);
 
     return true;
@@ -109,8 +109,8 @@ void QtcDeveloperPlugin::handleRunControlStarted(ProjectExplorer::RunControl* ru
 {
     qDebug() << "Starting" << runControl->runConfiguration()->id();
 
-    if ((runControl->runConfiguration()->id() != Core::Id(Constants::QtcRunConfigurationId)) &&
-        (runControl->runConfiguration()->id() != Core::Id(Constants::QtcTestRunConfigurationId)))
+    if ((runControl->runConfiguration()->id() != Utils::Id(Constants::QtcRunConfigurationId)) &&
+        (runControl->runConfiguration()->id() != Utils::Id(Constants::QtcTestRunConfigurationId)))
         return;
 
     connect(runControl, SIGNAL(stopped()), this, SLOT(handleRunControlStopped()));
@@ -129,8 +129,8 @@ void QtcDeveloperPlugin::handleRunControlStopped()
 
     qDebug() << "End of" << runControl->runConfiguration()->id();
 
-    if ((runControl->runConfiguration()->id() != Core::Id(Constants::QtcRunConfigurationId)) &&
-        (runControl->runConfiguration()->id() != Core::Id(Constants::QtcTestRunConfigurationId)))
+    if ((runControl->runConfiguration()->id() != Utils::Id(Constants::QtcRunConfigurationId)) &&
+        (runControl->runConfiguration()->id() != Utils::Id(Constants::QtcTestRunConfigurationId)))
         return;
 
     Utils::FilePath targetFilePath(static_cast<QtcRunConfiguration*>(runControl->runConfiguration())->targetFilePath());

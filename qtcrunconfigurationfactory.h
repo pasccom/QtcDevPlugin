@@ -194,7 +194,7 @@ private:
     ProjectExplorer::RunWorkerFactory mRunWorkerFactory {
         ProjectExplorer::RunWorkerFactory::make<ProjectExplorer::SimpleTargetRunner>(),
         {ProjectExplorer::Constants::NORMAL_RUN_MODE, ProjectExplorer::Constants::DEBUG_RUN_MODE},
-        {Core::Id(Constants::QtcRunConfigurationId)}
+        {Utils::Id(Constants::QtcRunConfigurationId)}
     };
 };
 
@@ -221,7 +221,7 @@ private:
     ProjectExplorer::RunWorkerFactory mRunWorkerFactory {
         ProjectExplorer::RunWorkerFactory::make<ProjectExplorer::SimpleTargetRunner>(),
         {ProjectExplorer::Constants::NORMAL_RUN_MODE, ProjectExplorer::Constants::DEBUG_RUN_MODE},
-        {Core::Id(Constants::QtcTestRunConfigurationId)}
+        {Utils::Id(Constants::QtcTestRunConfigurationId)}
     };
 };
 

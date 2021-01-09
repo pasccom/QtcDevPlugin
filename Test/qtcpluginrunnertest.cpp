@@ -60,17 +60,17 @@ void QtcPluginRunnerTest::initTestCase(void)
 
 void QtcPluginRunnerTest::testRunner_data(void)
 {
-    QTest::addColumn<Core::Id>("runModeId");
-    QTest::addColumn<Core::Id>("runConfigId");
+    QTest::addColumn<Utils::Id>("runModeId");
+    QTest::addColumn<Utils::Id>("runConfigId");
     QTest::addColumn<QString>("runControlDisplayName");
 
-    QTest::newRow("Normal run") << Core::Id(ProjectExplorer::Constants::NORMAL_RUN_MODE) << Core::Id(QtcDevPlugin::Constants::QtcRunConfigurationId) << "Run Qt Creator with \"QtcPluginTest\"";
-    //QTest::newRow("Debug run") << Core::Id(ProjectExplorer::Constants::DEBUG_RUN_MODE) << Core::Id(QtcDevPlugin::Constants::QtcRunConfigurationId) << "Run Qt Creator with \"QtcPluginTest\"";
-    QTest::newRow("Normal test") << Core::Id(ProjectExplorer::Constants::NORMAL_RUN_MODE) << Core::Id(QtcDevPlugin::Constants::QtcTestRunConfigurationId) << "Run Qt Creator tests for \"QtcPluginTest\"";
-    //QTest::newRow("Debug test") << Core::Id(ProjectExplorer::Constants::DEBUG_RUN_MODE) << Core::Id(QtcDevPlugin::Constants::QtcTestRunConfigurationId) << "Run Qt Creator tests for \"QtcPluginTest\"";
+    QTest::newRow("Normal run")   << Utils::Id(ProjectExplorer::Constants::NORMAL_RUN_MODE) << Utils::Id(QtcDevPlugin::Constants::QtcRunConfigurationId)     << "Run Qt Creator with \"QtcPluginTest\"";
+    //QTest::newRow("Debug run")  << Utils::Id(ProjectExplorer::Constants::DEBUG_RUN_MODE)  << Utils::Id(QtcDevPlugin::Constants::QtcRunConfigurationId)     << "Run Qt Creator with \"QtcPluginTest\"";
+    QTest::newRow("Normal test")  << Utils::Id(ProjectExplorer::Constants::NORMAL_RUN_MODE) << Utils::Id(QtcDevPlugin::Constants::QtcTestRunConfigurationId) << "Run Qt Creator tests for \"QtcPluginTest\"";
+    //QTest::newRow("Debug test") << Utils::Id(ProjectExplorer::Constants::DEBUG_RUN_MODE)  << Utils::Id(QtcDevPlugin::Constants::QtcTestRunConfigurationId) << "Run Qt Creator tests for \"QtcPluginTest\"";
 }
 
-void QtcPluginRunnerTest::qtcRunConfiguration(const Core::Id& runConfigId, QtcDevPlugin::Internal::QtcRunConfiguration** qtcRunConfig)
+void QtcPluginRunnerTest::qtcRunConfiguration(const Utils::Id& runConfigId, QtcDevPlugin::Internal::QtcRunConfiguration** qtcRunConfig)
 {
     BEGIN_SUB_TEST_FUNCTION
 
@@ -88,8 +88,8 @@ void QtcPluginRunnerTest::qtcRunConfiguration(const Core::Id& runConfigId, QtcDe
 
 void QtcPluginRunnerTest::testRunner(void)
 {
-    QFETCH(Core::Id, runModeId);
-    QFETCH(Core::Id, runConfigId);
+    QFETCH(Utils::Id, runModeId);
+    QFETCH(Utils::Id, runConfigId);
     QFETCH(QString, runControlDisplayName);
 
     QtcDevPlugin::Internal::QtcRunConfiguration* qtcRunConfig;
@@ -102,12 +102,12 @@ void QtcPluginRunnerTest::testRunner(void)
     QVERIFY2(targetInstallPath.toFileInfo().exists(), "Please ensure QtcPluginTest is installed before running tests");
 
     QSignalSpy runControlAboutToStartSpy(ProjectExplorer::ProjectExplorerPlugin::instance(),
-                                    SIGNAL(aboutToExecuteRunControl(ProjectExplorer::RunControl*, Core::Id)));
+                                    SIGNAL(aboutToExecuteRunControl(ProjectExplorer::RunControl*, Utils::Id)));
     ProjectExplorer::ProjectExplorerPlugin::runProject(mProject, runModeId);
     QVERIFY2(runControlAboutToStartSpy.wait(10000), "Project takes too long to start");
     QCOMPARE(runControlAboutToStartSpy.size(), 1);
     QCOMPARE(runControlAboutToStartSpy.at(0).size(), 2);
-    QCOMPARE(runControlAboutToStartSpy.at(0).at(1).value<Core::Id>(), runModeId);
+    QCOMPARE(runControlAboutToStartSpy.at(0).at(1).value<Utils::Id>(), runModeId);
     mRunControl = runControlAboutToStartSpy.at(0).at(0).value<ProjectExplorer::RunControl*>();
     QCOMPARE(mRunControl->displayName(), runControlDisplayName);
 
