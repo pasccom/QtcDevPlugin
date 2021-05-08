@@ -25,8 +25,6 @@
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/applicationlauncher.h>
 
-#include <coreplugin/id.h>
-
 #include <utils/fileutils.h>
 
 namespace ProjectExplorer {

@@ -29,8 +29,6 @@
 
 #include <qmakeprojectmanager/qmakeproject.h>
 
-#include <coreplugin/variablechooser.h>
-
 #include <QtWidgets>
 #include <QtDebug>
 

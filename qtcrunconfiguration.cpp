@@ -104,11 +104,11 @@ QtcRunConfiguration::QtcRunConfiguration(ProjectExplorer::Target *parent, Utils:
     settingsPathAspect->setCheckable(true);
     settingsPathAspect->setMacroExpanderProvider([this] {return const_cast<Utils::MacroExpander*>(macroExpander());});
 
-    auto themeAspect = addAspect<ProjectExplorer::BaseSelectionAspect>();
+    auto themeAspect = addAspect<Utils::SelectionAspect>();
     themeAspect->setId(Utils::Id(Constants::ThemeId));
     themeAspect->setSettingsKey(Constants::ThemeKey);
     themeAspect->setDisplayName(tr("Theme:"));
-    themeAspect->setDisplayStyle(ProjectExplorer::BaseSelectionAspect::DisplayStyle::ComboBox);
+    themeAspect->setDisplayStyle(Utils::SelectionAspect::DisplayStyle::ComboBox);
     foreach (QString theme, availableThemes())
         themeAspect->addOption(theme);
 
@@ -144,7 +144,7 @@ QStringList QtcRunConfiguration::commandLineArgumentsList(void) const
     QStringList cmdArgs;
 
     QStringList themes = availableThemes();
-    int themeIndex = static_cast<ProjectExplorer::BaseSelectionAspect*>(aspect(Utils::Id(Constants::ThemeId)))->value();
+    int themeIndex = static_cast<Utils::SelectionAspect*>(aspect(Utils::Id(Constants::ThemeId)))->value();
     if ((themeIndex >= 0) && (themeIndex < themes.size()))
         cmdArgs << QLatin1String("-theme") << themes[themeIndex];
 

@@ -33,7 +33,6 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/toolchain.h>
-#include <projectexplorer/projectconfigurationaspects.h>
 
 #include <qmakeprojectmanager/qmakeproject.h>
 
@@ -74,8 +73,8 @@ void QtcRunConfigurationTest::testRestoreSettings(void)
                      << "for target" << target->displayName();
 
             QVERIFY(runConfig->aspect(QtcDevPlugin::Constants::ThemeId) != nullptr);
-            QVERIFY(qobject_cast<ProjectExplorer::BaseSelectionAspect*>(runConfig->aspect(QtcDevPlugin::Constants::ThemeId)) != nullptr);
-            static_cast<ProjectExplorer::BaseSelectionAspect*>(runConfig->aspect(QtcDevPlugin::Constants::ThemeId))->setValue(1);
+            QVERIFY(qobject_cast<Utils::SelectionAspect*>(runConfig->aspect(QtcDevPlugin::Constants::ThemeId)) != nullptr);
+            static_cast<Utils::SelectionAspect*>(runConfig->aspect(QtcDevPlugin::Constants::ThemeId))->setValue(1);
 
             QVERIFY(runConfig->aspect(QtcDevPlugin::Constants::SettingsPathId) != nullptr);
             QVERIFY(qobject_cast<QtcDevPlugin::Internal::PathAspect*>(runConfig->aspect(QtcDevPlugin::Constants::SettingsPathId)) != nullptr);

@@ -19,8 +19,8 @@
 #include "pathaspect.h"
 #include "Widgets/filetypevalidatinglineedit.h"
 
-#include <coreplugin/variablechooser.h>
-
+#include <utils/variablechooser.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
 #include <QtWidgets>
@@ -61,7 +61,7 @@ void PathAspect::setValue(const Utils::FilePath& value)
         emit changed();
 }
 
-void PathAspect::addToLayout(ProjectExplorer::LayoutBuilder &builder)
+void PathAspect::addToLayout(Utils::LayoutBuilder& builder)
 {
     mEdit = new Widgets::FileTypeValidatingLineEdit;
     mEdit->setMacroExpander(mMacroExpanderProvider());
@@ -69,7 +69,7 @@ void PathAspect::addToLayout(ProjectExplorer::LayoutBuilder &builder)
     mEdit->setText(mValue.toString());
 
     if (mMacroExpanderProvider != nullptr) {
-        Core::VariableChooser* variableChooser = new Core::VariableChooser(builder.layout()->parentWidget());
+        Utils::VariableChooser* variableChooser = new Utils::VariableChooser(builder.layout()->parentWidget());
         variableChooser->addSupportedWidget(mEdit);
         variableChooser->addMacroExpanderProvider(mMacroExpanderProvider);
     }
@@ -92,12 +92,14 @@ void PathAspect::addToLayout(ProjectExplorer::LayoutBuilder &builder)
 
         connect(mCheckbox, SIGNAL(toggled(bool)), this, SLOT(updateState(bool)));
 
-        builder.addItems(mCheckbox, fieldLayout);
+        builder.addItem(Utils::LayoutBuilder::LayoutItem(mCheckbox));
+        builder.addItem(Utils::LayoutBuilder::LayoutItem(fieldLayout));
     } else {
         mLabel = new QLabel(displayName() + ":");
         mLabel->setBuddy(mEdit);
 
-        builder.addItems(mLabel, fieldLayout);
+        builder.addItem(Utils::LayoutBuilder::LayoutItem(mLabel));
+        builder.addItem(Utils::LayoutBuilder::LayoutItem(fieldLayout));
     }
 }
 

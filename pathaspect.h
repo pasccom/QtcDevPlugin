@@ -19,8 +19,8 @@
 #ifndef PATH_ASPECT_H
 #define PATH_ASPECT_H
 
-#include <projectexplorer/projectconfiguration.h>
 #include "Widgets/filetypevalidatinglineedit.h"
+#include <utils/aspects.h>
 #include <utils/fileutils.h>
 #include <utils/macroexpander.h>
 
@@ -40,7 +40,7 @@ namespace Internal {
  * left of the line in the aspect configuration widget.
  * This aspect supports a macro expander which is used in the path validation.
  */
-class PathAspect : public ProjectExplorer::ProjectConfigurationAspect
+class PathAspect : public Utils::BaseAspect
 {
     Q_OBJECT
 public:
@@ -57,7 +57,7 @@ public:
      * Creates and adds the aspect widgets and adds them to the layout.
      * \param builder A layout builder provided by ProjectExplorer.
      */
-    void addToLayout(ProjectExplorer::LayoutBuilder& builder) override;
+    void addToLayout(Utils::LayoutBuilder& builder) override;
 
     /*!
      * \brief Conversion from map
@@ -107,7 +107,7 @@ public:
      * \return The current value of this aspect.
      * \sa setValue(), defaultValue()
      */
-    inline Utils::FilePath value() const {return mValue;}
+    inline Utils::FilePath value(void) const {return mValue;}
 
     /*!
      * \brief Make the aspect checkable
