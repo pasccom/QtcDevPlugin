@@ -26,7 +26,7 @@ namespace QtcDevPlugin {
 namespace Widgets {
 
 FileTypeValidatingLineEdit::FileTypeValidatingLineEdit(QWidget* parent) :
-    Utils::FancyLineEdit(parent), mMacroExpander(NULL), mAccepted(0)
+    Utils::FancyLineEdit(parent), mMacroExpander(NULL), mAccepted()
 {
     mAccepted |= AcceptsFiles;
     mAccepted |= RequireReadable;
