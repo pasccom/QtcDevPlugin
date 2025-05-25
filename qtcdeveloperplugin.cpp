@@ -21,6 +21,7 @@
 #include "qtcdevpluginconstants.h"
 #include "qtcrunconfigurationfactory.h"
 #include "qtcrunconfiguration.h"
+#include "qtcrunworkerfactory.h"
 
 #ifdef BUILD_TESTS
 #   include "Test/qtcrunconfigurationfactorytest.h"
@@ -41,6 +42,8 @@ using namespace QtcDevPlugin::Internal;
 
 QtcDeveloperPlugin::QtcDeveloperPlugin()
 {
+    mRunWorkerFactory = nullptr;
+
     // Create your members
 #ifdef BUILD_TESTS
     addTest<Test::QtcRunConfigurationFactoryTest>();
@@ -54,6 +57,8 @@ QtcDeveloperPlugin::~QtcDeveloperPlugin()
     // Unregister objects from the plugin manager's object pool
     // Delete members
     qDeleteAll(mRunConfigurationFactories);
+    if (mRunWorkerFactory != nullptr)
+        delete mRunWorkerFactory;
 }
 
 bool QtcDeveloperPlugin::initialize(const QStringList &arguments, QString *errorString)
@@ -88,9 +93,7 @@ bool QtcDeveloperPlugin::initialize(const QStringList &arguments, QString *error
 
     mRunConfigurationFactories << new QtcRunConfigurationFactory();
     mRunConfigurationFactories << new QtcTestRunConfigurationFactory();
-
-    connect(ProjectExplorer::ProjectExplorerPlugin::instance(), SIGNAL(aboutToExecuteRunControl(ProjectExplorer::RunControl*, Utils::Id)),
-            this, SLOT(handleRunControlStarted(ProjectExplorer::RunControl*)), Qt::DirectConnection);
+    mRunWorkerFactory = new QtcRunWorkerFactory();
 
     return true;
 }
@@ -108,60 +111,4 @@ ExtensionSystem::IPlugin::ShutdownFlag QtcDeveloperPlugin::aboutToShutdown()
     // Disconnect from signals that are not needed during shutdown
     // Hide UI (if you add UI that is not in the main window directly)
     return SynchronousShutdown;
-}
-
-void QtcDeveloperPlugin::handleRunControlStarted(ProjectExplorer::RunControl* runControl)
-{
-    qDebug() << "Starting" << runControl->displayName();
-
-    /* FIXME check run configuration type
-    if ((runControl->runConfiguration()->id() != Utils::Id(Constants::QtcRunConfigurationId)) &&
-        (runControl->runConfiguration()->id() != Utils::Id(Constants::QtcTestRunConfigurationId)))
-        return;*/
-
-    connect(runControl, SIGNAL(stopped()), this, SLOT(handleRunControlStopped()));
-
-    movePluginFile(runControl->targetFilePath(), QString(), QLatin1String(".del"));
-    for (Utils::FilePath pluginFilePath: pluginPaths(runControl->targetFilePath().fileName()))
-        movePluginFile(pluginFilePath, QString(), QLatin1String(".del"));
-}
-
-void QtcDeveloperPlugin::handleRunControlStopped()
-{
-    ProjectExplorer::RunControl* runControl = qobject_cast<ProjectExplorer::RunControl*>(sender());
-    QTC_ASSERT(runControl != nullptr, return);
-
-    qDebug() << "End of" << runControl->displayName();
-
-    /* FIXME check run configuration type
-    if ((runControl->runConfiguration()->id() != Utils::Id(Constants::QtcRunConfigurationId)) &&
-        (runControl->runConfiguration()->id() != Utils::Id(Constants::QtcTestRunConfigurationId)))
-        return;*/
-
-    movePluginFile(runControl->targetFilePath(), QLatin1String(".del"), QString());
-    for (Utils::FilePath pluginFilePath: pluginPaths(runControl->targetFilePath().fileName()))
-        movePluginFile(pluginFilePath, QLatin1String(".del"), QString());
-}
-
-QLinkedList<Utils::FilePath> QtcDeveloperPlugin::pluginPaths(const QString& fileName)
-{
-    QLinkedList<Utils::FilePath> ans;
-
-    for (Utils::FilePath pluginPath: ExtensionSystem::PluginManager::pluginPaths())
-        ans << pluginPath.pathAppended(fileName);
-
-    return ans;
-}
-
-void QtcDeveloperPlugin::movePluginFile(const Utils::FilePath& targetPath, const QString& oldSuffix, const QString& newSuffix)
-{
-    Utils::FilePath oldTargetPath = Utils::FilePath(targetPath).stringAppended(oldSuffix);
-    Utils::FilePath newTargetPath = Utils::FilePath(targetPath).stringAppended(newSuffix);
-
-    qDebug() << oldTargetPath << oldTargetPath.toFileInfo().exists() << newTargetPath << newTargetPath.toFileInfo().exists();
-
-    if (oldTargetPath.toFileInfo().exists()) {
-        QTC_CHECK(QFile::rename(oldTargetPath.toString(), newTargetPath.toString()));
-    }
-    QTC_CHECK(!oldTargetPath.toFileInfo().exists());
 }

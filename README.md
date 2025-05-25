@@ -45,8 +45,8 @@ COMPATIBILITY TABLE
 A `Y` means that QtcDevPlugin was tested against this Qt Creator version
 under the given operating system. A `N` means that the version of the plugin
 cannot work properly for the given operating system. A `P` means that
-the sources should be patched (see `patches/` folder) for the plugin to work
-under the given operating system. A `?` means that I
+the sources should be patched (see `patches/` folder for that particular version)
+for the plugin to work under the given operating system. A `?` means that I
 currently do not know whether it works.
 
 INSTALLATION

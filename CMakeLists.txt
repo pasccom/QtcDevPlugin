@@ -84,6 +84,10 @@ add_qtc_plugin(QtcDevPlugin
     qtcrunconfiguration.cpp
     qtctestrunconfiguration.h
     qtctestrunconfiguration.cpp
+    qtcrunworkerfactory.h
+    qtcrunworkerfactory.cpp
+    qtcrunworker.h
+    qtcrunworker.cpp
     pathaspect.h
     pathaspect.cpp
     Widgets/filetypevalidatinglineedit.h

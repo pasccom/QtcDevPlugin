@@ -28,6 +28,7 @@
 
 namespace ProjectExplorer {
     class RunConfigurationFactory;
+    class RunWorkerFactory;
     class RunControl;
 }
 
@@ -83,9 +84,9 @@ namespace Internal {
  * A \c Y means that QtcDevPlugin was tested against this Qt Creator version
  * under the given operating system. A \c N means that the version of the plugin
  * cannot work properly for the given operating system. A `P` means that
- * the sources should be patched (see \c patches/ folder) for the plugin to work
- * under the given operating system. A \c ? means that I currently do not know
- * whether it works.
+ * the sources should be patched (see \c patches/ folder for that particular version)
+ * for the plugin to work under the given operating system. A \c ? means that
+ * I currently do not know whether it works.
  *
  * \section license Licensing information
  *
@@ -167,47 +168,9 @@ public:
      * \return \c SynchronousShutdown in all cases.
      */
     ShutdownFlag aboutToShutdown() override;
-
-private slots:
-    /*!
-     * \brief Slot called on run control start.
-     *
-     * This slot is called whenever a run control is started.
-     * It checks if the associated run configuration is a QtcRunConfiguration
-     * of a QtcTestRunConfiguration. If this is the case, it ensures that old
-     * versions of the plugin are removed from Qt Creator plugin path
-     * before starting Qt Creator with the right command line arguments.
-     * \param runControl The run control which is starting.
-     * \sa handleRunControlStopped()
-     */
-    void handleRunControlStarted(ProjectExplorer::RunControl* runControl);
-    /*!
-     * \brief Slot called on run control end.
-     *
-     * This slot is called whenever a run control enters stopped state.
-     * It restores old versions of the plugin (which have been removed by
-     * handleRunControlStarted()). The sender is expected to be
-     * the run control which is finishing.
-     * \sa handleRunControlStarted()
-     */
-    void handleRunControlStopped();
 private:
-    /*!
-     * \brief Moves the plugin file
-     *
-     * Moves the plugin file (obtained by the target install path of the run configuration)
-     * from one suffixed path to the other.
-     * This allows to delete and undelete easily the plugin from Qt Creator plugin path.
-     * \param targetPath The path to the target to rename.
-     * \param oldSuffix The current suffix of the target.
-     * \param newSuffix The desired suffix of the target.
-     * \sa handleRunControlStarted(), handleRunControlStopped()
-     */
-    void movePluginFile(const Utils::FilePath& targetPath, const QString& oldSuffix, const QString& newSuffix);
-
-    QLinkedList<Utils::FilePath> pluginPaths(const QString& fileName);
-
     QList<ProjectExplorer::RunConfigurationFactory*> mRunConfigurationFactories; /*!< List of run configuration factories created by this plugin (for deletion) */
+    ProjectExplorer::RunWorkerFactory* mRunWorkerFactory;                        /*!< Run worker factory created by this plugin (for deletion) */
 };
 
 } // namespace Internal
