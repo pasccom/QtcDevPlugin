@@ -848,9 +848,11 @@ RECURSIVE              = YES
 # run.
 
 EXCLUDE                = Test \
-			 tests \
-			 testConfig \
-			 bin
+                         tests \
+                         testConfig \
+                         bin \
+                         debug \
+                         release
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
 # directories that are symbolic links (a Unix file system feature) are excluded
