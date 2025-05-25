@@ -49,6 +49,7 @@ public:
      * \brief Constructor
      *
      * Constructs an new \ref PathAspect.
+     * \param container Container of the aspect.
      */
     inline PathAspect(Utils::AspectContainer* container)
         : Utils::BaseAspect(container), mCheckable(false) {}
