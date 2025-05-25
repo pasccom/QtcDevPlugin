@@ -25,16 +25,17 @@
 #include "../qtcdevpluginconstants.h"
 
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/kitmanager.h>
-#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/toolchain.h>
 
 #include <qmakeprojectmanager/qmakeproject.h>
+
+#include <utils/processinterface.h>
+#include <utils/theme/theme.h>
 
 #include <QtTest>
 
@@ -43,7 +44,7 @@ namespace Test {
 
 void QtcRunConfigurationTest::initTestCase(void)
 {
-    QVERIFY(removeProjectUserFiles(QLatin1String(TESTS_DIR "/QtcPluginTest")));
+    QVERIFY(removeProjectUserFiles(Utils::FilePath(TESTS_DIR "/QtcPluginTest")));
 }
 
 void QtcRunConfigurationTest::cleanup(void)
@@ -54,17 +55,17 @@ void QtcRunConfigurationTest::cleanup(void)
 
 void QtcRunConfigurationTest::testRestoreSettings(void)
 {
-    QString projectPath(TESTS_DIR "/QtcPluginTest/QtcPluginTest.pro");
+    Utils::FilePath projectPath(TESTS_DIR "/QtcPluginTest/QtcPluginTest.pro");
 
     QVERIFY(openQMakeProject(projectPath, &mProject));
-    QCOMPARE(mProject->projectFilePath().toString(), projectPath);
+    QCOMPARE(mProject->projectFilePath(), projectPath);
 
     QString theme = "Classic";
     if (Utils::creatorTheme()->displayName() == theme)
         theme = "Dark";
 
-    foreach (ProjectExplorer::Target* target, mProject->targets()) {
-        foreach (ProjectExplorer::RunConfiguration* runConfig, target->runConfigurations()) {
+    for (ProjectExplorer::Target* target: mProject->targets()) {
+        for (ProjectExplorer::RunConfiguration* runConfig: target->runConfigurations()) {
             if ((runConfig->id() != QtcDevPlugin::Constants::QtcRunConfigurationId) &&
                 (runConfig->id() != QtcDevPlugin::Constants::QtcTestRunConfigurationId))
                 continue;
@@ -84,10 +85,10 @@ void QtcRunConfigurationTest::testRestoreSettings(void)
             QVERIFY(qobject_cast<QtcDevPlugin::Internal::PathAspect*>(runConfig->aspect(QtcDevPlugin::Constants::WorkingDirectoryId)) != nullptr);
             static_cast<QtcDevPlugin::Internal::PathAspect*>(runConfig->aspect(QtcDevPlugin::Constants::WorkingDirectoryId))->setValue(Utils::FilePath::fromString("."));
 
-            ProjectExplorer::Runnable runnable = runConfig->runnable();
-            QCOMPARE(runnable.workingDirectory, QLatin1String("."));
+            Utils::ProcessRunData runnable = runConfig->runnable();
+            QCOMPARE(runnable.workingDirectory, Utils::FilePath("."));
 
-            QStringList args = runnable.commandLineArguments.split(QLatin1Char(' '));
+            QStringList args = runnable.command.arguments().split(QLatin1Char(' '));
 
             int themeIndex = args.indexOf(QLatin1String("-theme"));
             QVERIFY(themeIndex != -1);
@@ -104,10 +105,10 @@ void QtcRunConfigurationTest::testRestoreSettings(void)
     closeProject(mProject);
 
     QVERIFY(openQMakeProject(projectPath, &mProject));
-    QCOMPARE(mProject->projectFilePath().toString(), projectPath);
+    QCOMPARE(mProject->projectFilePath(), projectPath);
 
-    foreach (ProjectExplorer::Target* target, mProject->targets()) {
-        foreach (ProjectExplorer::RunConfiguration* runConfig, target->runConfigurations()) {
+    for (ProjectExplorer::Target* target: mProject->targets()) {
+        for (ProjectExplorer::RunConfiguration* runConfig: target->runConfigurations()) {
             if ((runConfig->id() != QtcDevPlugin::Constants::QtcRunConfigurationId) &&
                 (runConfig->id() != QtcDevPlugin::Constants::QtcTestRunConfigurationId))
                 continue;
@@ -115,10 +116,10 @@ void QtcRunConfigurationTest::testRestoreSettings(void)
             qDebug() << "Restored run configuration" << runConfig->displayName()
                      << "for target" << target->displayName();
 
-            ProjectExplorer::Runnable runnable = runConfig->runnable();
-            QCOMPARE(runnable.workingDirectory, QLatin1String("."));
+            Utils::ProcessRunData runnable = runConfig->runnable();
+            QCOMPARE(runnable.workingDirectory, Utils::FilePath("."));
 
-            QStringList args = runnable.commandLineArguments.split(QLatin1Char(' '));
+            QStringList args = runnable.command.arguments().split(QLatin1Char(' '));
             int themeIndex = args.indexOf(QLatin1String("-theme"));
             QVERIFY(themeIndex != -1);
             QVERIFY(themeIndex + 1 < args.size());

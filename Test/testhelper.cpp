@@ -19,7 +19,7 @@
 #include "testhelper.h"
 
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/session.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/kitmanager.h>
@@ -27,6 +27,7 @@
 
 #include <QSignalSpy>
 
+#undef QVERIFY
 #define QVERIFY(_cond_)                                                       \
     do {                                                                      \
         if (!(_cond_)) {                                                      \
@@ -35,6 +36,7 @@
         }                                                                     \
     } while(false);                                                           \
 
+#undef QVERIFY2
 #define QVERIFY2(_cond_, _msg_)                                               \
     do {                                                                      \
         if (!(_cond_)) {                                                      \
@@ -46,46 +48,45 @@
 namespace QtcDevPlugin {
 namespace Test {
 
-bool removeProjectUserFiles(const QString& projectPath)
+bool removeProjectUserFiles(const Utils::FilePath& projectPath)
 {
-    QDir projectDir(projectPath);
-    QVERIFY(projectDir.exists());
-    projectDir.setNameFilters(QStringList() << projectDir.dirName() + QLatin1String(".pro.user*"));
-    QStringList projectUserPathes = projectDir.entryList();
-    foreach (QString projectUserPath, projectUserPathes)
-        QVERIFY(QFile::remove(projectDir.absoluteFilePath(projectUserPath)));
+    QVERIFY(projectPath.exists());
+
+    for (Utils::FilePath projectUserPath: projectPath.dirEntries(Utils::FileFilter(QStringList() << QLatin1String("*.pro.user.*"))))
+        QVERIFY(projectUserPath.removeFile());
+
     return true;
 }
 
 
-bool openQMakeProject(const QString& projectFilePath, ProjectExplorer::Project** project)
+bool openQMakeProject(const Utils::FilePath& projectFilePath, ProjectExplorer::Project** project)
 {
     ProjectExplorer::Project* proj;
 
     // Open project
-    ProjectExplorer::ProjectExplorerPlugin::OpenProjectResult result = ProjectExplorer::ProjectExplorerPlugin::openProject(projectFilePath);
+    ProjectExplorer::OpenProjectResult result = ProjectExplorer::ProjectExplorerPlugin::openProject(projectFilePath);
     QVERIFY((bool) result);
     proj = result.project();
 
     // Initialize targets if required
     if (proj->activeTarget() == NULL) {
         proj->addTargetForKit(ProjectExplorer::KitManager::defaultKit());
-        foreach (ProjectExplorer::Target* target, proj->targets()) {
+        for (ProjectExplorer::Target* target: proj->targets()) {
             if (target->kit() == ProjectExplorer::KitManager::defaultKit())
-                ProjectExplorer::SessionManager::setActiveTarget(proj, target, ProjectExplorer::SetActive::Cascade);
+                proj->setActiveTarget(target, ProjectExplorer::SetActive::Cascade);
         }
     }
     QVERIFY(proj->activeTarget() != NULL);
 
     // Initialize build confirgurations if required
-    foreach (ProjectExplorer::Target* target, proj->targets()) {
+    for (ProjectExplorer::Target* target: proj->targets()) {
         if (target->activeBuildConfiguration() == NULL) {
             ProjectExplorer::BuildConfigurationFactory* factory = ProjectExplorer::BuildConfigurationFactory::find(target);
             QVERIFY(factory != NULL);
             QList<ProjectExplorer::BuildInfo> buildInfos = factory->allAvailableBuilds(target);
             ProjectExplorer::BuildInfo releaseBuildInfo;
             ProjectExplorer::BuildInfo debugBuildInfo;
-            foreach (ProjectExplorer::BuildInfo bi, buildInfos) {
+            for (ProjectExplorer::BuildInfo bi: buildInfos) {
                 if (QString::compare(bi.typeName, QLatin1String("Release"), Qt::CaseInsensitive) == 0) {
                     releaseBuildInfo = bi;
                     releaseBuildInfo.displayName = bi.typeName;
@@ -108,7 +109,7 @@ bool openQMakeProject(const QString& projectFilePath, ProjectExplorer::Project**
     QVERIFY2((parsedSpy.count() > 0) || parsedSpy.wait(), "Project parsing takes too long");
 
     // Update targets:
-    foreach (ProjectExplorer::Target* target, proj->targets())
+    for (ProjectExplorer::Target* target: proj->targets())
         target->updateDefaultRunConfigurations();
 
     if (project != NULL)
@@ -122,8 +123,8 @@ bool closeProject(ProjectExplorer::Project* project)
         return false;
 
     qRegisterMetaType<ProjectExplorer::Project*>();
-    QSignalSpy removedSpy(ProjectExplorer::SessionManager::instance(), &ProjectExplorer::SessionManager::projectRemoved);
-    ProjectExplorer::SessionManager::removeProject(project);
+    QSignalSpy removedSpy(ProjectExplorer::ProjectManager::instance(), &ProjectExplorer::ProjectManager::projectRemoved);
+    ProjectExplorer::ProjectManager::removeProject(project);
     QVERIFY2((removedSpy.count() > 0) || removedSpy.wait(), "Project removal takes too long");
 
     return true;

@@ -52,9 +52,9 @@ const char ThemeId [] = QTC_THEME_ID;
  * \defgroup QtcRunConfigurationSettings QtcRunConfiguration settings
  * @{
  */
-const QString WorkingDirectoryKey = QLatin1String(QTC_RUN_CONFIGURATION_ID ".WorkingDirectory");    /*!< Key for working directory path Internal::QtcRunConfiguration */
-const QString SettingsPathKey = QLatin1String(QTC_RUN_CONFIGURATION_ID ".SettingsPath");            /*!< Key for Qt Creator settings path Internal::QtcRunConfiguration */
-const QString ThemeKey = QLatin1String(QTC_RUN_CONFIGURATION_ID ".Theme");                          /*!< Key for the theme in Internal::QtcRunConfiguration */
+const char WorkingDirectoryKey [] = QTC_RUN_CONFIGURATION_ID ".WorkingDirectory";                   /*!< Key for working directory path Internal::QtcRunConfiguration */
+const char SettingsPathKey [] = QTC_RUN_CONFIGURATION_ID ".SettingsPath";                           /*!< Key for Qt Creator settings path Internal::QtcRunConfiguration */
+const char ThemeKey [] = QTC_RUN_CONFIGURATION_ID ".Theme";                                         /*!< Key for the theme in Internal::QtcRunConfiguration */
 /*!@}*/
 
 /*!@}*/

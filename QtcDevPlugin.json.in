@@ -1,11 +1,13 @@
 {
-    \"Name\" : \"QtcDevPlugin\",
-    \"Version\" : \"0.0.16\",
-    \"CompatVersion\" : \"0.0.16\",
-    \"Vendor\" : \"Pascal COMBES\",
-    \"Copyright\" : \"(C) Pascal COMBES <pascom@orange.fr>\",
-    \"License\" : \"GPLv3\",
-    \"Description\" : \"This plugin simplifies the development of Qt Creator plugins.\",
-    \"Url\" : \"https://github.com/pasccom/QtcDevPlugin\",
-    $$dependencyList
+    "Id" : "qtcdevplugin",
+    "Name" : "QtcDevPlugin",
+    "Version" : "0.0.16",
+    "CompatVersion" : "0.0.16",
+    "Vendor" : "Pascal COMBES",
+    "VendorId": "pasccom",
+    "Copyright" : "(C) Pascal COMBES <pascom@orange.fr>",
+    "License" : "GPLv3",
+    "Description" : "This plugin simplifies the development of Qt Creator plugins.",
+    "Url" : "https://github.com/pasccom/QtcDevPlugin",
+    ${IDE_PLUGIN_DEPENDENCIES}
 }

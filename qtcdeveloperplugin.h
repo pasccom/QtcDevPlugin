@@ -24,6 +24,8 @@
 #include <extensionsystem/iplugin.h>
 #include <utils/fileutils.h>
 
+#include <QLinkedList>
+
 namespace ProjectExplorer {
     class RunConfigurationFactory;
     class RunControl;
@@ -98,7 +100,7 @@ namespace Internal {
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with QTestLibPlugin. If not, see http://www.gnu.org/licenses/
+ * along with QtcDevPlugin. If not, see http://www.gnu.org/licenses/
  */
 
 /*!
@@ -165,16 +167,7 @@ public:
      * \return \c SynchronousShutdown in all cases.
      */
     ShutdownFlag aboutToShutdown() override;
-#ifdef BUILD_TESTS
-    /*!
-     * \brief Creates tests instances
-     *
-     * This method creates instances of test classes.
-     * \note This function of this method is extensively described in Qt Creator developper documentation.
-     * \return A list of instances of test classes.
-     */
-    QVector<QObject *> createTestObjects(void) const override;
-#endif
+
 private slots:
     /*!
      * \brief Slot called on run control start.

@@ -28,14 +28,14 @@
 namespace QtcDevPlugin {
 namespace Internal {
 
-void PathAspect::fromMap(const QVariantMap& map)
+void PathAspect::fromMap(const Utils::Store& map)
 {
     QTC_ASSERT(!settingsKey().isEmpty(), return);
     mValue = Utils::FilePath::fromString(map.value(settingsKey(), mDefaultValue.toString()).toString());
-    qDebug() << __func__ << settingsKey()  << "value:" << mValue;
+    qDebug() << __func__ << settingsKey().toByteArray() << "value:" << mValue;
 }
 
-void PathAspect::toMap(QVariantMap& map) const
+void PathAspect::toMap(Utils::Store& map) const
 {
     QTC_ASSERT(!settingsKey().isEmpty(), return);
     if (QString::compare(mValue.toString(), mDefaultValue.toString(), Utils::HostOsInfo::fileNameCaseSensitivity()) != 0)
@@ -55,21 +55,21 @@ void PathAspect::setValue(const Utils::FilePath& value)
 {
     bool same = (mValue == value);
     mValue = value;
-    qDebug() << __func__ << settingsKey() << "value:" << mValue;
+    qDebug() << __func__ << settingsKey().toByteArray() << "value:" << mValue;
 
     if (!same)
         emit changed();
 }
 
-void PathAspect::addToLayout(Utils::LayoutBuilder& builder)
+void PathAspect::addToLayoutImpl(Layouting::Layout& builder)
 {
-    mEdit = new Widgets::FileTypeValidatingLineEdit;
+    mEdit = createSubWidget<Widgets::FileTypeValidatingLineEdit>();
     mEdit->setMacroExpander(mMacroExpanderProvider());
     mEdit->setAcceptFlags(mAccepted);
     mEdit->setText(mValue.toString());
 
     if (mMacroExpanderProvider != nullptr) {
-        Utils::VariableChooser* variableChooser = new Utils::VariableChooser(builder.layout()->parentWidget());
+        Utils::VariableChooser* variableChooser = new Utils::VariableChooser(builder.emerge());
         variableChooser->addSupportedWidget(mEdit);
         variableChooser->addMacroExpanderProvider(mMacroExpanderProvider);
     }
@@ -85,21 +85,21 @@ void PathAspect::addToLayout(Utils::LayoutBuilder& builder)
     fieldLayout->addWidget(mButton);
 
     if (mCheckable) {
-        mCheckbox = new QCheckBox(displayName() + ":");
+        mCheckbox = createSubWidget<QCheckBox>(displayName() + ":");
         mCheckbox->setChecked(QString::compare(mValue.toString(), mDefaultValue.toString(), Utils::HostOsInfo::fileNameCaseSensitivity()) != 0);
         mEdit->setEnabled(mCheckbox->isChecked());
         mButton->setEnabled(mCheckbox->isChecked());
 
         connect(mCheckbox, SIGNAL(toggled(bool)), this, SLOT(updateState(bool)));
 
-        builder.addItem(Utils::LayoutBuilder::LayoutItem(mCheckbox));
-        builder.addItem(Utils::LayoutBuilder::LayoutItem(fieldLayout));
+        builder.addItem(mCheckbox);
+        builder.addItem(fieldLayout);
     } else {
-        mLabel = new QLabel(displayName() + ":");
+        mLabel = createSubWidget<QLabel>(displayName() + ":");
         mLabel->setBuddy(mEdit);
 
-        builder.addItem(Utils::LayoutBuilder::LayoutItem(mLabel));
-        builder.addItem(Utils::LayoutBuilder::LayoutItem(fieldLayout));
+        builder.addItem(mLabel);
+        builder.addItem(fieldLayout);
     }
 }
 

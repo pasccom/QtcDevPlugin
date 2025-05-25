@@ -190,12 +190,6 @@ public:
      * for QMake projects with desktop target.
      */
     QtcRunConfigurationFactory();
-private:
-    ProjectExplorer::RunWorkerFactory mRunWorkerFactory {
-        ProjectExplorer::RunWorkerFactory::make<ProjectExplorer::SimpleTargetRunner>(),
-        {ProjectExplorer::Constants::NORMAL_RUN_MODE, ProjectExplorer::Constants::DEBUG_RUN_MODE},
-        {Utils::Id(Constants::QtcRunConfigurationId)}
-    };
 };
 
 /*!
@@ -217,12 +211,6 @@ public:
      * for QMake projects with desktop target.
      */
     QtcTestRunConfigurationFactory();
-private:
-    ProjectExplorer::RunWorkerFactory mRunWorkerFactory {
-        ProjectExplorer::RunWorkerFactory::make<ProjectExplorer::SimpleTargetRunner>(),
-        {ProjectExplorer::Constants::NORMAL_RUN_MODE, ProjectExplorer::Constants::DEBUG_RUN_MODE},
-        {Utils::Id(Constants::QtcTestRunConfigurationId)}
-    };
 };
 
 } // Internal

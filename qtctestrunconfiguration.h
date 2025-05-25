@@ -20,7 +20,6 @@
 #define QTCTESTRUNCONFIGURATION_H
 
 #include "qtcrunconfiguration.h"
-#include <projectexplorer/applicationlauncher.h>
 
 #include <QWidget>
 

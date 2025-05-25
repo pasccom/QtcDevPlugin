@@ -21,7 +21,6 @@
 #include "qtcdevpluginconstants.h"
 #include "pathaspect.h"
 
-#include <projectexplorer/localenvironmentaspect.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/target.h>
@@ -35,6 +34,7 @@
 #include <coreplugin/icore.h>
 
 #include <utils/macroexpander.h>
+#include <utils/processinterface.h>
 #include <utils/theme/theme.h>
 
 #include <QtDebug>
@@ -52,22 +52,15 @@ namespace Internal {
 QStringList availableThemes(void)
 {
     QStringList themes;
+    Utils::FileFilter fileFilter(QStringList() << QLatin1String("*.creatortheme"), QDir::Files);
 
-    QDir resourceDir = QDir(Core::ICore::resourcePath());
-    resourceDir.cd(QLatin1String("themes"));
-    resourceDir.setFilter(QDir::Files);
-    resourceDir.setNameFilters(QStringList() << QLatin1String("*.creatortheme"));
-    foreach (QString fileName, resourceDir.entryList()) {
-        QSettings themeSettings(resourceDir.absoluteFilePath(fileName), QSettings::IniFormat);
+    for (Utils::FilePath filePath: Core::ICore::resourcePath("themes").dirEntries(fileFilter)) {
+        QSettings themeSettings(filePath.toUrlishString(), QSettings::IniFormat);
         themes << themeSettings.value(QLatin1String("ThemeName"), QCoreApplication::tr("unnamed")).toString();
     }
 
-    QDir userResourceDir = QDir(Core::ICore::userResourcePath());
-    userResourceDir.cd(QLatin1String("themes"));
-    userResourceDir.setFilter(QDir::Files);
-    userResourceDir.setNameFilters(QStringList() << QLatin1String("*.creatortheme"));
-    foreach (QString fileName, userResourceDir.entryList()) {
-        QSettings themeSettings(userResourceDir.absoluteFilePath(fileName), QSettings::IniFormat);
+    for (Utils::FilePath filePath: Core::ICore::userResourcePath("themes").dirEntries(fileFilter)) {
+        QSettings themeSettings(filePath.toUrlishString(), QSettings::IniFormat);
         themes << themeSettings.value(QLatin1String("ThemeName"), QCoreApplication::tr("unnamed")).toString();
     }
 
@@ -77,7 +70,7 @@ QStringList availableThemes(void)
     else
         qWarning() << "Current theme \"" + Utils::creatorTheme()->displayName() + "\" theme not found in ressource path.";
 
-    qDebug() << themes << resourceDir.absolutePath() << userResourceDir.absolutePath();
+    qDebug() << themes << Core::ICore::resourcePath("themes").toUrlishString() << Core::ICore::userResourcePath("themes").toUrlishString();
 
     return themes;
 }
@@ -87,30 +80,27 @@ QtcRunConfiguration::QtcRunConfiguration(ProjectExplorer::Target *parent, Utils:
 {
     setDefaultDisplayName(tr("Run Qt Creator"));
 
-    auto workingDirectoryAspect = addAspect<PathAspect>();
-    workingDirectoryAspect->setId(Utils::Id(Constants::WorkingDirectoryId));
-    workingDirectoryAspect->setSettingsKey(Constants::WorkingDirectoryKey);
-    workingDirectoryAspect->setDisplayName(tr("Working directory"));
-    workingDirectoryAspect->setAcceptDirectories(true);
-    workingDirectoryAspect->setMacroExpanderProvider([this] {return const_cast<Utils::MacroExpander*>(macroExpander());});
-    workingDirectoryAspect->setDefaultValue(Utils::FilePath::fromString("%{buildDir}"));
+    mWorkingDirectoryAspect.setId(Utils::Id(Constants::WorkingDirectoryId));
+    mWorkingDirectoryAspect.setSettingsKey(Utils::Key(Constants::WorkingDirectoryKey));
+    mWorkingDirectoryAspect.setDisplayName(tr("Working directory"));
+    mWorkingDirectoryAspect.setAcceptDirectories(true);
+    mWorkingDirectoryAspect.setMacroExpanderProvider([this] {return const_cast<Utils::MacroExpander*>(macroExpander());});
+    mWorkingDirectoryAspect.setDefaultValue(Utils::FilePath::fromString("%{buildDir}"));
 
-    auto settingsPathAspect = addAspect<PathAspect>();
-    settingsPathAspect->setId(Utils::Id(Constants::SettingsPathId));
-    settingsPathAspect->setSettingsKey(Constants::SettingsPathKey);
-    settingsPathAspect->setDisplayName(tr("Alternative settings path"));
-    settingsPathAspect->setAcceptDirectories(true);
-    settingsPathAspect->setRequireWritable(true);
-    settingsPathAspect->setCheckable(true);
-    settingsPathAspect->setMacroExpanderProvider([this] {return const_cast<Utils::MacroExpander*>(macroExpander());});
+    mSettingsPathAspect.setId(Utils::Id(Constants::SettingsPathId));
+    mSettingsPathAspect.setSettingsKey(Utils::Key(Constants::SettingsPathKey));
+    mSettingsPathAspect.setDisplayName(tr("Alternative settings path"));
+    mSettingsPathAspect.setAcceptDirectories(true);
+    mSettingsPathAspect.setRequireWritable(true);
+    mSettingsPathAspect.setCheckable(true);
+    mSettingsPathAspect.setMacroExpanderProvider([this] {return const_cast<Utils::MacroExpander*>(macroExpander());});
 
-    auto themeAspect = addAspect<Utils::SelectionAspect>();
-    themeAspect->setId(Utils::Id(Constants::ThemeId));
-    themeAspect->setSettingsKey(Constants::ThemeKey);
-    themeAspect->setDisplayName(tr("Theme:"));
-    themeAspect->setDisplayStyle(Utils::SelectionAspect::DisplayStyle::ComboBox);
-    foreach (QString theme, availableThemes())
-        themeAspect->addOption(theme);
+    mThemeAspect.setId(Utils::Id(Constants::ThemeId));
+    mThemeAspect.setSettingsKey(Utils::Key(Constants::ThemeKey));
+    mThemeAspect.setDisplayName(tr("Theme:"));
+    mThemeAspect.setDisplayStyle(Utils::SelectionAspect::DisplayStyle::ComboBox);
+    for (QString theme: availableThemes())
+        mThemeAspect.addOption(theme);
 
     /* TODO ensure this run configuration cannot be run with valgrind...
      * To do this, the code of the Valgrind plugin should be altered:
@@ -118,7 +108,6 @@ QtcRunConfiguration::QtcRunConfiguration(ProjectExplorer::Target *parent, Utils:
      * and addAspects() should only add aspects provided bu runnable RunControl factories.
      * 2.Alternatively, ValgrindPlugin, should ensure the extra aspects are added to
      * sensible RunConfiguration and RunConfiguration::addExtraAspects() should be removed. */
-    addAspect<ProjectExplorer::LocalEnvironmentAspect>(parent);
 }
 
 QString QtcRunConfiguration::pluginName(void) const
@@ -126,16 +115,17 @@ QString QtcRunConfiguration::pluginName(void) const
     return buildTargetInfo().projectFilePath.toFileInfo().baseName();
 }
 
-ProjectExplorer::Runnable QtcRunConfiguration::runnable(void) const
+Utils::ProcessRunData QtcRunConfiguration::runnable(void) const
 {
-    ProjectExplorer::Runnable runnable;
-    runnable.executable = Utils::FilePath::fromString(QCoreApplication::applicationFilePath());
-    runnable.commandLineArguments = commandLineArgumentsList().join(QLatin1Char(' '));
-    runnable.workingDirectory = static_cast<PathAspect*>(aspect(Utils::Id(Constants::WorkingDirectoryId)))->value().toString();
+    Utils::ProcessRunData runnable;
+    runnable.command = Utils::CommandLine(
+        Utils::FilePath::fromString(QCoreApplication::applicationFilePath()),
+        commandLineArgumentsList()
+    );
+    runnable.workingDirectory = mWorkingDirectoryAspect.value();
     if (macroExpander() != NULL)
         runnable.workingDirectory = macroExpander()->expand(runnable.workingDirectory);
-    runnable.environment = aspect<ProjectExplorer::LocalEnvironmentAspect>()->environment();
-    runnable.device = ProjectExplorer::DeviceManager::instance()->defaultDevice(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
+    runnable.environment = mEnvironmentAspect.environment();
     return runnable;
 }
 
@@ -168,5 +158,5 @@ QStringList QtcRunConfiguration::commandLineArgumentsList(void) const
 }
 
 } // Internal
-} // QTestLibPlugin
+} // QtcDevPlugin
 

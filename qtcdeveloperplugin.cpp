@@ -42,6 +42,11 @@ using namespace QtcDevPlugin::Internal;
 QtcDeveloperPlugin::QtcDeveloperPlugin()
 {
     // Create your members
+#ifdef BUILD_TESTS
+    addTest<Test::QtcRunConfigurationFactoryTest>();
+    addTest<Test::QtcRunConfigurationTest>();
+    addTest<Test::QtcPluginRunnerTest>();
+#endif
 }
 
 QtcDeveloperPlugin::~QtcDeveloperPlugin()
@@ -73,8 +78,8 @@ bool QtcDeveloperPlugin::initialize(const QStringList &arguments, QString *error
     qmFile = QString(QLatin1String("qtcdevplugin_%1.qm")).arg(qmFile);
 
     QTranslator *translator = new QTranslator(this);
-    if (translator->load(qmFile, Core::ICore::resourcePath() + QDir::separator() + QLatin1String("translations")) ||
-        translator->load(qmFile, Core::ICore::userResourcePath() + QDir::separator() + QLatin1String("translations"))) {
+    if (translator->load(qmFile, Core::ICore::resourcePath("translations").toUrlishString()) ||
+        translator->load(qmFile, Core::ICore::userResourcePath("translations").toUrlishString())) {
         if (!qApp->installTranslator(translator))
             qWarning() << qPrintable(QString(QLatin1String("Failed to install translator (%1)")).arg(qmFile));
     } else {
@@ -107,18 +112,17 @@ ExtensionSystem::IPlugin::ShutdownFlag QtcDeveloperPlugin::aboutToShutdown()
 
 void QtcDeveloperPlugin::handleRunControlStarted(ProjectExplorer::RunControl* runControl)
 {
-    qDebug() << "Starting" << runControl->runConfiguration()->id();
+    qDebug() << "Starting" << runControl->displayName();
 
+    /* FIXME check run configuration type
     if ((runControl->runConfiguration()->id() != Utils::Id(Constants::QtcRunConfigurationId)) &&
         (runControl->runConfiguration()->id() != Utils::Id(Constants::QtcTestRunConfigurationId)))
-        return;
+        return;*/
 
     connect(runControl, SIGNAL(stopped()), this, SLOT(handleRunControlStopped()));
 
-    Utils::FilePath targetFilePath(static_cast<QtcRunConfiguration*>(runControl->runConfiguration())->targetFilePath());
-
-    movePluginFile(targetFilePath, QString(), QLatin1String(".del"));
-    foreach (Utils::FilePath pluginFilePath, pluginPaths(targetFilePath.fileName()))
+    movePluginFile(runControl->targetFilePath(), QString(), QLatin1String(".del"));
+    for (Utils::FilePath pluginFilePath: pluginPaths(runControl->targetFilePath().fileName()))
         movePluginFile(pluginFilePath, QString(), QLatin1String(".del"));
 }
 
@@ -127,16 +131,15 @@ void QtcDeveloperPlugin::handleRunControlStopped()
     ProjectExplorer::RunControl* runControl = qobject_cast<ProjectExplorer::RunControl*>(sender());
     QTC_ASSERT(runControl != nullptr, return);
 
-    qDebug() << "End of" << runControl->runConfiguration()->id();
+    qDebug() << "End of" << runControl->displayName();
 
+    /* FIXME check run configuration type
     if ((runControl->runConfiguration()->id() != Utils::Id(Constants::QtcRunConfigurationId)) &&
         (runControl->runConfiguration()->id() != Utils::Id(Constants::QtcTestRunConfigurationId)))
-        return;
+        return;*/
 
-    Utils::FilePath targetFilePath(static_cast<QtcRunConfiguration*>(runControl->runConfiguration())->targetFilePath());
-
-    movePluginFile(targetFilePath, QLatin1String(".del"), QString());
-    foreach (Utils::FilePath pluginFilePath, pluginPaths(targetFilePath.fileName()))
+    movePluginFile(runControl->targetFilePath(), QLatin1String(".del"), QString());
+    for (Utils::FilePath pluginFilePath: pluginPaths(runControl->targetFilePath().fileName()))
         movePluginFile(pluginFilePath, QLatin1String(".del"), QString());
 }
 
@@ -144,8 +147,8 @@ QLinkedList<Utils::FilePath> QtcDeveloperPlugin::pluginPaths(const QString& file
 {
     QLinkedList<Utils::FilePath> ans;
 
-    foreach (QString pluginPath, ExtensionSystem::PluginManager::pluginPaths())
-        ans << Utils::FilePath::fromString(pluginPath).pathAppended(fileName);
+    for (Utils::FilePath pluginPath: ExtensionSystem::PluginManager::pluginPaths())
+        ans << pluginPath.pathAppended(fileName);
 
     return ans;
 }
@@ -162,16 +165,3 @@ void QtcDeveloperPlugin::movePluginFile(const Utils::FilePath& targetPath, const
     }
     QTC_CHECK(!oldTargetPath.toFileInfo().exists());
 }
-
-#ifdef BUILD_TESTS
-QVector<QObject *> QtcDeveloperPlugin::createTestObjects(void) const
-{
-    QVector<QObject *> testObjects;
-
-    testObjects << new Test::QtcRunConfigurationFactoryTest;
-    testObjects << new Test::QtcRunConfigurationTest;
-    testObjects << new Test::QtcPluginRunnerTest;
-
-    return testObjects;
-}
-#endif

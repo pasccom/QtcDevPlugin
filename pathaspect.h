@@ -22,6 +22,7 @@
 #include "Widgets/filetypevalidatinglineedit.h"
 #include <utils/aspects.h>
 #include <utils/fileutils.h>
+#include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
 
 class QPushButton;
@@ -49,15 +50,8 @@ public:
      *
      * Constructs an new \ref PathAspect.
      */
-    inline PathAspect(void) : mCheckable(false) {}
-
-    /*!
-     * \brief Add the aspect to the layout
-     *
-     * Creates and adds the aspect widgets and adds them to the layout.
-     * \param builder A layout builder provided by ProjectExplorer.
-     */
-    void addToLayout(Utils::LayoutBuilder& builder) override;
+    inline PathAspect(Utils::AspectContainer* container)
+        : Utils::BaseAspect(container), mCheckable(false) {}
 
     /*!
      * \brief Conversion from map
@@ -66,7 +60,7 @@ public:
      * \param map The map containing the data of the instance
      * \sa toMap()
      */
-    void fromMap(const QVariantMap& map) override;
+    void fromMap(const Utils::Store& map) override;
     /*!
      * \brief Conversion to map
      *
@@ -74,7 +68,7 @@ public:
      * \param map The map to initialize with the contents of the instance
      * \sa fromMap()
      */
-    void toMap(QVariantMap& map) const override;
+    void toMap(Utils::Store& map) const override;
 
     /*!
      * \brief Set the default value
@@ -313,6 +307,13 @@ private slots:
      */
     void browse(void);
 private:
+    /*!
+     * \brief Add the aspect to the layout
+     *
+     * Creates and adds the aspect widgets and adds them to the layout.
+     * \param builder A layout builder provided by ProjectExplorer.
+     */
+    void addToLayoutImpl(Layouting::Layout& builder) override;
     /*!
      * \brief Manage accept flags
      *

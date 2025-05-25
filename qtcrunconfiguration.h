@@ -20,12 +20,14 @@
 #define QTCRUNCONFIGURATION_H
 
 #include "qtcdevpluginconstants.h"
+#include "pathaspect.h"
 
+#include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/projectconfiguration.h>
 #include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/applicationlauncher.h>
 
 #include <utils/fileutils.h>
+#include <utils/aspects.h>
 
 namespace ProjectExplorer {
     class ProjectNode;
@@ -82,7 +84,7 @@ public:
      *
      * \return The runnable for this runconfiguration
      */
-    virtual ProjectExplorer::Runnable runnable(void) const override;
+    virtual Utils::ProcessRunData runnable(void) const override;
 
     /*!
      * \brief The path of the plugin when installed
@@ -102,6 +104,11 @@ public:
      * \sa targetFilePath()
      */
     QString pluginName(void) const;
+private:
+    PathAspect mWorkingDirectoryAspect{this};
+    PathAspect mSettingsPathAspect{this};
+    Utils::SelectionAspect mThemeAspect{this};
+    ProjectExplorer::EnvironmentAspect mEnvironmentAspect{this};
 };
 
 } // Internal

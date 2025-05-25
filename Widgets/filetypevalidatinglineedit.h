@@ -338,6 +338,6 @@ private:
 };
 
 } // Widgets
-} // QTestLibPlugin
+} // QtcDevPlugin
 
 #endif // FILETYPEVALIDATINGLINEEDIT_H

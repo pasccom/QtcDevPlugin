@@ -22,13 +22,15 @@
 #include "../qtcrunconfiguration.h"
 #include "../qtctestrunconfiguration.h"
 
-#include <qtsupport/qtkitinformation.h>
-
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/runcontrol.h>
+
+#include <qtsupport/qtkitaspect.h>
+
+#include <utils/algorithm.h>
 
 #include <QtTest>
 
@@ -38,22 +40,22 @@ namespace Test {
 
 void QtcPluginRunnerTest::initTestCase(void)
 {
-    QDir projectPath(TESTS_DIR "/QtcPluginTest");
+    Utils::FilePath projectPath(TESTS_DIR "/QtcPluginTest");
 
     // Install the project:
     QProcess makeProcess(this);
-    makeProcess.setWorkingDirectory(projectPath.absolutePath());
+    makeProcess.setWorkingDirectory(projectPath.toString());
     makeProcess.start("make", QStringList() << "install");
     QVERIFY2(makeProcess.waitForFinished(), "Failed to execute \"make install\" for QtcPluginTest. Please do it manually");
 
     QVERIFY(removeProjectUserFiles(projectPath.absolutePath()));
-    QVERIFY(openQMakeProject(projectPath.absoluteFilePath("QtcPluginTest.pro"), &mProject));
-    QCOMPARE(mProject->projectFilePath().toString(), projectPath.absoluteFilePath("QtcPluginTest.pro"));
+    QVERIFY(openQMakeProject(projectPath.pathAppended("QtcPluginTest.pro"), &mProject));
+    QCOMPARE(mProject->projectFilePath(), projectPath.pathAppended("QtcPluginTest.pro"));
 
     QList<ProjectExplorer::Target*> targets = mProject->targets();
-    foreach (ProjectExplorer::Target* target, targets) {
-        QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(target->kit());
-        if (qtVersion->qtVersion().majorVersion < 5)
+    for (ProjectExplorer::Target* target: targets) {
+        QtSupport::QtVersion* qtVersion = QtSupport::QtKitAspect::qtVersion(target->kit());
+        if (qtVersion->qtVersion().majorVersion() < 5)
             mProject->removeTarget(target);
     }
 }

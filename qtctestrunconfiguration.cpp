@@ -21,7 +21,6 @@
 #include "qtcdevpluginconstants.h"
 #include "Widgets/filetypevalidatinglineedit.h"
 
-#include <projectexplorer/localenvironmentaspect.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/kit.h>
 
@@ -52,5 +51,5 @@ QStringList QtcTestRunConfiguration::commandLineArgumentsList(void) const
 }
 
 } // Internal
-} // QTestLibPlugin
+} // QtcDevPlugin
 

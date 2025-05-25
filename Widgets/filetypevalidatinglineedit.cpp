@@ -73,7 +73,7 @@ bool FileTypeValidatingLineEdit::validateName(const QString& value, QString* err
     if (mRequiredExtensions.isEmpty())
         return true;
 
-    foreach (QString ext, mRequiredExtensions) {
+    for (QString ext: mRequiredExtensions) {
         if (value.endsWith(QLatin1Char('.') + ext))
             return true;
     }
@@ -126,4 +126,4 @@ bool FileTypeValidatingLineEdit::validatePermissions(const QString& value, QStri
 }
 
 } // Widgets
-} // QTestLibPlugin
+} // QtcDevPlugin

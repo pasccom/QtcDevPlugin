@@ -1,5 +1,0 @@
-# Qt Creator source tree:
-isEmpty(QTCREATOR_SOURCES):QTCREATOR_SOURCES=# The path to Qt Creator sources on your system
-# Qt Creator lib path:
-isEmpty(IDE_BUILD_TREE):IDE_BUILD_TREE=# The path prefix where Qt Creator libraries are
-isEmpty(IDE_LIBRARY_BASENAME):IDE_LIBRARY_BASENAME=lib64 # The lib folder where Qt Creator libraries are

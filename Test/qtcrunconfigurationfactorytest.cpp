@@ -24,17 +24,19 @@
 #include "../qtcdevpluginconstants.h"
 
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/kitmanager.h>
-#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/toolchain.h>
 
 #include <qmakeprojectmanager/qmakeproject.h>
 
+#include <utils/processinterface.h>
+#include <utils/theme/theme.h>
+
+#include <QLinkedList> // WARNING obsolete
 #include <QtTest>
 
 namespace QtcDevPlugin {
@@ -42,19 +44,19 @@ namespace Test {
 
 void QtcRunConfigurationFactoryTest::initTestCase(void)
 {
-    QStringList projectPathes;
+    QList<Utils::FilePath> projectPathes;
 
     // NOTE _data() function is not available for initTestCase()
-    projectPathes << QLatin1String(TESTS_DIR "/ProjectTest");
-    projectPathes << QLatin1String(TESTS_DIR "/QtcPluginTest");
-    projectPathes << QLatin1String(TESTS_DIR "/OneSubTest");
-    projectPathes << QLatin1String(TESTS_DIR "/TwoSubTests");
-    projectPathes << QLatin1String(TESTS_DIR "/TestAndPlugin");
-    projectPathes << QLatin1String(TESTS_DIR "/PluginAndTest");
-    projectPathes << QLatin1String(TESTS_DIR "/OneSubPlugin");
-    projectPathes << QLatin1String(TESTS_DIR "/TwoSubPlugins");
+    projectPathes << Utils::FilePath::fromString(TESTS_DIR "/ProjectTest");
+    projectPathes << Utils::FilePath::fromString(TESTS_DIR "/QtcPluginTest");
+    projectPathes << Utils::FilePath::fromString(TESTS_DIR "/OneSubTest");
+    projectPathes << Utils::FilePath::fromString(TESTS_DIR "/TwoSubTests");
+    projectPathes << Utils::FilePath::fromString(TESTS_DIR "/TestAndPlugin");
+    projectPathes << Utils::FilePath::fromString(TESTS_DIR "/PluginAndTest");
+    projectPathes << Utils::FilePath::fromString(TESTS_DIR "/OneSubPlugin");
+    projectPathes << Utils::FilePath::fromString(TESTS_DIR "/TwoSubPlugins");
 
-    foreach (QString projectPath, projectPathes)
+    for (Utils::FilePath projectPath: projectPathes)
         QVERIFY(removeProjectUserFiles(projectPath));
 }
 
@@ -66,46 +68,46 @@ void QtcRunConfigurationFactoryTest::cleanup(void)
 
 void QtcRunConfigurationFactoryTest::testOpenProject_data(void)
 {
-    QTest::addColumn<QString>("projectPath");
+    QTest::addColumn<Utils::FilePath>("projectPath");
     QTest::addColumn<QStringList>("qtcPlugins");
 
     QStringList plugins;
 
     plugins.clear();
-    QTest::newRow("ProjectTest") << TESTS_DIR "/ProjectTest/ProjectTest.pro" << plugins;
+    QTest::newRow("ProjectTest") << Utils::FilePath::fromString(TESTS_DIR "/ProjectTest/ProjectTest.pro") << plugins;
     plugins.clear();
     plugins << QLatin1String("QtcPluginTest");
-    QTest::newRow("QtcPluginTest") << TESTS_DIR "/QtcPluginTest/QtcPluginTest.pro" << plugins;
+    QTest::newRow("QtcPluginTest") << Utils::FilePath::fromString(TESTS_DIR "/QtcPluginTest/QtcPluginTest.pro") << plugins;
     plugins.clear();
-    QTest::newRow("OneSubTest") << TESTS_DIR "/OneSubTest/OneSubTest.pro" << plugins;
+    QTest::newRow("OneSubTest") << Utils::FilePath::fromString(TESTS_DIR "/OneSubTest/OneSubTest.pro") << plugins;
     plugins.clear();
-    QTest::newRow("TwoSubTests") << TESTS_DIR "/TwoSubTests/TwoSubTests.pro" << plugins;
+    QTest::newRow("TwoSubTests") << Utils::FilePath::fromString(TESTS_DIR "/TwoSubTests/TwoSubTests.pro") << plugins;
     plugins.clear();
     plugins << QLatin1String("QtcPluginTest2");
-    QTest::newRow("TestAndPlugin") << TESTS_DIR "/TestAndPlugin/TestAndPlugin.pro" << plugins;
+    QTest::newRow("TestAndPlugin") << Utils::FilePath::fromString(TESTS_DIR "/TestAndPlugin/TestAndPlugin.pro") << plugins;
     plugins.clear();
     plugins << QLatin1String("QtcPluginTest1");
-    QTest::newRow("PluginAndTest") << TESTS_DIR "/PluginAndTest/PluginAndTest.pro" << plugins;
+    QTest::newRow("PluginAndTest") << Utils::FilePath::fromString(TESTS_DIR "/PluginAndTest/PluginAndTest.pro") << plugins;
     plugins.clear();
     plugins << QLatin1String("QtcPluginTest1");
-    QTest::newRow("OneSubPlugin") << TESTS_DIR "/OneSubPlugin/OneSubPlugin.pro" << plugins;
+    QTest::newRow("OneSubPlugin") << Utils::FilePath::fromString(TESTS_DIR "/OneSubPlugin/OneSubPlugin.pro") << plugins;
     plugins.clear();
     plugins << QLatin1String("QtcPluginTest1") << QLatin1String("QtcPluginTest2");
-    QTest::newRow("TwoSubPlugins") << TESTS_DIR "/TwoSubPlugins/TwoSubPlugins.pro" << plugins;
+    QTest::newRow("TwoSubPlugins") << Utils::FilePath::fromString(TESTS_DIR "/TwoSubPlugins/TwoSubPlugins.pro") << plugins;
 }
 
 void QtcRunConfigurationFactoryTest::testOpenProject(void)
 {
-    QFETCH(QString, projectPath);
+    QFETCH(Utils::FilePath, projectPath);
     QFETCH(QStringList, qtcPlugins);
 
     QVERIFY(openQMakeProject(projectPath, &mProject));
-    QCOMPARE(mProject->projectFilePath().toString(), projectPath);
+    QCOMPARE(mProject->projectFilePath(), projectPath);
 
-    foreach (ProjectExplorer::Target* target, mProject->targets()) {
+    for (ProjectExplorer::Target* target: mProject->targets()) {
         QLinkedList<Internal::QtcRunConfiguration*> qtcRunConfigs;
         QLinkedList<Internal::QtcTestRunConfiguration*> qtcTestRunConfigs;
-        foreach (ProjectExplorer::RunConfiguration* runConfig, target->runConfigurations()) {
+        for (ProjectExplorer::RunConfiguration* runConfig: target->runConfigurations()) {
             Internal::QtcRunConfiguration* qtcRunConfig = qobject_cast<Internal::QtcRunConfiguration*>(runConfig);
             Internal::QtcTestRunConfiguration* qtcTestRunConfig = qobject_cast<Internal::QtcTestRunConfiguration*>(runConfig);
 
@@ -116,9 +118,9 @@ void QtcRunConfigurationFactoryTest::testOpenProject(void)
         }
 
         QStringList qtcPluginsFound;
-        foreach (Internal::QtcRunConfiguration* qtcRunConfig, qtcRunConfigs) {
+        for (Internal::QtcRunConfiguration* qtcRunConfig: qtcRunConfigs) {
             bool ok = false;
-            foreach (QString qtcPlugin, qtcPlugins) {
+            for (QString qtcPlugin: qtcPlugins) {
                 QDir expectedProFilePath(QLatin1String(TESTS_DIR));
                 expectedProFilePath.cd(qtcPlugin);
 
@@ -133,12 +135,12 @@ void QtcRunConfigurationFactoryTest::testOpenProject(void)
             QCOMPARE(qtcRunConfig->displayName(), QString(QLatin1String("Run Qt Creator with \"%1\"")).arg(qtcPluginsFound.last()));
 
             QStringList args = qtcRunConfig->commandLineArgumentsList();
-            ProjectExplorer::Runnable qtcRunnable = qtcRunConfig->runnable();
-            QCOMPARE(qtcRunnable.executable, Utils::FilePath::fromString(QCoreApplication::applicationFilePath()));
-            QString workingDirectory = target->activeBuildConfiguration()->buildDirectory().toString();
-            workingDirectory.replace(QLatin1Char('/'), QDir::separator());
+            Utils::ProcessRunData qtcRunnable = qtcRunConfig->runnable();
+            QCOMPARE(qtcRunnable.command.executable(), Utils::FilePath::fromString(QCoreApplication::applicationFilePath()));
+            Utils::FilePath workingDirectory = target->activeBuildConfiguration()->buildDirectory();
+            // workingDirectory.replace(QLatin1Char('/'), QDir::separator());
             QCOMPARE(qtcRunnable.workingDirectory, workingDirectory);
-            QCOMPARE(qtcRunnable.commandLineArguments, args.join(QLatin1Char(' ')));
+            QCOMPARE(qtcRunnable.command.arguments(), args.join(QLatin1Char(' ')));
 
             int themeIndex = args.indexOf(QLatin1String("-theme"));
             QVERIFY(themeIndex != -1);
@@ -153,9 +155,9 @@ void QtcRunConfigurationFactoryTest::testOpenProject(void)
         QCOMPARE(qtcPlugins.size(), qtcPluginsFound.size());
 
         QStringList qtcTestPluginsFound;
-        foreach (Internal::QtcTestRunConfiguration* qtcTestRunConfig, qtcTestRunConfigs) {
+        for (Internal::QtcTestRunConfiguration* qtcTestRunConfig: qtcTestRunConfigs) {
             bool ok = false;
-            foreach (QString qtcPlugin, qtcPlugins) {
+            for (QString qtcPlugin: qtcPlugins) {
                 QDir expectedProFilePath(QLatin1String(TESTS_DIR));
                 expectedProFilePath.cd(qtcPlugin);
 
@@ -170,12 +172,12 @@ void QtcRunConfigurationFactoryTest::testOpenProject(void)
             QCOMPARE(qtcTestRunConfig->displayName(), QString(QLatin1String("Run Qt Creator tests for \"%1\"")).arg(qtcTestPluginsFound.last()));
 
             QStringList args = qtcTestRunConfig->commandLineArgumentsList();
-            ProjectExplorer::Runnable qtcTestRunnable = qtcTestRunConfig->runnable();
-            QCOMPARE(qtcTestRunnable.executable, Utils::FilePath::fromString(QCoreApplication::applicationFilePath()));
-            QString workingDirectory = target->activeBuildConfiguration()->buildDirectory().toString();
-            workingDirectory.replace(QLatin1Char('/'), QDir::separator());
+            Utils::ProcessRunData qtcTestRunnable = qtcTestRunConfig->runnable();
+            QCOMPARE(qtcTestRunnable.command.executable(), Utils::FilePath::fromString(QCoreApplication::applicationFilePath()));
+            Utils::FilePath workingDirectory = target->activeBuildConfiguration()->buildDirectory();
+            // workingDirectory.replace(QLatin1Char('/'), QDir::separator());
             QCOMPARE(qtcTestRunnable.workingDirectory, workingDirectory);
-            QCOMPARE(qtcTestRunnable.commandLineArguments, args.join(QLatin1Char(' ')));
+            QCOMPARE(qtcTestRunnable.command.arguments(), args.join(QLatin1Char(' ')));
 
             int testIndex = args.indexOf(QLatin1String("-test"));
             QVERIFY(testIndex != -1);

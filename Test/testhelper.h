@@ -25,11 +25,15 @@ namespace ProjectExplorer {
     class Project;
 }
 
+namespace Utils {
+    class FilePath;
+}
+
 namespace QtcDevPlugin {
 namespace Test {
 
-bool removeProjectUserFiles(const QString& projectPath);
-bool openQMakeProject(const QString& projectFilePath, ProjectExplorer::Project** project);
+bool removeProjectUserFiles(const Utils::FilePath& projectPath);
+bool openQMakeProject(const Utils::FilePath& projectFilePath, ProjectExplorer::Project** project);
 bool closeProject(ProjectExplorer::Project* project);
 
 } // Test

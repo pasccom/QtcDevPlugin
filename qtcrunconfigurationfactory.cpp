@@ -22,9 +22,9 @@
 #include "qtctestrunconfiguration.h"
 #include "qtcdevpluginconstants.h"
 
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/runcontrol.h>
-#include <projectexplorer/kitinformation.h>
 
 #include <qmakeprojectmanager/qmakeproject.h>
 #include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
@@ -58,13 +58,14 @@ QtcTestRunConfigurationFactory::QtcTestRunConfigurationFactory(void) :
 QList<ProjectExplorer::RunConfigurationCreationInfo> BaseQtcRunConfigurationFactory::availableCreators(ProjectExplorer::Target *target) const
 {
     QList<ProjectExplorer::RunConfigurationCreationInfo> creators;
+    qDebug() << "availableCreators()" << isReady(target->project()) << isUseful(target->project());
 
     if (!isReady(target->project()) || !isUseful(target->project()))
         return creators;
 
     QList<ProjectExplorer::BuildTargetInfo> buildInfos = target->buildSystem()->applicationTargets();
     qDebug() << "BuildTargetInfoList size:" << buildInfos.size();
-    foreach (ProjectExplorer::ProjectNode *node, qtCreatorPlugins(target->project()->rootProjectNode())) {
+    for (ProjectExplorer::ProjectNode* node: qtCreatorPlugins(target->project()->rootProjectNode())) {
         QmakeProjectManager::QmakeProFileNode* qMakeNode = static_cast<QmakeProjectManager::QmakeProFileNode*>(node);
 
         QFileInfo proFileInfo = qMakeNode->filePath().toFileInfo();
@@ -126,22 +127,24 @@ bool BaseQtcRunConfigurationFactory::isUseful(ProjectExplorer::Project* project)
 
 bool BaseQtcRunConfigurationFactory::findQtcPluginPri(ProjectExplorer::ProjectNode* node)
 {
-    foreach(ProjectExplorer::FileNode* subNode, node->fileNodes()) {
+    bool ret = false;
+
+    node->forEachFileNode([&ret] (ProjectExplorer::FileNode* subNode) {
         if (QString::compare(subNode->filePath().fileName(), Constants::QtCreatorPluginPriName, Utils::HostOsInfo::fileNameCaseSensitivity()) == 0)
-            return true;
-    }
+            ret = true;
+    });
 
-    foreach (ProjectExplorer::FolderNode* subNode, node->folderNodes()) {
+    node->forEachFolderNode([&ret] (ProjectExplorer::FolderNode* subNode) {
         ProjectExplorer::ProjectNode* subProjectNode = subNode->asProjectNode();
-        if (subProjectNode != NULL) {
-            if (dynamic_cast<QmakeProjectManager::QmakeProFileNode*>(subProjectNode) != NULL)
-                continue;
-            if (findQtcPluginPri(subProjectNode))
-                return true;
-        }
-    }
+        if (subProjectNode == NULL)
+            return;
+        if (dynamic_cast<QmakeProjectManager::QmakeProFileNode*>(subProjectNode) != NULL)
+            return;
+        if (findQtcPluginPri(subProjectNode))
+            ret = true;
+    });
 
-    return false;
+    return ret;
 }
 
 bool BaseQtcRunConfigurationFactory::isQtCreatorPlugin(ProjectExplorer::ProjectNode* node)
@@ -157,17 +160,20 @@ bool BaseQtcRunConfigurationFactory::isQtCreatorPlugin(ProjectExplorer::ProjectN
 
 bool BaseQtcRunConfigurationFactory::hasQtCreatorPlugin(ProjectExplorer::ProjectNode* node)
 {
+    bool ret = false;
+
     if (isQtCreatorPlugin(node))
         return true;
 
-    foreach (ProjectExplorer::FolderNode* subNode, node->folderNodes()) {
+    node->forEachFolderNode([&ret] (ProjectExplorer::FolderNode* subNode) {
         ProjectExplorer::ProjectNode* subProjectNode = subNode->asProjectNode();
-        if (subProjectNode != NULL)
-            if (hasQtCreatorPlugin(subProjectNode))
-                return true;
-    }
+        if (subProjectNode == NULL)
+            return;
+        if (hasQtCreatorPlugin(subProjectNode))
+            ret = true;
+    });
 
-    return false;
+    return ret;
 }
 
 QList<ProjectExplorer::ProjectNode*> BaseQtcRunConfigurationFactory::qtCreatorPlugins(ProjectExplorer::ProjectNode* node)
@@ -177,15 +183,15 @@ QList<ProjectExplorer::ProjectNode*> BaseQtcRunConfigurationFactory::qtCreatorPl
     if (isQtCreatorPlugin(node))
         qtcPlugins.append(node);
 
-    foreach (ProjectExplorer::FolderNode* subNode, node->folderNodes()) {
+    node->forEachFolderNode([&qtcPlugins] (ProjectExplorer::FolderNode* subNode) {
         ProjectExplorer::ProjectNode* subProjectNode = subNode->asProjectNode();
         if (subProjectNode != NULL)
             qtcPlugins.append(qtCreatorPlugins(subProjectNode));
-    }
+    });
 
     return qtcPlugins;
 }
 
 } // Internal
-} // QTestLibPlugin
+} // QtcDevPlugin
 
