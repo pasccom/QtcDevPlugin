@@ -31,20 +31,20 @@ namespace Internal {
 void PathAspect::fromMap(const Utils::Store& map)
 {
     QTC_ASSERT(!settingsKey().isEmpty(), return);
-    mValue = Utils::FilePath::fromString(map.value(settingsKey(), mDefaultValue.toString()).toString());
+    mValue = Utils::FilePath::fromSettings(map.value(settingsKey(), mDefaultValue.toSettings()));
     qDebug() << __func__ << settingsKey().toByteArray() << "value:" << mValue;
 }
 
 void PathAspect::toMap(Utils::Store& map) const
 {
     QTC_ASSERT(!settingsKey().isEmpty(), return);
-    if (QString::compare(mValue.toString(), mDefaultValue.toString(), Utils::HostOsInfo::fileNameCaseSensitivity()) != 0)
-        map.insert(settingsKey(), mValue.toString());
+    if (mValue != mDefaultValue)
+        map.insert(settingsKey(), mValue.toSettings());
 }
 
 void PathAspect::setDefaultValue(const Utils::FilePath& defaultValue)
 {
-    bool isDefault = (QString::compare(mValue.toString(), mDefaultValue.toString(), Utils::HostOsInfo::fileNameCaseSensitivity()) == 0);
+    bool isDefault = (mValue == mDefaultValue);
     mDefaultValue = defaultValue;
 
     if (isDefault)
@@ -66,7 +66,7 @@ void PathAspect::addToLayoutImpl(Layouting::Layout& builder)
     mEdit = createSubWidget<Widgets::FileTypeValidatingLineEdit>();
     mEdit->setMacroExpander(mMacroExpanderProvider());
     mEdit->setAcceptFlags(mAccepted);
-    mEdit->setText(mValue.toString());
+    mEdit->setText(mValue.nativePath());
 
     if (mMacroExpanderProvider != nullptr) {
         Utils::VariableChooser* variableChooser = new Utils::VariableChooser(builder.emerge());
@@ -86,7 +86,7 @@ void PathAspect::addToLayoutImpl(Layouting::Layout& builder)
 
     if (mCheckable) {
         mCheckbox = createSubWidget<QCheckBox>(displayName() + ":");
-        mCheckbox->setChecked(QString::compare(mValue.toString(), mDefaultValue.toString(), Utils::HostOsInfo::fileNameCaseSensitivity()) != 0);
+        mCheckbox->setChecked(mValue != mDefaultValue);
         mEdit->setEnabled(mCheckbox->isChecked());
         mButton->setEnabled(mCheckbox->isChecked());
 
@@ -115,7 +115,7 @@ void PathAspect::update(void)
 {
     if (mEdit->isValid())
         setValue(Utils::FilePath::fromUserInput(mEdit->text()));
-    mEdit->setText(mValue.toString());
+    mEdit->setText(mValue.nativePath());
 }
 
 void PathAspect::update(bool valid)
@@ -135,17 +135,17 @@ void PathAspect::browse(void)
 {
     QString path;
     if (mAccepted & Widgets::FileTypeValidatingLineEdit::AcceptsDirectories) {
-        path = QFileDialog::getExistingDirectory(nullptr, displayName(), mValue.toString());
+        path = QFileDialog::getExistingDirectory(nullptr, displayName(), mValue.nativePath());
     } else if (mAccepted & Widgets::FileTypeValidatingLineEdit::AcceptsFiles) {
         if (mAccepted & Widgets::FileTypeValidatingLineEdit::AcceptNew)
-            path = QFileDialog::getSaveFileName(nullptr, displayName(), mValue.toString());
+            path = QFileDialog::getSaveFileName(nullptr, displayName(), mValue.nativePath());
         else
-            path = QFileDialog::getOpenFileName(nullptr, displayName(), mValue.toString());
+            path = QFileDialog::getOpenFileName(nullptr, displayName(), mValue.nativePath());
     }
 
     if (!path.isNull())
         setValue(Utils::FilePath::fromString(path));
-    mEdit->setText(mValue.toString());
+    mEdit->setText(mValue.nativePath());
 }
 
 } // Internal

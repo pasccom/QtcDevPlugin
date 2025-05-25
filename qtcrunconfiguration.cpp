@@ -55,12 +55,12 @@ QStringList availableThemes(void)
     Utils::FileFilter fileFilter(QStringList() << QLatin1String("*.creatortheme"), QDir::Files);
 
     for (Utils::FilePath filePath: Core::ICore::resourcePath("themes").dirEntries(fileFilter)) {
-        QSettings themeSettings(filePath.toUrlishString(), QSettings::IniFormat);
+        QSettings themeSettings(filePath.nativePath(), QSettings::IniFormat);
         themes << themeSettings.value(QLatin1String("ThemeName"), QCoreApplication::tr("unnamed")).toString();
     }
 
     for (Utils::FilePath filePath: Core::ICore::userResourcePath("themes").dirEntries(fileFilter)) {
-        QSettings themeSettings(filePath.toUrlishString(), QSettings::IniFormat);
+        QSettings themeSettings(filePath.nativePath(), QSettings::IniFormat);
         themes << themeSettings.value(QLatin1String("ThemeName"), QCoreApplication::tr("unnamed")).toString();
     }
 
@@ -70,7 +70,7 @@ QStringList availableThemes(void)
     else
         qWarning() << "Current theme \"" + Utils::creatorTheme()->displayName() + "\" theme not found in ressource path.";
 
-    qDebug() << themes << Core::ICore::resourcePath("themes").toUrlishString() << Core::ICore::userResourcePath("themes").toUrlishString();
+    qDebug() << themes << Core::ICore::resourcePath("themes") << Core::ICore::userResourcePath("themes");
 
     return themes;
 }
@@ -138,13 +138,13 @@ QStringList QtcRunConfiguration::commandLineArgumentsList(void) const
     if ((themeIndex >= 0) && (themeIndex < themes.size()))
         cmdArgs << QLatin1String("-theme") << themes[themeIndex];
 
-    QString pluginsPath = buildTargetInfo().workingDirectory.toString();
+    QString pluginsPath = buildTargetInfo().workingDirectory.nativePath();
     pluginsPath.replace(QLatin1Char('"'), QLatin1String("\\\""));
     if (pluginsPath.contains(QLatin1Char(' ')))
         pluginsPath.prepend(QLatin1Char('"')).append(QLatin1Char('"'));
     cmdArgs << QLatin1String("-pluginpath") << pluginsPath;
 
-    QString settingsPath = static_cast<PathAspect*>(aspect(Utils::Id(Constants::SettingsPathId)))->value().toString();
+    QString settingsPath = static_cast<PathAspect*>(aspect(Utils::Id(Constants::SettingsPathId)))->value().nativePath();
     if (macroExpander() != NULL)
         settingsPath = macroExpander()->expand(settingsPath);
     settingsPath.replace(QLatin1Char('"'), QLatin1String("\\\""));

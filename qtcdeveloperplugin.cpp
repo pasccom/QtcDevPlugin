@@ -83,8 +83,8 @@ bool QtcDeveloperPlugin::initialize(const QStringList &arguments, QString *error
     qmFile = QString(QLatin1String("qtcdevplugin_%1.qm")).arg(qmFile);
 
     QTranslator *translator = new QTranslator(this);
-    if (translator->load(qmFile, Core::ICore::resourcePath("translations").toUrlishString()) ||
-        translator->load(qmFile, Core::ICore::userResourcePath("translations").toUrlishString())) {
+    if (translator->load(qmFile, Core::ICore::resourcePath("translations").nativePath()) ||
+        translator->load(qmFile, Core::ICore::userResourcePath("translations").nativePath())) {
         if (!qApp->installTranslator(translator))
             qWarning() << qPrintable(QString(QLatin1String("Failed to install translator (%1)")).arg(qmFile));
     } else {

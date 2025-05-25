@@ -44,7 +44,7 @@ void QtcPluginRunnerTest::initTestCase(void)
 
     // Install the project:
     QProcess makeProcess(this);
-    makeProcess.setWorkingDirectory(projectPath.toString());
+    makeProcess.setWorkingDirectory(projectPath.nativePath());
     makeProcess.start("make", QStringList() << "install");
     QVERIFY2(makeProcess.waitForFinished(), "Failed to execute \"make install\" for QtcPluginTest. Please do it manually");
 

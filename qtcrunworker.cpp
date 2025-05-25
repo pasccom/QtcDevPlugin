@@ -45,7 +45,7 @@ void QtcRunWorker::movePluginFile(const Utils::FilePath& targetPath, const QStri
     qDebug() << oldTargetPath << oldTargetPath.exists() << newTargetPath << newTargetPath.exists();
 
     if (oldTargetPath.exists()) {
-        QTC_CHECK(QFile::rename(oldTargetPath.toString(), newTargetPath.toString()));
+        QTC_CHECK(QFile::rename(oldTargetPath.nativePath(), newTargetPath.nativePath()));
     }
     QTC_CHECK(!oldTargetPath.exists());
 }
