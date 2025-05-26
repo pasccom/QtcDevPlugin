@@ -161,6 +161,8 @@ bool BaseQtcRunConfigurationFactory::hasQtCreatorPlugin(ProjectExplorer::Project
 {
     bool ret = false;
 
+    if (node == nullptr)
+        return false;
     if (isQtCreatorPlugin(node))
         return true;
 
@@ -179,6 +181,8 @@ QList<ProjectExplorer::ProjectNode*> BaseQtcRunConfigurationFactory::qtCreatorPl
 {
     QList<ProjectExplorer::ProjectNode*> qtcPlugins;
 
+    if (node == nullptr)
+        return qtcPlugins;
     if (isQtCreatorPlugin(node))
         qtcPlugins.append(node);
 
