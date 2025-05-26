@@ -34,6 +34,8 @@
 
 #include <qmakeprojectmanager/qmakeproject.h>
 
+#include <coreplugin/icore.h>
+
 #include <utils/processinterface.h>
 #include <utils/theme/theme.h>
 
@@ -41,6 +43,40 @@
 
 namespace QtcDevPlugin {
 namespace Test {
+
+QStringList availableThemes(void)
+{
+    QStringList themes;
+    Utils::FileFilter fileFilter(QStringList() << QLatin1String("*.creatortheme"), QDir::Files);
+
+    for (Utils::FilePath filePath: Core::ICore::resourcePath("themes").dirEntries(fileFilter)) {
+        QSettings themeSettings(filePath.nativePath(), QSettings::IniFormat);
+        themes << themeSettings.value(QLatin1String("ThemeName"), QCoreApplication::tr("unnamed")).toString();
+    }
+
+    for (Utils::FilePath filePath: Core::ICore::userResourcePath("themes").dirEntries(fileFilter)) {
+        QSettings themeSettings(filePath.nativePath(), QSettings::IniFormat);
+        themes << themeSettings.value(QLatin1String("ThemeName"), QCoreApplication::tr("unnamed")).toString();
+    }
+
+    return themes;
+}
+
+QStringList splitArgs(const QString& args)
+{
+    QStringList argList = args.split(QLatin1Char(' '));
+
+    for (int a = 0; a < argList.size(); a++) {
+        if (argList[a].startsWith(QLatin1Char('\''))) {
+            while (!argList[a].endsWith(QLatin1Char('\'')) && (a + 1 < argList.size()))
+                argList[a] = argList[a] + " " + argList.takeAt(a + 1);
+            if (argList[a].endsWith(QLatin1Char('\'')))
+                argList[a] = argList[a].mid(1).chopped(1);
+        }
+    }
+
+    return argList;
+}
 
 void QtcRunConfigurationTest::initTestCase(void)
 {
@@ -60,9 +96,10 @@ void QtcRunConfigurationTest::testRestoreSettings(void)
     QVERIFY(openQMakeProject(projectPath, &mProject));
     QCOMPARE(mProject->projectFilePath(), projectPath);
 
-    QString theme = "Classic";
+    QStringList themes = availableThemes();
+    QString theme = themes.first();
     if (Utils::creatorTheme()->displayName() == theme)
-        theme = "Dark";
+        theme = themes.last();
 
     for (ProjectExplorer::Target* target: mProject->targets()) {
         for (ProjectExplorer::RunConfiguration* runConfig: target->runConfigurations()) {
@@ -88,7 +125,8 @@ void QtcRunConfigurationTest::testRestoreSettings(void)
             Utils::ProcessRunData runnable = runConfig->runnable();
             QCOMPARE(runnable.workingDirectory, Utils::FilePath("."));
 
-            QStringList args = runnable.command.arguments().split(QLatin1Char(' '));
+            QStringList args = splitArgs(runnable.command.arguments());
+            qDebug() << "Command line arguments:" << args;
 
             int themeIndex = args.indexOf(QLatin1String("-theme"));
             QVERIFY(themeIndex != -1);
@@ -119,7 +157,9 @@ void QtcRunConfigurationTest::testRestoreSettings(void)
             Utils::ProcessRunData runnable = runConfig->runnable();
             QCOMPARE(runnable.workingDirectory, Utils::FilePath("."));
 
-            QStringList args = runnable.command.arguments().split(QLatin1Char(' '));
+            QStringList args = splitArgs(runnable.command.arguments());
+            qDebug() << "Command line arguments:" << args;
+
             int themeIndex = args.indexOf(QLatin1String("-theme"));
             QVERIFY(themeIndex != -1);
             QVERIFY(themeIndex + 1 < args.size());
