@@ -36,15 +36,15 @@ QTCREATOR_SOURCES = $$(QTC_SOURCE)
 IDE_BUILD_TREE = $$(QTC_BUILD)
 
 # Qt Creator from local pri file if it exists
-exists(../../QtCreator.local.pri) {
-    include(../../QtCreator.local.pri)
+exists(../QtCreator.local.pri) {
+    include(../QtCreator.local.pri)
 }
 
 # If the plugin can be depended upon by other plugins, this code needs to be outsourced to
 # <dirname>_dependencies.pri, where <dirname> is the name of the directory containing the
 # plugin's sources.
 
-QTC_PLUGIN_NAME = QtcPluginTest
+QTC_PLUGIN_NAME = QtcPluginTest2
 QTC_LIB_DEPENDS += \
     # nothing here at this time
 
@@ -60,10 +60,6 @@ include($$QTCREATOR_SOURCES/src/qtcreatorplugin.pri)
 
 # Added stuff to bypass IDE_BUILD_TREE
 DESTDIR = ./bin
-
-INSTALLS =
-target.path = ../plugins/$$QTCREATOR_VERSION
-INSTALLS += target
 
 unix {
     LIBS+= -L$$IDE_BUILD_TREE

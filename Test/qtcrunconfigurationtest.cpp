@@ -80,7 +80,7 @@ QStringList splitArgs(const QString& args)
 
 void QtcRunConfigurationTest::initTestCase(void)
 {
-    QVERIFY(removeProjectUserFiles(Utils::FilePath(TESTS_DIR "/QtcPluginTest")));
+    QVERIFY(removeProjectUserFiles(Utils::FilePath(TESTS_DIR "/qMake/QtcPluginTest")));
 }
 
 void QtcRunConfigurationTest::cleanup(void)
@@ -91,7 +91,7 @@ void QtcRunConfigurationTest::cleanup(void)
 
 void QtcRunConfigurationTest::testRestoreSettings(void)
 {
-    Utils::FilePath projectPath(TESTS_DIR "/QtcPluginTest/QtcPluginTest.pro");
+    Utils::FilePath projectPath(TESTS_DIR "/qMake/QtcPluginTest/QtcPluginTest.pro");
 
     QVERIFY(openQMakeProject(projectPath, &mProject));
     QCOMPARE(mProject->projectFilePath(), projectPath);

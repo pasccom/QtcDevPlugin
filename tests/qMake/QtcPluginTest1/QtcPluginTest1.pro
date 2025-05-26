@@ -36,8 +36,8 @@ QTCREATOR_SOURCES = $$(QTC_SOURCE)
 IDE_BUILD_TREE = $$(QTC_BUILD)
 
 # Qt Creator from local pri file if it exists
-exists(../../QtCreator.local.pri) {
-    include(../../QtCreator.local.pri)
+exists(../QtCreator.local.pri) {
+    include(../QtCreator.local.pri)
 }
 
 # If the plugin can be depended upon by other plugins, this code needs to be outsourced to

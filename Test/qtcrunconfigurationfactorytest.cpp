@@ -47,14 +47,14 @@ void QtcRunConfigurationFactoryTest::initTestCase(void)
     QList<Utils::FilePath> projectPathes;
 
     // NOTE _data() function is not available for initTestCase()
-    projectPathes << Utils::FilePath::fromString(TESTS_DIR "/ProjectTest");
-    projectPathes << Utils::FilePath::fromString(TESTS_DIR "/QtcPluginTest");
-    projectPathes << Utils::FilePath::fromString(TESTS_DIR "/OneSubTest");
-    projectPathes << Utils::FilePath::fromString(TESTS_DIR "/TwoSubTests");
-    projectPathes << Utils::FilePath::fromString(TESTS_DIR "/TestAndPlugin");
-    projectPathes << Utils::FilePath::fromString(TESTS_DIR "/PluginAndTest");
-    projectPathes << Utils::FilePath::fromString(TESTS_DIR "/OneSubPlugin");
-    projectPathes << Utils::FilePath::fromString(TESTS_DIR "/TwoSubPlugins");
+    projectPathes << Utils::FilePath::fromString(TESTS_DIR "/qMake/ProjectTest");
+    projectPathes << Utils::FilePath::fromString(TESTS_DIR "/qMake/QtcPluginTest");
+    projectPathes << Utils::FilePath::fromString(TESTS_DIR "/qMake/OneSubTest");
+    projectPathes << Utils::FilePath::fromString(TESTS_DIR "/qMake/TwoSubTests");
+    projectPathes << Utils::FilePath::fromString(TESTS_DIR "/qMake/TestAndPlugin");
+    projectPathes << Utils::FilePath::fromString(TESTS_DIR "/qMake/PluginAndTest");
+    projectPathes << Utils::FilePath::fromString(TESTS_DIR "/qMake/OneSubPlugin");
+    projectPathes << Utils::FilePath::fromString(TESTS_DIR "/qMake/TwoSubPlugins");
 
     for (Utils::FilePath projectPath: projectPathes)
         QVERIFY(removeProjectUserFiles(projectPath));
@@ -74,26 +74,26 @@ void QtcRunConfigurationFactoryTest::testOpenProject_data(void)
     QStringList plugins;
 
     plugins.clear();
-    QTest::newRow("ProjectTest") << Utils::FilePath::fromString(TESTS_DIR "/ProjectTest/ProjectTest.pro") << plugins;
+    QTest::newRow("ProjectTest") << Utils::FilePath::fromString(TESTS_DIR "/qMake/ProjectTest/ProjectTest.pro") << plugins;
     plugins.clear();
     plugins << QLatin1String("QtcPluginTest");
-    QTest::newRow("QtcPluginTest") << Utils::FilePath::fromString(TESTS_DIR "/QtcPluginTest/QtcPluginTest.pro") << plugins;
+    QTest::newRow("QtcPluginTest") << Utils::FilePath::fromString(TESTS_DIR "/qMake/QtcPluginTest/QtcPluginTest.pro") << plugins;
     plugins.clear();
-    QTest::newRow("OneSubTest") << Utils::FilePath::fromString(TESTS_DIR "/OneSubTest/OneSubTest.pro") << plugins;
+    QTest::newRow("OneSubTest") << Utils::FilePath::fromString(TESTS_DIR "/qMake/OneSubTest/OneSubTest.pro") << plugins;
     plugins.clear();
-    QTest::newRow("TwoSubTests") << Utils::FilePath::fromString(TESTS_DIR "/TwoSubTests/TwoSubTests.pro") << plugins;
+    QTest::newRow("TwoSubTests") << Utils::FilePath::fromString(TESTS_DIR "/qMake/TwoSubTests/TwoSubTests.pro") << plugins;
     plugins.clear();
     plugins << QLatin1String("QtcPluginTest2");
-    QTest::newRow("TestAndPlugin") << Utils::FilePath::fromString(TESTS_DIR "/TestAndPlugin/TestAndPlugin.pro") << plugins;
+    QTest::newRow("TestAndPlugin") << Utils::FilePath::fromString(TESTS_DIR "/qMake/TestAndPlugin/TestAndPlugin.pro") << plugins;
     plugins.clear();
     plugins << QLatin1String("QtcPluginTest1");
-    QTest::newRow("PluginAndTest") << Utils::FilePath::fromString(TESTS_DIR "/PluginAndTest/PluginAndTest.pro") << plugins;
+    QTest::newRow("PluginAndTest") << Utils::FilePath::fromString(TESTS_DIR "/qMake/PluginAndTest/PluginAndTest.pro") << plugins;
     plugins.clear();
     plugins << QLatin1String("QtcPluginTest1");
-    QTest::newRow("OneSubPlugin") << Utils::FilePath::fromString(TESTS_DIR "/OneSubPlugin/OneSubPlugin.pro") << plugins;
+    QTest::newRow("OneSubPlugin") << Utils::FilePath::fromString(TESTS_DIR "/qMake/OneSubPlugin/OneSubPlugin.pro") << plugins;
     plugins.clear();
     plugins << QLatin1String("QtcPluginTest1") << QLatin1String("QtcPluginTest2");
-    QTest::newRow("TwoSubPlugins") << Utils::FilePath::fromString(TESTS_DIR "/TwoSubPlugins/TwoSubPlugins.pro") << plugins;
+    QTest::newRow("TwoSubPlugins") << Utils::FilePath::fromString(TESTS_DIR "/qMake/TwoSubPlugins/TwoSubPlugins.pro") << plugins;
 }
 
 void QtcRunConfigurationFactoryTest::testOpenProject(void)
