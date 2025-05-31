@@ -50,6 +50,16 @@ QStringList QtcTestRunConfiguration::commandLineArgumentsList(void) const
     return cmdArgs;
 }
 
+Utils::Id QtcTestRunConfiguration::id(void)
+{
+    return Utils::Id(Constants::QtcTestRunConfigurationId);
+}
+
+QString QtcTestRunConfiguration::displayNamePattern(void)
+{
+    return QCoreApplication::translate("QtcDevPlugin::Internal::QtcTestRunConfiguration", "Run Qt Creator tests for \"%1\"");
+}
+
 } // Internal
 } // QtcDevPlugin
 

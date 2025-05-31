@@ -67,6 +67,22 @@ public:
      * \copydoc QtcRunConfiguration::commandLineArgumentsList()
      */
     virtual QStringList commandLineArgumentsList(void) const override;
+
+    /*!
+     * \brief The run configuration id
+     *
+     * This function returns the id for instances of this class.
+     * \return The run configuration id
+     */
+    static Utils::Id id(void);
+
+    /*!
+     * \brief The run configuration pattern for display name
+     *
+     * This function returns the pattern used to generate the display name for the run configuration.
+     * \return The pattern for the display name of the run configuration.
+     */
+    static QString displayNamePattern(void);
 };
 
 } // Internal

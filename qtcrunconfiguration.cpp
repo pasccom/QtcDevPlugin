@@ -157,6 +157,16 @@ QStringList QtcRunConfiguration::commandLineArgumentsList(void) const
     return cmdArgs;
 }
 
+Utils::Id QtcRunConfiguration::id(void)
+{
+    return Utils::Id(Constants::QtcRunConfigurationId);
+}
+
+QString QtcRunConfiguration::displayNamePattern(void)
+{
+    return QCoreApplication::translate("QtcDevPlugin::Internal::QtcRunConfiguration", "Run Qt Creator with \"%1\"");
+}
+
 } // Internal
 } // QtcDevPlugin
 

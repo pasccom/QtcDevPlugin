@@ -21,6 +21,7 @@
 #include "qtcdevpluginconstants.h"
 #include "qtcrunconfigurationfactory.h"
 #include "qtcrunconfiguration.h"
+#include "qtctestrunconfiguration.h"
 #include "qtcrunworkerfactory.h"
 
 #ifdef BUILD_TESTS
@@ -91,8 +92,8 @@ bool QtcDeveloperPlugin::initialize(const QStringList &arguments, QString *error
         qWarning() << qPrintable(QString(QLatin1String("Translator file \"%1\" not found")).arg(qmFile));
     }
 
-    mRunConfigurationFactories << new QtcRunConfigurationFactory();
-    mRunConfigurationFactories << new QtcTestRunConfigurationFactory();
+    mRunConfigurationFactories << new QtcRunConfigurationFactory<QtcRunConfiguration>();
+    mRunConfigurationFactories << new QtcRunConfigurationFactory<QtcTestRunConfiguration>();
     mRunWorkerFactory = new QtcRunWorkerFactory();
 
     return true;
