@@ -117,6 +117,7 @@ public:
      * \brief The run configuration pattern for display name
      *
      * This function returns the pattern used to generate the display name for the run configuration.
+     * If %1 is used, it will be replaced by the plugin name.
      * \return The pattern for the display name of the run configuration.
      */
     static QString displayNamePattern(void);
