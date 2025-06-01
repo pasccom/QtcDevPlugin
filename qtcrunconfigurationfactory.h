@@ -117,16 +117,7 @@ public:
      */
     static bool isUseful(ProjectExplorer::Project* project);
 
-    /*!
-     * \brief Set display name pattern
-     *
-     * Sets the pattern used for generating a display name for this run configuration.
-     * If %1 is used, it will be replaced by the plugin name.
-     * \param pattern The display name pattern
-     */
-    inline void setDisplayNamePattern(const QString& pattern) {mDisplayNamePattern = pattern;}
 private:
-
     /*!
      * \brief Find Qt Creator plugin project include
      *
@@ -185,8 +176,6 @@ private:
      * \return The path where the target of the given project file is installed.
      */
     static Utils::FilePath targetInstallPath(QmakeProjectManager::QmakeProFile* proFile);
-
-    QString mDisplayNamePattern; /*!< The display name pattern */
 };
 
 template <class RunConfiguration>
@@ -195,8 +184,6 @@ QtcRunConfigurationFactory<RunConfiguration>::QtcRunConfigurationFactory(void) :
 {
     addSupportedProjectType(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
     addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
-
-    setDisplayNamePattern(RunConfiguration::displayNamePattern());
     registerRunConfiguration<RunConfiguration>(RunConfiguration::id());
 }
 
@@ -231,7 +218,7 @@ QList<ProjectExplorer::RunConfigurationCreationInfo> QtcRunConfigurationFactory<
         ProjectExplorer::RunConfigurationCreationInfo creator;
         creator.factory = this;
         creator.buildKey = info.buildKey;
-        creator.displayName = mDisplayNamePattern.arg(info.displayName);
+        creator.displayName = RunConfiguration::displayNamePattern().arg(info.displayName);
 
         creators << creator;
     }
