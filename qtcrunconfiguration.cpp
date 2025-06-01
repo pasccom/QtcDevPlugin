@@ -17,7 +17,6 @@
  */
 
 #include "qtcrunconfiguration.h"
-#include "qtcrunconfigurationfactory.h"
 #include "qtcdevpluginconstants.h"
 #include "pathaspect.h"
 

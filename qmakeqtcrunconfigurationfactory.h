@@ -16,8 +16,8 @@
  * along with QtcDevPlugin. If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef QTCRUNCONFIGURATIONFACTORY_H
-#define QTCRUNCONFIGURATIONFACTORY_H
+#ifndef QMAKEQTCRUNCONFIGURATIONFACTORY_H
+#define QMAKEQTCRUNCONFIGURATIONFACTORY_H
 
 #include "qtcdevpluginconstants.h"
 
@@ -49,10 +49,8 @@ namespace QmakeProjectManager {
 namespace QtcDevPlugin {
 namespace Internal {
 
-class QtcRunConfiguration;
-
 /*!
- * \brief The BaseQtcRunConfigurationFactory class implements basic common functionnality for QtcRunConfigurationFactory and QtcTestRunConfigurationFactory.
+ * \brief Run configuration factory for qMake-based Qt Creator plugins
  *
  * This class is in charge of finding out whether a project is supported
  * by QtcRunConfiguration. For this is uses the standard methods provided by
@@ -72,7 +70,7 @@ class QtcRunConfiguration;
  * \sa QtcRunConfiguration
  */
 template <class RunConfiguration>
-class QtcRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
+class QMakeQtcRunConfigurationFactory : public ProjectExplorer::RunConfigurationFactory
 {
 public:
     /*!
@@ -81,7 +79,7 @@ public:
      * Constructs an new run configuration factory instance
      * for QMake projects with desktop target.
      */
-    QtcRunConfigurationFactory(void);
+    QMakeQtcRunConfigurationFactory(void);
 
     /*!
      * \brief The build targets this factory can create
@@ -179,7 +177,7 @@ private:
 };
 
 template <class RunConfiguration>
-QtcRunConfigurationFactory<RunConfiguration>::QtcRunConfigurationFactory(void) :
+QMakeQtcRunConfigurationFactory<RunConfiguration>::QMakeQtcRunConfigurationFactory(void) :
     ProjectExplorer::RunConfigurationFactory()
 {
     addSupportedProjectType(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
@@ -188,11 +186,13 @@ QtcRunConfigurationFactory<RunConfiguration>::QtcRunConfigurationFactory(void) :
 }
 
 template <class RunConfiguration>
-QList<ProjectExplorer::RunConfigurationCreationInfo> QtcRunConfigurationFactory<RunConfiguration>::availableCreators(ProjectExplorer::Target *target) const
+QList<ProjectExplorer::RunConfigurationCreationInfo> QMakeQtcRunConfigurationFactory<RunConfiguration>::availableCreators(ProjectExplorer::Target *target) const
 {
     QList<ProjectExplorer::RunConfigurationCreationInfo> creators;
     qDebug() << "availableCreators()" << isReady(target->project()) << isUseful(target->project());
 
+    if (target->buildSystem() == nullptr)
+        return creators;
     if (!isReady(target->project()) || !isUseful(target->project()))
         return creators;
 
@@ -222,14 +222,13 @@ QList<ProjectExplorer::RunConfigurationCreationInfo> QtcRunConfigurationFactory<
 
         creators << creator;
     }
-    if (target->buildSystem() != nullptr)
-        target->buildSystem()->setApplicationTargets(buildInfos);
+    target->buildSystem()->setApplicationTargets(buildInfos);
 
     return creators;
 }
 
 template <class RunConfiguration>
-Utils::FilePath QtcRunConfigurationFactory<RunConfiguration>::targetBuildPath(QmakeProjectManager::QmakeProFile* proFile)
+Utils::FilePath QMakeQtcRunConfigurationFactory<RunConfiguration>::targetBuildPath(QmakeProjectManager::QmakeProFile* proFile)
 {
     if (proFile->targetInformation().destDir.isAbsolutePath())
         return proFile->targetInformation().destDir;
@@ -237,7 +236,7 @@ Utils::FilePath QtcRunConfigurationFactory<RunConfiguration>::targetBuildPath(Qm
 }
 
 template <class RunConfiguration>
-Utils::FilePath QtcRunConfigurationFactory<RunConfiguration>::targetInstallPath(QmakeProjectManager::QmakeProFile* proFile)
+Utils::FilePath QMakeQtcRunConfigurationFactory<RunConfiguration>::targetInstallPath(QmakeProjectManager::QmakeProFile* proFile)
 {
     Utils::FilePath targetPath = Utils::FilePath::fromString(proFile->installsList().targetPath);
     if (!targetPath.isAbsolutePath())
@@ -248,7 +247,7 @@ Utils::FilePath QtcRunConfigurationFactory<RunConfiguration>::targetInstallPath(
 }
 
 template <class RunConfiguration>
-bool QtcRunConfigurationFactory<RunConfiguration>::isReady(ProjectExplorer::Project* project)
+bool QMakeQtcRunConfigurationFactory<RunConfiguration>::isReady(ProjectExplorer::Project* project)
 {
     if(project->rootProjectNode() == nullptr)
         return false;
@@ -256,13 +255,13 @@ bool QtcRunConfigurationFactory<RunConfiguration>::isReady(ProjectExplorer::Proj
 }
 
 template <class RunConfiguration>
-bool QtcRunConfigurationFactory<RunConfiguration>::isUseful(ProjectExplorer::Project* project)
+bool QMakeQtcRunConfigurationFactory<RunConfiguration>::isUseful(ProjectExplorer::Project* project)
 {
     return hasQtCreatorPlugin(project->rootProjectNode());
 }
 
 template <class RunConfiguration>
-bool QtcRunConfigurationFactory<RunConfiguration>::findQtcPluginPri(ProjectExplorer::ProjectNode* node)
+bool QMakeQtcRunConfigurationFactory<RunConfiguration>::findQtcPluginPri(ProjectExplorer::ProjectNode* node)
 {
     bool ret = false;
 
@@ -285,7 +284,7 @@ bool QtcRunConfigurationFactory<RunConfiguration>::findQtcPluginPri(ProjectExplo
 }
 
 template <class RunConfiguration>
-bool QtcRunConfigurationFactory<RunConfiguration>::isQtCreatorPlugin(ProjectExplorer::ProjectNode* node)
+bool QMakeQtcRunConfigurationFactory<RunConfiguration>::isQtCreatorPlugin(ProjectExplorer::ProjectNode* node)
 {
     QmakeProjectManager::QmakeProFileNode* qMakeNode = dynamic_cast<QmakeProjectManager::QmakeProFileNode*>(node);
     if (qMakeNode == NULL)
@@ -297,7 +296,7 @@ bool QtcRunConfigurationFactory<RunConfiguration>::isQtCreatorPlugin(ProjectExpl
 }
 
 template <class RunConfiguration>
-bool QtcRunConfigurationFactory<RunConfiguration>::hasQtCreatorPlugin(ProjectExplorer::ProjectNode* node)
+bool QMakeQtcRunConfigurationFactory<RunConfiguration>::hasQtCreatorPlugin(ProjectExplorer::ProjectNode* node)
 {
     bool ret = false;
 
@@ -318,7 +317,7 @@ bool QtcRunConfigurationFactory<RunConfiguration>::hasQtCreatorPlugin(ProjectExp
 }
 
 template <class RunConfiguration>
-QList<ProjectExplorer::ProjectNode*> QtcRunConfigurationFactory<RunConfiguration>::qtCreatorPlugins(ProjectExplorer::ProjectNode* node)
+QList<ProjectExplorer::ProjectNode*> QMakeQtcRunConfigurationFactory<RunConfiguration>::qtCreatorPlugins(ProjectExplorer::ProjectNode* node)
 {
     QList<ProjectExplorer::ProjectNode*> qtcPlugins;
 
@@ -339,4 +338,4 @@ QList<ProjectExplorer::ProjectNode*> QtcRunConfigurationFactory<RunConfiguration
 } // Internal
 } // QtcDevPlugin
 
-#endif // QTCRUNCONFIGURATIONFACTORY_H
+#endif // QMAKEQTCRUNCONFIGURATIONFACTORY_H

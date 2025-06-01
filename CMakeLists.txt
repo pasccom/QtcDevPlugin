@@ -78,7 +78,7 @@ add_qtc_plugin(QtcDevPlugin
     qtcdevpluginconstants.h
     qtcdeveloperplugin.h
     qtcdeveloperplugin.cpp
-    qtcrunconfigurationfactory.h
+    qmakeqtcrunconfigurationfactory.h
     qtcrunconfiguration.h
     qtcrunconfiguration.cpp
     qtctestrunconfiguration.h
