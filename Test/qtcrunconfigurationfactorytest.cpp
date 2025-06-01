@@ -121,7 +121,7 @@ void QtcRunConfigurationFactoryTest::testOpenProject(void)
         for (Internal::QtcRunConfiguration* qtcRunConfig: qtcRunConfigs) {
             bool ok = false;
             for (QString qtcPlugin: qtcPlugins) {
-                QDir expectedProFilePath(QLatin1String(TESTS_DIR));
+                QDir expectedProFilePath(QLatin1String(TESTS_DIR "/qMake"));
                 expectedProFilePath.cd(qtcPlugin);
 
                 if (QString::compare(qtcRunConfig->buildTargetInfo().buildKey, expectedProFilePath.absoluteFilePath(qtcPlugin + QLatin1String(".pro")), Qt::CaseSensitive) == 0) {
@@ -169,7 +169,7 @@ void QtcRunConfigurationFactoryTest::testOpenProject(void)
         for (Internal::QtcTestRunConfiguration* qtcTestRunConfig: qtcTestRunConfigs) {
             bool ok = false;
             for (QString qtcPlugin: qtcPlugins) {
-                QDir expectedProFilePath(QLatin1String(TESTS_DIR));
+                QDir expectedProFilePath(QLatin1String(TESTS_DIR "/qMake"));
                 expectedProFilePath.cd(qtcPlugin);
 
                 if (QString::compare(qtcTestRunConfig->buildTargetInfo().buildKey, expectedProFilePath.absoluteFilePath(qtcPlugin + QLatin1String(".pro")), Qt::CaseSensitive) == 0) {
