@@ -42,6 +42,11 @@
 namespace QtcDevPlugin {
 namespace Test {
 
+typedef struct {
+    QString name;
+    QString buildKey;
+} ExpectedPluginInfo;
+
 void QtcRunConfigurationFactoryTest::initTestCase(void)
 {
     QList<Utils::FilePath> projectPathes;
@@ -69,37 +74,38 @@ void QtcRunConfigurationFactoryTest::cleanup(void)
 void QtcRunConfigurationFactoryTest::testOpenProject_data(void)
 {
     QTest::addColumn<Utils::FilePath>("projectPath");
-    QTest::addColumn<QStringList>("qtcPlugins");
+    QTest::addColumn< QList<ExpectedPluginInfo> >("qtcPlugins");
 
-    QStringList plugins;
+    QList<ExpectedPluginInfo> plugins;
 
     plugins.clear();
     QTest::newRow("ProjectTest") << Utils::FilePath::fromString(TESTS_DIR "/qMake/ProjectTest/ProjectTest.pro") << plugins;
     plugins.clear();
-    plugins << QLatin1String("QtcPluginTest");
+    plugins << ExpectedPluginInfo{QLatin1String("QtcPluginTest"), QLatin1String(TESTS_DIR "/qMake/QtcPluginTest/QtcPluginTest.pro")};
     QTest::newRow("QtcPluginTest") << Utils::FilePath::fromString(TESTS_DIR "/qMake/QtcPluginTest/QtcPluginTest.pro") << plugins;
     plugins.clear();
     QTest::newRow("OneSubTest") << Utils::FilePath::fromString(TESTS_DIR "/qMake/OneSubTest/OneSubTest.pro") << plugins;
     plugins.clear();
     QTest::newRow("TwoSubTests") << Utils::FilePath::fromString(TESTS_DIR "/qMake/TwoSubTests/TwoSubTests.pro") << plugins;
     plugins.clear();
-    plugins << QLatin1String("QtcPluginTest2");
+    plugins << ExpectedPluginInfo{QLatin1String("QtcPluginTest2"), QLatin1String(TESTS_DIR "/qMake/QtcPluginTest2/QtcPluginTest2.pro")};
     QTest::newRow("TestAndPlugin") << Utils::FilePath::fromString(TESTS_DIR "/qMake/TestAndPlugin/TestAndPlugin.pro") << plugins;
     plugins.clear();
-    plugins << QLatin1String("QtcPluginTest1");
+    plugins << ExpectedPluginInfo{QLatin1String("QtcPluginTest1"), QLatin1String(TESTS_DIR "/qMake/QtcPluginTest1/QtcPluginTest1.pro")};
     QTest::newRow("PluginAndTest") << Utils::FilePath::fromString(TESTS_DIR "/qMake/PluginAndTest/PluginAndTest.pro") << plugins;
     plugins.clear();
-    plugins << QLatin1String("QtcPluginTest1");
+    plugins << ExpectedPluginInfo{QLatin1String("QtcPluginTest1"), QLatin1String(TESTS_DIR "/qMake/QtcPluginTest1/QtcPluginTest1.pro")};
     QTest::newRow("OneSubPlugin") << Utils::FilePath::fromString(TESTS_DIR "/qMake/OneSubPlugin/OneSubPlugin.pro") << plugins;
     plugins.clear();
-    plugins << QLatin1String("QtcPluginTest1") << QLatin1String("QtcPluginTest2");
+    plugins << ExpectedPluginInfo{QLatin1String("QtcPluginTest1"), QLatin1String(TESTS_DIR "/qMake/QtcPluginTest1/QtcPluginTest1.pro")};
+    plugins << ExpectedPluginInfo{QLatin1String("QtcPluginTest2"), QLatin1String(TESTS_DIR "/qMake/QtcPluginTest2/QtcPluginTest2.pro")};
     QTest::newRow("TwoSubPlugins") << Utils::FilePath::fromString(TESTS_DIR "/qMake/TwoSubPlugins/TwoSubPlugins.pro") << plugins;
 }
 
 void QtcRunConfigurationFactoryTest::testOpenProject(void)
 {
     QFETCH(Utils::FilePath, projectPath);
-    QFETCH(QStringList, qtcPlugins);
+    QFETCH(QList<ExpectedPluginInfo>, qtcPlugins);
 
     QVERIFY(openQMakeProject(projectPath, &mProject));
     QCOMPARE(mProject->projectFilePath(), projectPath);
@@ -120,13 +126,10 @@ void QtcRunConfigurationFactoryTest::testOpenProject(void)
         QStringList qtcPluginsFound;
         for (Internal::QtcRunConfiguration* qtcRunConfig: qtcRunConfigs) {
             bool ok = false;
-            for (QString qtcPlugin: qtcPlugins) {
-                QDir expectedProFilePath(QLatin1String(TESTS_DIR "/qMake"));
-                expectedProFilePath.cd(qtcPlugin);
-
-                if (QString::compare(qtcRunConfig->buildTargetInfo().buildKey, expectedProFilePath.absoluteFilePath(qtcPlugin + QLatin1String(".pro")), Qt::CaseSensitive) == 0) {
+            for (ExpectedPluginInfo pluginInfo: qtcPlugins) {
+                if (QString::compare(qtcRunConfig->buildTargetInfo().buildKey, pluginInfo.buildKey, Qt::CaseSensitive) == 0) {
                     ok = true;
-                    qtcPluginsFound << qtcPlugin;
+                    qtcPluginsFound << pluginInfo.name;
                     break;
                 }
             }
@@ -168,13 +171,10 @@ void QtcRunConfigurationFactoryTest::testOpenProject(void)
         QStringList qtcTestPluginsFound;
         for (Internal::QtcTestRunConfiguration* qtcTestRunConfig: qtcTestRunConfigs) {
             bool ok = false;
-            for (QString qtcPlugin: qtcPlugins) {
-                QDir expectedProFilePath(QLatin1String(TESTS_DIR "/qMake"));
-                expectedProFilePath.cd(qtcPlugin);
-
-                if (QString::compare(qtcTestRunConfig->buildTargetInfo().buildKey, expectedProFilePath.absoluteFilePath(qtcPlugin + QLatin1String(".pro")), Qt::CaseSensitive) == 0) {
+            for (ExpectedPluginInfo pluginInfo: qtcPlugins) {
+                if (QString::compare(qtcTestRunConfig->buildTargetInfo().buildKey, pluginInfo.buildKey, Qt::CaseSensitive) == 0) {
                     ok = true;
-                    qtcTestPluginsFound << qtcPlugin;
+                    qtcTestPluginsFound << pluginInfo.name;
                     break;
                 }
             }
