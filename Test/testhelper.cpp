@@ -52,7 +52,7 @@ bool removeProjectUserFiles(const Utils::FilePath& projectPath)
 {
     QVERIFY(projectPath.exists());
 
-    for (Utils::FilePath projectUserPath: projectPath.dirEntries(Utils::FileFilter(QStringList() << QLatin1String("*.pro.user.*"))))
+    for (Utils::FilePath projectUserPath: projectPath.dirEntries(Utils::FileFilter(QStringList() << QLatin1String("*.pro.user*"))))
         QVERIFY(projectUserPath.removeFile());
 
     return true;
