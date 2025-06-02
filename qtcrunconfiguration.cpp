@@ -111,7 +111,7 @@ QtcRunConfiguration::QtcRunConfiguration(ProjectExplorer::Target *parent, Utils:
 
 QString QtcRunConfiguration::pluginName(void) const
 {
-    return buildTargetInfo().projectFilePath.toFileInfo().baseName();
+    return buildTargetInfo().displayName;
 }
 
 Utils::ProcessRunData QtcRunConfiguration::runnable(void) const
