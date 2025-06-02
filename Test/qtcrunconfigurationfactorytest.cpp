@@ -100,6 +100,34 @@ void QtcRunConfigurationFactoryTest::testOpenProject_data(void)
     plugins << ExpectedPluginInfo{QLatin1String("QtcPluginTest1"), QLatin1String(TESTS_DIR "/qMake/QtcPluginTest1/QtcPluginTest1.pro")};
     plugins << ExpectedPluginInfo{QLatin1String("QtcPluginTest2"), QLatin1String(TESTS_DIR "/qMake/QtcPluginTest2/QtcPluginTest2.pro")};
     QTest::newRow("TwoSubPlugins") << Utils::FilePath::fromString(TESTS_DIR "/qMake/TwoSubPlugins/TwoSubPlugins.pro") << plugins;
+
+    plugins.clear();
+    QTest::newRow("ProjectTest - CMake") << Utils::FilePath::fromString(TESTS_DIR "/cMake/ProjectTest/ProjectTest.pro") << plugins;
+    plugins.clear();
+    plugins << ExpectedPluginInfo{QLatin1String("QtcPluginTest"), QLatin1String("QtcPluginTest")};
+    QTest::newRow("QtcPluginTest - CMake") << Utils::FilePath::fromString(TESTS_DIR "/cMake/QtcPluginTest/CMakeLists.txt") << plugins;
+    plugins.clear();
+    QTest::newRow("OneSubTest - CMake") << Utils::FilePath::fromString(TESTS_DIR "/cMake/OneSubTest/CMakeLists.txt") << plugins;
+    plugins.clear();
+    QTest::newRow("TwoSubTests - CMake") << Utils::FilePath::fromString(TESTS_DIR "/cMake/TwoSubTests/CMakeLists.txt") << plugins;
+    plugins.clear();
+    plugins << ExpectedPluginInfo{QLatin1String("QtcPluginTest2"), QLatin1String("QtcPluginTest2")};
+    QTest::newRow("TestAndPlugin - CMake") << Utils::FilePath::fromString(TESTS_DIR "/cMake/TestAndPlugin/CMakeLists.txt") << plugins;
+    plugins.clear();
+    plugins << ExpectedPluginInfo{QLatin1String("QtcPluginTest1"), QLatin1String("QtcPluginTest1")};
+    QTest::newRow("PluginAndTest - CMake") << Utils::FilePath::fromString(TESTS_DIR "/cMake/PluginAndTest/CMakeLists.txt") << plugins;
+    plugins.clear();
+    plugins << ExpectedPluginInfo{QLatin1String("QtcPluginTest1"), QLatin1String("QtcPluginTest1")};
+    QTest::newRow("OneSubPlugin - CMake") << Utils::FilePath::fromString(TESTS_DIR "/cMake/OneSubPlugin/CMakeLists.txt") << plugins;
+    plugins.clear();
+    plugins << ExpectedPluginInfo{QLatin1String("QtcPluginTest1"), QLatin1String("QtcPluginTest1")};
+    plugins << ExpectedPluginInfo{QLatin1String("QtcPluginTest2"), QLatin1String("QtcPluginTest2")};
+    QTest::newRow("TwoSubPlugins - CMake") << Utils::FilePath::fromString(TESTS_DIR "/cMake/TwoSubPlugins/CMakeLists.txt") << plugins;
+    plugins.clear();
+    plugins << ExpectedPluginInfo{QLatin1String("QtcPluginTest1"), QLatin1String("QtcPluginTest1")};
+    plugins << ExpectedPluginInfo{QLatin1String("QtcPluginTest2"), QLatin1String("QtcPluginTest2")};
+    QTest::newRow("TwoQtcPlugins - CMake") << Utils::FilePath::fromString(TESTS_DIR "/cMake/TwoQtcPlugins/CMakeLists.txt") << plugins;
+
 }
 
 void QtcRunConfigurationFactoryTest::testOpenProject(void)
