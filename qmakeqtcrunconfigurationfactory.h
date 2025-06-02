@@ -62,7 +62,7 @@ namespace Internal {
  * by multiple subprojects multiple run configurations can be created (one for each
  * sub project including Qt Creator plugin.
  *
- * \tparam QtcRunConfiguration The run configuration type which is produced by the factory.
+ * \tparam RunConfiguration The run configuration type which is produced by the factory.
  * The type must have the following static functions:
  *   - id(): Returns the run configuration id;
  *   - displayNamePattern(): Returns the pattern used for the run configuration display name.
@@ -149,7 +149,7 @@ private:
      */
     static bool hasQtCreatorPlugin(ProjectExplorer::ProjectNode* node);
     /*!
-     * \brief Fild all Qt Creator plugin sub projects.
+     * \brief Find all Qt Creator plugin sub projects.
      *
      * Search the given project node and its project children for Qt Creator plugins
      * and return the list of the found Qt Creator plugin projects.
@@ -197,7 +197,8 @@ QList<ProjectExplorer::RunConfigurationCreationInfo> QMakeQtcRunConfigurationFac
         return creators;
 
     QList<ProjectExplorer::BuildTargetInfo> buildInfos = target->buildSystem()->applicationTargets();
-    qDebug() << "BuildTargetInfoList size:" << buildInfos.size();
+    for (ProjectExplorer::BuildTargetInfo info : buildInfos)
+        qDebug() << "BuildTargetInfo:" << info.displayName << info.buildKey << info.projectFilePath << info.workingDirectory << info.targetFilePath;
     for (ProjectExplorer::ProjectNode* node: qtCreatorPlugins(target->project()->rootProjectNode())) {
         QmakeProjectManager::QmakeProFileNode* qMakeNode = static_cast<QmakeProjectManager::QmakeProFileNode*>(node);
 
