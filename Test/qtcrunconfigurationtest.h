@@ -37,6 +37,7 @@ public:
 private Q_SLOTS:
     void initTestCase(void);
     inline void init(void) {mProject = nullptr;}
+    void testRestoreSettings_data(void);
     void testRestoreSettings(void);
     void cleanup(void);
 private:

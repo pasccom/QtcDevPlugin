@@ -89,9 +89,17 @@ void QtcRunConfigurationTest::cleanup(void)
         QVERIFY(closeProject(mProject));
 }
 
+void QtcRunConfigurationTest::testRestoreSettings_data(void)
+{
+    QTest::addColumn<Utils::FilePath>("projectPath");
+
+    QTest::newRow("qMake project") << Utils::FilePath::fromString(TESTS_DIR "/qMake/QtcPluginTest/QtcPluginTest.pro");
+    QTest::newRow("CMake project") << Utils::FilePath::fromString(TESTS_DIR "/cMake/QtcPluginTest/CMakeLists.txt");
+}
+
 void QtcRunConfigurationTest::testRestoreSettings(void)
 {
-    Utils::FilePath projectPath(TESTS_DIR "/qMake/QtcPluginTest/QtcPluginTest.pro");
+    QFETCH(Utils::FilePath, projectPath);
 
     QVERIFY(openQMakeProject(projectPath, &mProject));
     QCOMPARE(mProject->projectFilePath(), projectPath);
