@@ -101,6 +101,8 @@ QtcRunConfiguration::QtcRunConfiguration(ProjectExplorer::Target *parent, Utils:
     for (QString theme: availableThemes())
         mThemeAspect.addOption(theme);
 
+    mEnvironmentAspect.setSupportForBuildEnvironment(parent);
+
     /* TODO ensure this run configuration cannot be run with valgrind...
      * To do this, the code of the Valgrind plugin should be altered:
      * 1.ValgrindRunControlFactory should check the type of the given RunConfiguration (e.g. in canRun())
