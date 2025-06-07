@@ -40,21 +40,22 @@ namespace Test {
 
 void QtcPluginRunnerTest::initTestCase(void)
 {
-    Utils::FilePath projectPath(TESTS_DIR "/QtcPluginTest");
+    Utils::FilePath projectPath(TESTS_DIR "/cMake/QtcPluginTest");
 
     // Install the project:
     QProcess makeProcess(this);
     makeProcess.setWorkingDirectory(projectPath.nativePath());
-    makeProcess.start("make", QStringList() << "install");
-    QVERIFY2(makeProcess.waitForFinished(), "Failed to execute \"make install\" for QtcPluginTest. Please do it manually");
+    makeProcess.start("cmake", QStringList() << "--install" << "debug");
+    QVERIFY2(makeProcess.waitForFinished(), "Failed to execute \"cmake --install\" for QtcPluginTest. Please do it manually");
 
     QVERIFY(removeProjectUserFiles(projectPath.absolutePath()));
-    QVERIFY(openQMakeProject(projectPath.pathAppended("QtcPluginTest.pro"), &mProject));
-    QCOMPARE(mProject->projectFilePath(), projectPath.pathAppended("QtcPluginTest.pro"));
+    QVERIFY(openQMakeProject(projectPath.pathAppended("CMakeLists.txt"), &mProject));
+    QCOMPARE(mProject->projectFilePath(), projectPath.pathAppended("CMakeLists.txt"));
 
     QList<ProjectExplorer::Target*> targets = mProject->targets();
     for (ProjectExplorer::Target* target: targets) {
         QtSupport::QtVersion* qtVersion = QtSupport::QtKitAspect::qtVersion(target->kit());
+        qDebug() << "Target:" << target->displayName() << qtVersion->displayName();
         if (qtVersion->qtVersion().majorVersion() < 5)
             mProject->removeTarget(target);
     }
@@ -76,6 +77,7 @@ void QtcPluginRunnerTest::qtcRunConfiguration(const Utils::Id& runConfigId, QtcD
 {
     BEGIN_SUB_TEST_FUNCTION
 
+    QVERIFY(mProject->activeTarget() != nullptr);
     ProjectExplorer::RunConfiguration* runConfig = Utils::findOrDefault(mProject->activeTarget()->runConfigurations(), [runConfigId](ProjectExplorer::RunConfiguration* rc) {
         return rc->id() == runConfigId;
     });
@@ -101,19 +103,18 @@ void QtcPluginRunnerTest::testRunner(void)
 
     Utils::FilePath targetInstallPath = qtcRunConfig->targetFilePath();
     qDebug() << targetInstallPath;
-    QVERIFY2(targetInstallPath.toFileInfo().exists(), "Please ensure QtcPluginTest is installed before running tests");
+    QVERIFY2(targetInstallPath.isFile(), "Please ensure QtcPluginTest is installed before running tests");
 
     QSignalSpy runControlAboutToStartSpy(ProjectExplorer::ProjectExplorerPlugin::instance(),
-                                    SIGNAL(aboutToExecuteRunControl(ProjectExplorer::RunControl*, Utils::Id)));
+                                         SIGNAL(runControlStarted(ProjectExplorer::RunControl*)));
     ProjectExplorer::ProjectExplorerPlugin::runProject(mProject, runModeId);
     QVERIFY2(runControlAboutToStartSpy.wait(10000), "Project takes too long to start");
     QCOMPARE(runControlAboutToStartSpy.size(), 1);
-    QCOMPARE(runControlAboutToStartSpy.at(0).size(), 2);
-    QCOMPARE(runControlAboutToStartSpy.at(0).at(1).value<Utils::Id>(), runModeId);
+    QCOMPARE(runControlAboutToStartSpy.at(0).size(), 1);
     mRunControl = runControlAboutToStartSpy.at(0).at(0).value<ProjectExplorer::RunControl*>();
     QCOMPARE(mRunControl->displayName(), runControlDisplayName);
 
-    QVERIFY(!targetInstallPath.toFileInfo().exists());
+    QVERIFY(!targetInstallPath.isFile());
 
     if (!mRunControl->isRunning()) {
         QSignalSpy runControlStartedSpy(mRunControl, SIGNAL(started()));
