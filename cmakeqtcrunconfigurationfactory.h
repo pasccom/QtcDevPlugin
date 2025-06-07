@@ -298,11 +298,17 @@ std::optional<typename CMakeQtcRunConfigurationFactory<RunConfiguration>::QtcPlu
     if (QString::compare(subProjectPath, QLatin1String(".")) != 0)
         projectFilePath = projectFilePath.pathAppended(subProjectPath);
 
+    Utils::FilePath targetFilePath = Utils::FilePath::fromString(cMakeTargetFile.value(QLatin1String("artifacts")).toArray()
+                                                                                .at(0).toObject()
+                                                                                .value(QLatin1String("path")).toString());
+    Utils::FilePath targetInstallPath = Utils::FilePath::fromString(cMakeTargetFile.value(QLatin1String("install")).toObject()
+                                                                                   .value(QLatin1String("destinations")).toArray()
+                                                                                   .at(0).toObject()
+                                                                                   .value(QLatin1String("path")).toString());
+
     return std::make_optional<QtcPluginInfo>({
         .projectFilePath = projectFilePath,
-        .targetFilePath = Utils::FilePath::fromString(cMakeTargetFile.value(QLatin1String("artifacts")).toArray()
-                                                                     .at(0).toObject()
-                                                                     .value(QLatin1String("path")).toString()),
+        .targetFilePath = targetInstallPath.pathAppended(targetFilePath.fileName()),
         .targetBuildPath = project->activeBuildConfiguration()->buildDirectory(),
     });
 }
