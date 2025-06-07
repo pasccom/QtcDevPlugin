@@ -6,7 +6,7 @@ debug/
 release/
 doc/
 gcov/
-/tests/plugins/
+**/plugins/*.so
 
 # Ideas:
 /ideas/

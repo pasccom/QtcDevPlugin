@@ -1,0 +1,14 @@
+{
+    "Id" : "qtcplugintest",
+    "Name" : "QtcPluginTest",
+    "Version" : "0.0.0",
+    "CompatVersion" : "0.0.0",
+    "Vendor" : "Pascal COMBES",
+    "VendorId": "pasccom",
+    "Copyright" : "(C) Pascal COMBES <pascom@orange.fr>",
+    "License" : "GPL v3",
+    "Description" : "This is Qt Creator example plugin. It is intended for tests.",
+    "Url" : "https://github.com/pasccom",
+    "DocumentationUrl" : "",
+    ${IDE_PLUGIN_DEPENDENCIES}
+}
