@@ -3,6 +3,8 @@
 
 #include <projectexplorer/runcontrol.h>
 
+#include <utils/qtcprocess.h>
+
 namespace QtcDevPlugin {
 namespace Internal {
 
@@ -15,7 +17,7 @@ namespace Internal {
  *
  * \sa QtcRunWorkerFactory
  */
-class QtcRunWorker : public ProjectExplorer::RunWorker
+class QtcRunWorker : public ProjectExplorer::RunWorker // FIXME would be interesting to inherit from ProjectExplorer::ProcessRunner
 {
 public:
     /*!
@@ -25,8 +27,7 @@ public:
      * run configurations.
      * \param runControl The associated run control.
      */
-    inline QtcRunWorker(ProjectExplorer::RunControl* runControl)
-        : ProjectExplorer::RunWorker(runControl) {}
+    QtcRunWorker(ProjectExplorer::RunControl* runControl);
 protected:
     /*!
      * \brief Start the run worker
@@ -46,6 +47,37 @@ protected:
      * \sa start()
      */
     virtual void stop() override;
+private slots:
+    /*!
+     * \brief Slot to be called on process start
+     *
+     * This slot should be called when the underlying process is started.
+     * It gets the process PID and report process startup.
+     */
+    void handleStarted(void);
+    /*!
+     * \brief Slot to be called on process termination
+     *
+     * This slot should be called when the underlying process terminates.
+     * It reports the process termination and restores the plugin file.
+     */
+    void handleDone(void);
+    /*!
+     * \brief Slot to be called on process message
+     *
+     * This slot should be called when data is available on the underlying
+     * process standard output.
+     * \sa handleStdErr()
+     */
+    void handleStdOut(void);
+    /*!
+     * \brief Slot to be called on process error message
+     *
+     * This slot should be called when data is available on the underlying
+     * process standard error.
+     * \sa handleStdOut()
+     */
+    void handleStdErr(void);
 private:
     /*!
      * \brief Moves the plugin file
@@ -68,6 +100,10 @@ private:
      * \return The list of paths to plugins.
      */
     std::list<Utils::FilePath> pluginPaths(const QString& fileName);
+
+    Utils::Process mProcess;    /*!< Handle to underlying process */
+    bool mStopReported;         /*!< Process termination has been reported */
+    bool mStopForced;           /*!< Process termination was externally forced */
 };
 
 } // Internal
