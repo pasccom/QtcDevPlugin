@@ -177,6 +177,10 @@ void QtcRunConfigurationTest::testRestoreSettings(void)
             QVERIFY(settingsIndex != -1);
             QVERIFY(settingsIndex + 1 < args.size());
             QCOMPARE(args.at(settingsIndex + 1), QLatin1String("."));
+
+            static_cast<Utils::SelectionAspect*>(runConfig->aspect(QtcDevPlugin::Constants::ThemeId))->setValue(0);
+            static_cast<QtcDevPlugin::Internal::PathAspect*>(runConfig->aspect(QtcDevPlugin::Constants::WorkingDirectoryId))->setValue(Utils::FilePath::fromString("%{buildDir}"));
+            static_cast<QtcDevPlugin::Internal::PathAspect*>(runConfig->aspect(QtcDevPlugin::Constants::SettingsPathId))->setValue(Utils::FilePath());
         }
     }
 }
