@@ -31,33 +31,28 @@ FileTypeValidatingLineEdit::FileTypeValidatingLineEdit(QWidget* parent) :
     mAccepted |= AcceptsFiles;
     mAccepted |= RequireReadable;
 
-    setValidationFunction([this] (FancyLineEdit* edit, QString* errMsg) {
-        return validate(edit->text(), errMsg);
+    setValidationFunction([this] (const QString& value) {
+        if ((mAccepted & AcceptEmpty) && value.isEmpty())
+            return Utils::ResultOk;
+
+        QString expandedValue = value;
+        if (mMacroExpander != NULL)
+            expandedValue = mMacroExpander->expand(value);
+        qDebug() << expandedValue;
+
+        bool exists = QFileInfo::exists(expandedValue);
+        if (!(mAccepted & AcceptNew) && !exists)
+            return Utils::makeResult(false, tr("File \"%1\" does not exist").arg(expandedValue));
+
+        Utils::Result<> result = Utils::ResultOk;
+        if (result)
+            result = validateName(expandedValue);
+        if (exists && result)
+            result = validateType(expandedValue);
+        if (exists && result)
+            result = validatePermissions(expandedValue);
+        return result;
     });
-}
-
-bool FileTypeValidatingLineEdit::validate(const QString& value, QString *errorMessage) const
-{
-    if ((mAccepted & AcceptEmpty) && value.isEmpty())
-        return true;
-
-    QString expandedValue = value;
-    if (mMacroExpander != NULL)
-        expandedValue = mMacroExpander->expand(value);
-    qDebug() << __func__ << expandedValue;
-
-    if ((mAccepted & AcceptNew) && !QFileInfo::exists(expandedValue))
-        return validateName(expandedValue, errorMessage);
-
-    if (!QFileInfo::exists(expandedValue)) {
-        if (errorMessage != NULL)
-            *errorMessage = tr("File \"%1\" does not exist").arg(expandedValue);
-        return false;
-    }
-
-    return (validateName(expandedValue, errorMessage)
-         && validateType(expandedValue, errorMessage)
-         && validatePermissions(expandedValue, errorMessage));
 }
 
 void FileTypeValidatingLineEdit::manageAcceptFlags(Accept flag, bool enable)
@@ -68,61 +63,43 @@ void FileTypeValidatingLineEdit::manageAcceptFlags(Accept flag, bool enable)
         mAccepted &= ~Accepts(flag);
 }
 
-bool FileTypeValidatingLineEdit::validateName(const QString& value, QString* errorMessage) const
+Utils::Result<> FileTypeValidatingLineEdit::validateName(const QString& value) const
 {
     if (mRequiredExtensions.isEmpty())
-        return true;
+        return Utils::ResultOk;
 
-    for (QString ext: mRequiredExtensions) {
+    for (QString ext : mRequiredExtensions) {
         if (value.endsWith(QLatin1Char('.') + ext))
-            return true;
+            return Utils::ResultOk;
     }
 
-    if (errorMessage != NULL)
-        *errorMessage = tr("File does not have one of the required extensions.");
-    return false;
+    return Utils::makeResult(false, tr("File does not have one of the required extensions."));
 }
 
-bool FileTypeValidatingLineEdit::validateType(const QString& value, QString* errorMessage) const
+Utils::Result<> FileTypeValidatingLineEdit::validateType(const QString& value) const
 {
     QFileInfo info(value);
 
-    if (info.isFile() && !(mAccepted & AcceptsFiles)) {
-        if (errorMessage != NULL)
-            *errorMessage = tr("Regular files are not accepted");
-        return false;
-    }
+    if (info.isFile() && !(mAccepted & AcceptsFiles))
+        return Utils::makeResult(false, tr("Regular files are not accepted"));
+    if (info.isDir() && !(mAccepted & AcceptsDirectories))
+        return Utils::makeResult(false, tr("Directories are not accepted"));
 
-    if (info.isDir() && !(mAccepted & AcceptsDirectories)) {
-        if (errorMessage != NULL)
-            *errorMessage = tr("Directories are not accepted");
-        return false;
-    }
-
-    return true;
+    return Utils::ResultOk;
 }
 
-bool FileTypeValidatingLineEdit::validatePermissions(const QString& value, QString* errorMessage) const
+Utils::Result<> FileTypeValidatingLineEdit::validatePermissions(const QString& value) const
 {
     QFileInfo info(value);
 
-    if ((mAccepted & RequireReadable) && !info.isReadable()) {
-        if (errorMessage != NULL)
-            *errorMessage = tr("File must be readable");
-        return false;
-    }
-    if ((mAccepted & RequireWritable) && !info.isWritable()) {
-        if (errorMessage != NULL)
-            *errorMessage = tr("File must be writable");
-        return false;
-    }
-    if ((mAccepted & RequireExecutable) && !info.isExecutable()) {
-        if (errorMessage != NULL)
-            *errorMessage = tr("File must be executable");
-        return false;
-    }
+    if ((mAccepted & RequireReadable) && !info.isReadable())
+        return Utils::makeResult(false, tr("File must be readable"));
+    if ((mAccepted & RequireWritable) && !info.isWritable())
+        return Utils::makeResult(false, tr("File must be writable"));
+    if ((mAccepted & RequireExecutable) && !info.isExecutable())
+        return Utils::makeResult(false, tr("File must be executable"));
 
-    return true;
+    return Utils::ResultOk;
 }
 
 } // Widgets

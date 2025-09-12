@@ -270,58 +270,39 @@ public:
      * \sa setMacroExpander()
      */
     inline Utils::MacroExpander* macroExpander(void) const {return mMacroExpander;}
-protected:
-    /*!
-     * \brief The validator function
-     *
-     * Validates the given string with the current rules
-     *  \li If contents if empty and AcceptEmpty is set, the path is validated
-     *  \li Expand the macro variables
-     *  \li If path does not exist, the path is validated depending on AcceptNew
-     *  \li Calls validateName(), validateType(), validatePermissions() in order and AND them.
-     *
-     * \param value The string to validate (the contents of the line edit).
-     * \param errorMessage If not \c NULL, it is set to the reason why the string was not validated.
-     * \return \c true if the given string is valid \c false otherwise.
-     * \sa validateName(), validateType(), validatePermissions()
-     */
-    virtual bool validate(const QString& value, QString *errorMessage) const;
 private:
     /*!
      * \brief Check name and extension of the given path.
      *
      * Check name and extension of the given path:
      *  \li If requiredExtensions() list is empty, the path is valid
-     *  \li Othewise, the path is valid only if it ends with a dot followed by one of the extensions.
+     *  \li Otherwise, the path is valid only if it ends with a dot followed by one of the extensions.
      *
      * \param value The path to validate.
-     * \param errorMessage If not \c NULL, why the path was not validated.
-     * \return \c true if the given string is valid \c false otherwise.
-     * \sa validate()
+     * \return \c ResultOk if the given string is valid,
+     * otherwise an error result with a descriptive error message.
      */
-    bool validateName(const QString& value, QString* errorMessage) const;
+    Utils::Result<> validateName(const QString& value) const;
     /*!
      * \brief Check the type of the given path.
      *
      * Check that the type of the given path corresponds to an acceptable type
      * (\see acceptFiles(), acceptDirectories())
      * \param value The path to validate.
-     * \param errorMessage If not \c NULL, why the path was not validated.
-     * \return \c true if the given string is valid \c false otherwise.
-     * \sa validate()
+     * \return \c ResultOk if the given string is valid,
+     * otherwise an error result with a descriptive error message.
      */
-    bool validateType(const QString& value, QString* errorMessage) const;
+    Utils::Result<> validateType(const QString& value) const;
     /*!
      * \brief Check permissions of the given path.
      *
      * Check that the requirements on the permission (\see requiredPermissions())
      * of the given path are enforced.
      * \param value The path to validate.
-     * \param errorMessage If not \c NULL, why the path was not validated.
-     * \return \c true if the given string is valid \c false otherwise.
-     * \sa validate()
+     * \return \c ResultOk if the given string is valid,
+     * otherwise an error result with a descriptive error message.
      */
-    bool validatePermissions(const QString& value, QString* errorMessage) const;
+    Utils::Result<> validatePermissions(const QString& value) const;
 
     /*!
      * \brief Manage accept flags
