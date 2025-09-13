@@ -88,11 +88,11 @@ public:
      *
      * \note A more extensive documentation may be available in Qt Creator Developper documentation
      *
-     * \param parent The target of the future run configuration.
+     * \param bc Build configuration of the future run configuration.
      * \return A list of the build targets this factory can create.
      * \sa canCreate()
      */
-    virtual QList<ProjectExplorer::RunConfigurationCreationInfo> availableCreators(ProjectExplorer::Target *parent) const override;
+    virtual QList<ProjectExplorer::RunConfigurationCreationInfo> availableCreators(ProjectExplorer::BuildConfiguration* bc) const override;
 
     /*!
      * \brief Whether the project is ready for examination
@@ -186,24 +186,24 @@ QMakeQtcRunConfigurationFactory<RunConfiguration>::QMakeQtcRunConfigurationFacto
 }
 
 template <class RunConfiguration>
-QList<ProjectExplorer::RunConfigurationCreationInfo> QMakeQtcRunConfigurationFactory<RunConfiguration>::availableCreators(ProjectExplorer::Target *target) const
+QList<ProjectExplorer::RunConfigurationCreationInfo> QMakeQtcRunConfigurationFactory<RunConfiguration>::availableCreators(ProjectExplorer::BuildConfiguration* bc) const
 {
     QList<ProjectExplorer::RunConfigurationCreationInfo> creators;
-    qDebug() << "availableCreators()" << isReady(target->project()) << isUseful(target->project());
+    qDebug() << "availableCreators()" << isReady(bc->project()) << isUseful(bc->project());
 
-    if (target->buildSystem() == nullptr)
+    if (bc->buildSystem() == nullptr)
         return creators;
-    if (!isReady(target->project()) || !isUseful(target->project()))
+    if (!isReady(bc->project()) || !isUseful(bc->project()))
         return creators;
 
-    QList<ProjectExplorer::BuildTargetInfo> buildInfos = target->buildSystem()->applicationTargets();
+    QList<ProjectExplorer::BuildTargetInfo> buildInfos = bc->buildSystem()->applicationTargets();
     for (ProjectExplorer::BuildTargetInfo info : buildInfos)
         qDebug() << "BuildTargetInfo:" << info.displayName << info.buildKey << info.projectFilePath << info.workingDirectory << info.targetFilePath;
-    for (ProjectExplorer::ProjectNode* node: qtCreatorPlugins(target->project()->rootProjectNode())) {
+    for (ProjectExplorer::ProjectNode* node: qtCreatorPlugins(bc->project()->rootProjectNode())) {
         QmakeProjectManager::QmakeProFileNode* qMakeNode = static_cast<QmakeProjectManager::QmakeProFileNode*>(node);
 
         QFileInfo proFileInfo = qMakeNode->filePath().toFileInfo();
-        ProjectExplorer::BuildTargetInfo info = target->buildTarget(proFileInfo.canonicalFilePath());
+        ProjectExplorer::BuildTargetInfo info = bc->buildSystem()->buildTarget(proFileInfo.canonicalFilePath());
 
         if (info.buildKey != proFileInfo.canonicalFilePath()) {
             qDebug() << __func__ << "Creating:" << proFileInfo.canonicalFilePath() << proFileInfo.baseName() << targetBuildPath(qMakeNode->proFile()) << targetInstallPath(qMakeNode->proFile());
@@ -211,8 +211,8 @@ QList<ProjectExplorer::RunConfigurationCreationInfo> QMakeQtcRunConfigurationFac
             info.displayName = proFileInfo.baseName();
             info.buildKey = proFileInfo.canonicalFilePath();
             info.projectFilePath = qMakeNode->filePath();
-            info.workingDirectory = targetBuildPath(qMakeNode->proFile());
-            info.targetFilePath = targetInstallPath(qMakeNode->proFile());
+            info.workingDirectory = targetBuildPath(qMakeNode->proFile()).cleanPath();
+            info.targetFilePath = targetInstallPath(qMakeNode->proFile()).cleanPath();
             buildInfos << info;
         }
 
@@ -223,7 +223,7 @@ QList<ProjectExplorer::RunConfigurationCreationInfo> QMakeQtcRunConfigurationFac
 
         creators << creator;
     }
-    target->buildSystem()->setApplicationTargets(buildInfos);
+    bc->buildSystem()->setApplicationTargets(buildInfos);
 
     return creators;
 }

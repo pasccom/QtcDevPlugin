@@ -74,7 +74,7 @@ QStringList availableThemes(void)
     return themes;
 }
 
-QtcRunConfiguration::QtcRunConfiguration(ProjectExplorer::Target *parent, Utils::Id id):
+QtcRunConfiguration::QtcRunConfiguration(ProjectExplorer::BuildConfiguration* parent, Utils::Id id):
     ProjectExplorer::RunConfiguration(parent, id)
 {
     setDefaultDisplayName(tr("Run Qt Creator"));

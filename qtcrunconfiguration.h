@@ -59,11 +59,11 @@ public:
      * \brief Constructor
      *
      * Creates a new instance with parent target.
-     * \param parent The parent target
+     * \param parent The parent build configuration
      * \param id The id for the run configuration
      * \sa initialize()
      */
-    QtcRunConfiguration(ProjectExplorer::Target *parent, Utils::Id id = Utils::Id(Constants::QtcRunConfigurationId));
+    QtcRunConfiguration(ProjectExplorer::BuildConfiguration* parent, Utils::Id id = Utils::Id(Constants::QtcRunConfigurationId));
 
     /*!
      * \brief Command-line arguments list

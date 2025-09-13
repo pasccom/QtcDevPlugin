@@ -57,11 +57,11 @@ public:
      * \brief Constructor
      *
      * Creates a new instance with parent target.
-     * \param parent The parent target
+     * \param parent The parent build configuration
      * \param id The id for the run configuration
      * \sa initialize()
      */
-    QtcTestRunConfiguration(ProjectExplorer::Target *parent, Utils::Id id = Utils::Id(Constants::QtcTestRunConfigurationId));
+    QtcTestRunConfiguration(ProjectExplorer::BuildConfiguration* parent, Utils::Id id = Utils::Id(Constants::QtcTestRunConfigurationId));
 
     /*!
      * \copydoc QtcRunConfiguration::commandLineArgumentsList()

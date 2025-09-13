@@ -103,11 +103,11 @@ public:
      *
      * \note A more extensive documentation may be available in Qt Creator Developper documentation
      *
-     * \param parent The target of the future run configuration.
+     * \param bc The build configuration of the future run configuration.
      * \return A list of the build targets this factory can create.
      * \sa canCreate()
      */
-    virtual QList<ProjectExplorer::RunConfigurationCreationInfo> availableCreators(ProjectExplorer::Target *parent) const override;
+    virtual QList<ProjectExplorer::RunConfigurationCreationInfo> availableCreators(ProjectExplorer::BuildConfiguration* bc) const override;
 
     /*!
      * \brief Whether the project is ready for examination
@@ -124,24 +124,25 @@ private:
      *
      * Parse the given target file in CMake File API tree (queried by Qt Creator)
      * and returs information about an eventual Qt Creator plugin.
-     * \param project A (CMake-based) project
+     * \param bc Build configuration associated with a CMake-based project
      * \param cMakeTargetFilePath Path to the target file in CMake file API tree
      * \return Information about the Qt Creator plugin if any, or \c std::nullopt.
      * \sa qtCreatorPlugins()
      */
-    static std::optional<QtcPluginInfo> qtCreatorPlugin(ProjectExplorer::Project* project, const Utils::FilePath& cMakeTargetFilePath);
+    static std::optional<QtcPluginInfo> qtCreatorPlugin(ProjectExplorer::BuildConfiguration* bc, const Utils::FilePath& cMakeTargetFilePath);
     /*!
      * \brief Recursively find Qt Creator plugins.
      *
-     * Search the given project for Qt Creator plugins and
+     * Search the given node for Qt Creator plugins and
      * return the list of the found Qt Creator plugin projects
      * together with information about the plugins.
-     * \param project A (CMake-based) project
+     * \param bc Build configuration associated with a CMake-based project
+     * \param root Node restricting the search
      * \return A map whose keys are plugins names and values are
      * information about the corresponding Qt Creator plugin.
      * \sa qtCreatorPlugin()
      */
-    static QMap<QString, QtcPluginInfo> qtCreatorPlugins(ProjectExplorer::Project* project);
+    static QMap<QString, QtcPluginInfo> qtCreatorPlugins(ProjectExplorer::BuildConfiguration* bc, ProjectExplorer::FolderNode* root = nullptr);
 
     /*!
      * \brief Path to CMake file API reply tree
@@ -176,22 +177,22 @@ CMakeQtcRunConfigurationFactory<RunConfiguration>::CMakeQtcRunConfigurationFacto
 }
 
 template <class RunConfiguration>
-QList<ProjectExplorer::RunConfigurationCreationInfo> CMakeQtcRunConfigurationFactory<RunConfiguration>::availableCreators(ProjectExplorer::Target *target) const
+QList<ProjectExplorer::RunConfigurationCreationInfo> CMakeQtcRunConfigurationFactory<RunConfiguration>::availableCreators(ProjectExplorer::BuildConfiguration* bc) const
 {
     QList<ProjectExplorer::RunConfigurationCreationInfo> creators;
-    qDebug() << "availableCreators()" << isReady(target->project());
+    qDebug() << "availableCreators()" << isReady(bc->project());
 
-    if (target->buildSystem() == nullptr)
+    if (bc->buildSystem() == nullptr)
         return creators;
-    if (!isReady(target->project()))
+    if (!isReady(bc->project()))
         return creators;
 
-    auto buildInfos = target->buildSystem()->applicationTargets();
-    auto qtcPluginInfos = qtCreatorPlugins(target->project());
+    auto buildInfos = bc->buildSystem()->applicationTargets();
+    auto qtcPluginInfos = qtCreatorPlugins(bc);
     for (ProjectExplorer::BuildTargetInfo info : buildInfos)
         qDebug() << "BuildTargetInfo:" << info.displayName << info.buildKey << info.projectFilePath << info.workingDirectory << info.targetFilePath;
     for (QString pluginName: qtcPluginInfos.keys()) {
-        ProjectExplorer::BuildTargetInfo info = target->buildTarget(pluginName);
+        ProjectExplorer::BuildTargetInfo info = bc->buildSystem()->buildTarget(pluginName);
 
         if (info.buildKey != pluginName) {
             qDebug() << __func__ << "Creating:" << qtcPluginInfos.value(pluginName).projectFilePath << qtcPluginInfos.value(pluginName).targetFilePath << qtcPluginInfos.value(pluginName).targetBuildPath;
@@ -211,7 +212,7 @@ QList<ProjectExplorer::RunConfigurationCreationInfo> CMakeQtcRunConfigurationFac
 
         creators << creator;
     }
-    target->buildSystem()->setApplicationTargets(buildInfos);
+    bc->buildSystem()->setApplicationTargets(buildInfos);
 
     return creators;
 }
@@ -271,13 +272,13 @@ bool CMakeQtcRunConfigurationFactory<RunConfiguration>::isReady(ProjectExplorer:
 }
 
 template <class RunConfiguration>
-std::optional<typename CMakeQtcRunConfigurationFactory<RunConfiguration>::QtcPluginInfo> CMakeQtcRunConfigurationFactory<RunConfiguration>::qtCreatorPlugin(ProjectExplorer::Project* project, const Utils::FilePath& cMakeTargetFilePath)
+std::optional<typename CMakeQtcRunConfigurationFactory<RunConfiguration>::QtcPluginInfo> CMakeQtcRunConfigurationFactory<RunConfiguration>::qtCreatorPlugin(ProjectExplorer::BuildConfiguration* bc, const Utils::FilePath& cMakeTargetFilePath)
 {
     if (!cMakeTargetFilePath.isFile())
         return std::nullopt;
 
-    Utils::expected_str<QByteArray> cMakeTargetData = cMakeTargetFilePath.fileContents();
-    QTC_CHECK_EXPECTED(cMakeTargetData);
+    Utils::Result<QByteArray> cMakeTargetData = cMakeTargetFilePath.fileContents();
+    QTC_CHECK_RESULT(cMakeTargetData);
     QJsonObject cMakeTargetFile = QJsonDocument::fromJson(*cMakeTargetData).object();
 
     QJsonArray commands = cMakeTargetFile.value(QLatin1String("backtraceGraph")).toObject().value(QLatin1String("commands")).toArray();
@@ -292,7 +293,7 @@ std::optional<typename CMakeQtcRunConfigurationFactory<RunConfiguration>::QtcPlu
     if (cMakeTargetFile.value(QLatin1String("artifacts")).toArray().size() > 1)
         qWarning() << "More than one artifact in " << cMakeTargetFilePath;
 
-    Utils::FilePath projectFilePath = project->projectFilePath().parentDir();
+    Utils::FilePath projectFilePath = bc->project()->projectFilePath().parentDir();
     QString subProjectPath = cMakeTargetFile.value(QLatin1String("paths")).toObject()
                                             .value(QLatin1String("source")).toString();
     if (QString::compare(subProjectPath, QLatin1String(".")) != 0)
@@ -309,25 +310,35 @@ std::optional<typename CMakeQtcRunConfigurationFactory<RunConfiguration>::QtcPlu
     return std::make_optional<QtcPluginInfo>({
         .projectFilePath = projectFilePath,
         .targetFilePath = targetInstallPath.pathAppended(targetFilePath.fileName()),
-        .targetBuildPath = project->activeBuildConfiguration()->buildDirectory(),
+        .targetBuildPath = bc->buildDirectory(),
     });
 }
 
 template <class RunConfiguration>
-QMap<QString, typename CMakeQtcRunConfigurationFactory<RunConfiguration>::QtcPluginInfo> CMakeQtcRunConfigurationFactory<RunConfiguration>::qtCreatorPlugins(ProjectExplorer::Project* project)
+QMap<QString, typename CMakeQtcRunConfigurationFactory<RunConfiguration>::QtcPluginInfo> CMakeQtcRunConfigurationFactory<RunConfiguration>::qtCreatorPlugins(ProjectExplorer::BuildConfiguration* bc, ProjectExplorer::FolderNode* root)
 {
     QMap<QString, typename CMakeQtcRunConfigurationFactory<RunConfiguration>::QtcPluginInfo> qtcPlugins;
 
-    for (ProjectExplorer::Node* child : project->rootProjectNode()->nodes()) {
+    if (root == nullptr)
+        root = bc->project()->rootProjectNode()->asFolderNode();
+    QTC_ASSERT(root != nullptr, return qtcPlugins);
+
+    for (ProjectExplorer::Node* child : root->nodes()) {
         if (child->displayName().contains(QLatin1String("_autogen"), Qt::CaseSensitive))
             continue;
         qDebug() << child->displayName() << child->isProjectNodeType() << child->isFolderNodeType() << child->isVirtualFolderType() << child->isGenerated();
         if (QString::compare(child->displayName(), QLatin1String("CMakeLists.txt"), Qt::CaseSensitive) == 0)
             continue;
 
-        auto qtcPluginInfo = qtCreatorPlugin(project, cMakeTargetFilePath(project, child->displayName()));
-        if (qtcPluginInfo.has_value())
-            qtcPlugins.insert(child->displayName(), *qtcPluginInfo);
+        if (child->isFolderNodeType()) {
+            auto subPlugins = qtCreatorPlugins(bc, child->asFolderNode());
+            for (auto it = subPlugins.begin(); it != subPlugins.end(); it++)
+                qtcPlugins.insert(it.key(), it.value());
+        } else if (child->isProjectNodeType()) {
+            auto qtcPluginInfo = qtCreatorPlugin(bc, cMakeTargetFilePath(bc->project(), child->displayName()));
+            if (qtcPluginInfo.has_value())
+                qtcPlugins.insert(child->displayName(), *qtcPluginInfo);
+        }
     }
 
     qDebug() << "Plugin names:" << qtcPlugins.keys().join(QLatin1String(", "));
