@@ -34,6 +34,8 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/runcontrol.h>
 
+#include <debugger/debuggerruncontrol.h>
+
 #include <coreplugin/icore.h>
 
 #include <extensionsystem/pluginmanager.h>
@@ -44,8 +46,6 @@ using namespace QtcDevPlugin::Internal;
 
 QtcDeveloperPlugin::QtcDeveloperPlugin()
 {
-    mRunWorkerFactory = nullptr;
-
     // Create your members
 #ifdef BUILD_TESTS
     addTest<Test::QtcRunConfigurationFactoryTest>();
@@ -59,8 +59,7 @@ QtcDeveloperPlugin::~QtcDeveloperPlugin()
     // Unregister objects from the plugin manager's object pool
     // Delete members
     qDeleteAll(mRunConfigurationFactories);
-    if (mRunWorkerFactory != nullptr)
-        delete mRunWorkerFactory;
+    qDeleteAll(mRunWorkerFactories);
 }
 
 Utils::Result<> QtcDeveloperPlugin::initialize(const QStringList& arguments)
@@ -96,7 +95,12 @@ Utils::Result<> QtcDeveloperPlugin::initialize(const QStringList& arguments)
     mRunConfigurationFactories << new CMakeQtcRunConfigurationFactory<QtcTestRunConfiguration>();
     mRunConfigurationFactories << new QMakeQtcRunConfigurationFactory<QtcRunConfiguration>();
     mRunConfigurationFactories << new QMakeQtcRunConfigurationFactory<QtcTestRunConfiguration>();
-    mRunWorkerFactory = new QtcRunWorkerFactory();
+    mRunWorkerFactories << new QtcRunWorkerFactory(ProjectExplorer::Constants::NORMAL_RUN_MODE, [] (ProjectExplorer::RunControl* runControl) {
+        return ProjectExplorer::processRecipe(runControl);
+    });
+    mRunWorkerFactories << new QtcRunWorkerFactory(ProjectExplorer::Constants::DEBUG_RUN_MODE, [] (ProjectExplorer::RunControl* runControl) {
+        return Debugger::debuggerRecipe(runControl, Debugger::DebuggerRunParameters::fromRunControl(runControl));
+    });
 
     return Utils::ResultOk;
 }

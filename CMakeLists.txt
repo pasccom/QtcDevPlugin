@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-find_package(QtCreator COMPONENTS Core ProjectExplorer QmakeProjectManager REQUIRED)
+find_package(QtCreator COMPONENTS Core ProjectExplorer QmakeProjectManager Debugger REQUIRED)
 find_package(Qt6 COMPONENTS Widgets REQUIRED LinguistTools)
 
 option(WITH_TESTS "Builds with tests" NO)
@@ -65,6 +65,7 @@ add_qtc_plugin(QtcDevPlugin
     QtCreator::Core
     QtCreator::ProjectExplorer
     QtCreator::QmakeProjectManager
+    QtCreator::Debugger
   DEPENDS
     Qt::Widgets
     QtCreator::ExtensionSystem
@@ -86,8 +87,6 @@ add_qtc_plugin(QtcDevPlugin
     qtctestrunconfiguration.cpp
     qtcrunworkerfactory.h
     qtcrunworkerfactory.cpp
-    qtcrunworker.h
-    qtcrunworker.cpp
     pathaspect.h
     pathaspect.cpp
     Widgets/filetypevalidatinglineedit.h

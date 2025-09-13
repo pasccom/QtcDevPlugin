@@ -170,7 +170,7 @@ public:
     ShutdownFlag aboutToShutdown() override;
 private:
     QList<ProjectExplorer::RunConfigurationFactory*> mRunConfigurationFactories; /*!< List of run configuration factories created by this plugin (for deletion) */
-    ProjectExplorer::RunWorkerFactory* mRunWorkerFactory;                        /*!< Run worker factory created by this plugin (for deletion) */
+    QList<ProjectExplorer::RunWorkerFactory*> mRunWorkerFactories;               /*!< List of run worker factory created by this plugin (for deletion) */
 };
 
 } // namespace Internal
