@@ -75,58 +75,59 @@ void QtcRunConfigurationFactoryTest::testOpenProject_data(void)
 {
     QTest::addColumn<Utils::FilePath>("projectPath");
     QTest::addColumn< QList<ExpectedPluginInfo> >("qtcPlugins");
+    QTest::addColumn<QString>("pluginFolderTemplate");
 
     QList<ExpectedPluginInfo> plugins;
 
     plugins.clear();
-    QTest::newRow("ProjectTest - qMake") << Utils::FilePath::fromString(TESTS_DIR "/qMake/ProjectTest/ProjectTest.pro") << plugins;
+    QTest::newRow("ProjectTest - qMake") << Utils::FilePath::fromString(TESTS_DIR "/qMake/ProjectTest/ProjectTest.pro") << plugins << QString();
     plugins.clear();
     plugins << ExpectedPluginInfo{QLatin1String("QtcPluginTest"), QLatin1String(TESTS_DIR "/qMake/QtcPluginTest/QtcPluginTest.pro")};
-    QTest::newRow("QtcPluginTest - qMake") << Utils::FilePath::fromString(TESTS_DIR "/qMake/QtcPluginTest/QtcPluginTest.pro") << plugins;
+    QTest::newRow("QtcPluginTest - qMake") << Utils::FilePath::fromString(TESTS_DIR "/qMake/QtcPluginTest/QtcPluginTest.pro") << plugins << QString(TESTS_DIR "/qMake/%1/bin");
     plugins.clear();
-    QTest::newRow("OneSubTest - qMake") << Utils::FilePath::fromString(TESTS_DIR "/qMake/OneSubTest/OneSubTest.pro") << plugins;
+    QTest::newRow("OneSubTest - qMake") << Utils::FilePath::fromString(TESTS_DIR "/qMake/OneSubTest/OneSubTest.pro") << plugins << QString();
     plugins.clear();
-    QTest::newRow("TwoSubTests - qMake") << Utils::FilePath::fromString(TESTS_DIR "/qMake/TwoSubTests/TwoSubTests.pro") << plugins;
+    QTest::newRow("TwoSubTests - qMake") << Utils::FilePath::fromString(TESTS_DIR "/qMake/TwoSubTests/TwoSubTests.pro") << plugins << QString();
     plugins.clear();
     plugins << ExpectedPluginInfo{QLatin1String("QtcPluginTest2"), QLatin1String(TESTS_DIR "/qMake/QtcPluginTest2/QtcPluginTest2.pro")};
-    QTest::newRow("TestAndPlugin - qMake") << Utils::FilePath::fromString(TESTS_DIR "/qMake/TestAndPlugin/TestAndPlugin.pro") << plugins;
+    QTest::newRow("TestAndPlugin - qMake") << Utils::FilePath::fromString(TESTS_DIR "/qMake/TestAndPlugin/TestAndPlugin.pro") << plugins << QString(TESTS_DIR "/qMake/%1/bin");
     plugins.clear();
     plugins << ExpectedPluginInfo{QLatin1String("QtcPluginTest1"), QLatin1String(TESTS_DIR "/qMake/QtcPluginTest1/QtcPluginTest1.pro")};
-    QTest::newRow("PluginAndTest - qMake") << Utils::FilePath::fromString(TESTS_DIR "/qMake/PluginAndTest/PluginAndTest.pro") << plugins;
+    QTest::newRow("PluginAndTest - qMake") << Utils::FilePath::fromString(TESTS_DIR "/qMake/PluginAndTest/PluginAndTest.pro") << plugins << QString(TESTS_DIR "/qMake/%1/bin");
     plugins.clear();
     plugins << ExpectedPluginInfo{QLatin1String("QtcPluginTest1"), QLatin1String(TESTS_DIR "/qMake/QtcPluginTest1/QtcPluginTest1.pro")};
-    QTest::newRow("OneSubPlugin - qMake") << Utils::FilePath::fromString(TESTS_DIR "/qMake/OneSubPlugin/OneSubPlugin.pro") << plugins;
+    QTest::newRow("OneSubPlugin - qMake") << Utils::FilePath::fromString(TESTS_DIR "/qMake/OneSubPlugin/OneSubPlugin.pro") << plugins << QString(TESTS_DIR "/qMake/%1/bin");
     plugins.clear();
     plugins << ExpectedPluginInfo{QLatin1String("QtcPluginTest1"), QLatin1String(TESTS_DIR "/qMake/QtcPluginTest1/QtcPluginTest1.pro")};
     plugins << ExpectedPluginInfo{QLatin1String("QtcPluginTest2"), QLatin1String(TESTS_DIR "/qMake/QtcPluginTest2/QtcPluginTest2.pro")};
-    QTest::newRow("TwoSubPlugins - qMake") << Utils::FilePath::fromString(TESTS_DIR "/qMake/TwoSubPlugins/TwoSubPlugins.pro") << plugins;
+    QTest::newRow("TwoSubPlugins - qMake") << Utils::FilePath::fromString(TESTS_DIR "/qMake/TwoSubPlugins/TwoSubPlugins.pro") << plugins << QString(TESTS_DIR "/qMake/%1/bin");
 
     plugins.clear();
-    QTest::newRow("ProjectTest - CMake") << Utils::FilePath::fromString(TESTS_DIR "/cMake/ProjectTest/ProjectTest.pro") << plugins;
+    QTest::newRow("ProjectTest - CMake") << Utils::FilePath::fromString(TESTS_DIR "/cMake/ProjectTest/ProjectTest.pro") << plugins << QString();
     plugins.clear();
     plugins << ExpectedPluginInfo{QLatin1String("QtcPluginTest"), QLatin1String("QtcPluginTest")};
-    QTest::newRow("QtcPluginTest - CMake") << Utils::FilePath::fromString(TESTS_DIR "/cMake/QtcPluginTest/CMakeLists.txt") << plugins;
+    QTest::newRow("QtcPluginTest - CMake") << Utils::FilePath::fromString(TESTS_DIR "/cMake/QtcPluginTest/CMakeLists.txt") << plugins << QString();
     plugins.clear();
-    QTest::newRow("OneSubTest - CMake") << Utils::FilePath::fromString(TESTS_DIR "/cMake/OneSubTest/CMakeLists.txt") << plugins;
+    QTest::newRow("OneSubTest - CMake") << Utils::FilePath::fromString(TESTS_DIR "/cMake/OneSubTest/CMakeLists.txt") << plugins << QString();
     plugins.clear();
-    QTest::newRow("TwoSubTests - CMake") << Utils::FilePath::fromString(TESTS_DIR "/cMake/TwoSubTests/CMakeLists.txt") << plugins;
+    QTest::newRow("TwoSubTests - CMake") << Utils::FilePath::fromString(TESTS_DIR "/cMake/TwoSubTests/CMakeLists.txt") << plugins << QString();
     plugins.clear();
     plugins << ExpectedPluginInfo{QLatin1String("QtcPluginTest2"), QLatin1String("QtcPluginTest2")};
-    QTest::newRow("TestAndPlugin - CMake") << Utils::FilePath::fromString(TESTS_DIR "/cMake/TestAndPlugin/CMakeLists.txt") << plugins;
+    QTest::newRow("TestAndPlugin - CMake") << Utils::FilePath::fromString(TESTS_DIR "/cMake/TestAndPlugin/CMakeLists.txt") << plugins << QString();
     plugins.clear();
     plugins << ExpectedPluginInfo{QLatin1String("QtcPluginTest1"), QLatin1String("QtcPluginTest1")};
-    QTest::newRow("PluginAndTest - CMake") << Utils::FilePath::fromString(TESTS_DIR "/cMake/PluginAndTest/CMakeLists.txt") << plugins;
+    QTest::newRow("PluginAndTest - CMake") << Utils::FilePath::fromString(TESTS_DIR "/cMake/PluginAndTest/CMakeLists.txt") << plugins << QString();
     plugins.clear();
     plugins << ExpectedPluginInfo{QLatin1String("QtcPluginTest1"), QLatin1String("QtcPluginTest1")};
-    QTest::newRow("OneSubPlugin - CMake") << Utils::FilePath::fromString(TESTS_DIR "/cMake/OneSubPlugin/CMakeLists.txt") << plugins;
-    plugins.clear();
-    plugins << ExpectedPluginInfo{QLatin1String("QtcPluginTest1"), QLatin1String("QtcPluginTest1")};
-    plugins << ExpectedPluginInfo{QLatin1String("QtcPluginTest2"), QLatin1String("QtcPluginTest2")};
-    QTest::newRow("TwoSubPlugins - CMake") << Utils::FilePath::fromString(TESTS_DIR "/cMake/TwoSubPlugins/CMakeLists.txt") << plugins;
+    QTest::newRow("OneSubPlugin - CMake") << Utils::FilePath::fromString(TESTS_DIR "/cMake/OneSubPlugin/CMakeLists.txt") << plugins << QString();
     plugins.clear();
     plugins << ExpectedPluginInfo{QLatin1String("QtcPluginTest1"), QLatin1String("QtcPluginTest1")};
     plugins << ExpectedPluginInfo{QLatin1String("QtcPluginTest2"), QLatin1String("QtcPluginTest2")};
-    QTest::newRow("TwoQtcPlugins - CMake") << Utils::FilePath::fromString(TESTS_DIR "/cMake/TwoQtcPlugins/CMakeLists.txt") << plugins;
+    QTest::newRow("TwoSubPlugins - CMake") << Utils::FilePath::fromString(TESTS_DIR "/cMake/TwoSubPlugins/CMakeLists.txt") << plugins << QString();
+    plugins.clear();
+    plugins << ExpectedPluginInfo{QLatin1String("QtcPluginTest1"), QLatin1String("QtcPluginTest1")};
+    plugins << ExpectedPluginInfo{QLatin1String("QtcPluginTest2"), QLatin1String("QtcPluginTest2")};
+    QTest::newRow("TwoQtcPlugins - CMake") << Utils::FilePath::fromString(TESTS_DIR "/cMake/TwoQtcPlugins/CMakeLists.txt") << plugins << QString();
 
 }
 
@@ -134,122 +135,137 @@ void QtcRunConfigurationFactoryTest::testOpenProject(void)
 {
     QFETCH(Utils::FilePath, projectPath);
     QFETCH(QList<ExpectedPluginInfo>, qtcPlugins);
+    QFETCH(QString, pluginFolderTemplate);
+
+    QString pluginFolderPath;
 
     QVERIFY(openQMakeProject(projectPath, &mProject));
     QCOMPARE(mProject->projectFilePath(), projectPath);
 
     for (ProjectExplorer::Target* target: mProject->targets()) {
-        QLinkedList<Internal::QtcRunConfiguration*> qtcRunConfigs;
-        QLinkedList<Internal::QtcTestRunConfiguration*> qtcTestRunConfigs;
-        for (ProjectExplorer::RunConfiguration* runConfig: target->runConfigurations()) {
-            Internal::QtcRunConfiguration* qtcRunConfig = qobject_cast<Internal::QtcRunConfiguration*>(runConfig);
-            Internal::QtcTestRunConfiguration* qtcTestRunConfig = qobject_cast<Internal::QtcTestRunConfiguration*>(runConfig);
+        for (ProjectExplorer::BuildConfiguration* buildConfig: target->buildConfigurations()) {
+            QLinkedList<Internal::QtcRunConfiguration*> qtcRunConfigs;
+            QLinkedList<Internal::QtcTestRunConfiguration*> qtcTestRunConfigs;
+            for (ProjectExplorer::RunConfiguration* runConfig: buildConfig->runConfigurations()) {
+                Internal::QtcRunConfiguration* qtcRunConfig = qobject_cast<Internal::QtcRunConfiguration*>(runConfig);
+                Internal::QtcTestRunConfiguration* qtcTestRunConfig = qobject_cast<Internal::QtcTestRunConfiguration*>(runConfig);
 
-            if (qtcTestRunConfig != nullptr)
-                qtcTestRunConfigs << qtcTestRunConfig;
-            else if (qtcRunConfig != nullptr)
-                qtcRunConfigs << qtcRunConfig;
-        }
+                if (qtcTestRunConfig != nullptr)
+                    qtcTestRunConfigs << qtcTestRunConfig;
+                else if (qtcRunConfig != nullptr)
+                    qtcRunConfigs << qtcRunConfig;
+            }
 
-        QStringList qtcPluginsFound;
-        for (Internal::QtcRunConfiguration* qtcRunConfig: qtcRunConfigs) {
-            bool ok = false;
-            for (ExpectedPluginInfo pluginInfo: qtcPlugins) {
-                if (QString::compare(qtcRunConfig->buildTargetInfo().buildKey, pluginInfo.buildKey, Qt::CaseSensitive) == 0) {
-                    ok = true;
-                    qtcPluginsFound << pluginInfo.name;
-                    break;
+            QStringList qtcPluginsFound;
+            for (Internal::QtcRunConfiguration* qtcRunConfig: qtcRunConfigs) {
+                bool ok = false;
+                for (ExpectedPluginInfo pluginInfo: qtcPlugins) {
+                    if (QString::compare(qtcRunConfig->buildTargetInfo().buildKey, pluginInfo.buildKey, Qt::CaseSensitive) == 0) {
+                        ok = true;
+                        qtcPluginsFound << pluginInfo.name;
+                        break;
+                    }
                 }
-            }
-            QVERIFY2(ok, qPrintable(QString(QLatin1String("Unexpected run configuration: %1")).arg(qtcRunConfig->id().suffixAfter(Utils::Id(Constants::QtcRunConfigurationId)))));
+                QVERIFY2(ok, qPrintable(QString(QLatin1String("Unexpected run configuration: %1")).arg(qtcRunConfig->id().suffixAfter(Utils::Id(Constants::QtcRunConfigurationId)))));
 
-            QCOMPARE(qtcRunConfig->displayName(), QString(QLatin1String("Run Qt Creator with \"%1\"")).arg(qtcPluginsFound.last()));
+                QCOMPARE(qtcRunConfig->displayName(), QString(QLatin1String("Run Qt Creator with \"%1\"")).arg(qtcPluginsFound.last()));
 
-            QStringList args = qtcRunConfig->commandLineArgumentsList();
-            for (QStringList::Iterator it = args.begin(); it != args.end(); it++) {
-                if ((*it).contains(' '))
-                    *it = "'" + *it + "'";
-            }
-            Utils::ProcessRunData qtcRunnable = qtcRunConfig->runnable();
-            QCOMPARE(qtcRunnable.command.executable(), Utils::FilePath::fromString(QCoreApplication::applicationFilePath()));
-            Utils::FilePath workingDirectory = target->activeBuildConfiguration()->buildDirectory();
-            // workingDirectory.replace(QLatin1Char('/'), QDir::separator());
-            QCOMPARE(qtcRunnable.workingDirectory, workingDirectory);
-            QCOMPARE(qtcRunnable.command.arguments(), args.join(QLatin1Char(' ')));
-
-            int themeIndex = args.indexOf(QLatin1String("-theme"));
-            QVERIFY(themeIndex != -1);
-            QVERIFY(themeIndex + 1 < args.size());
-            QString themeArg = args.at(themeIndex + 1);
-            if (themeArg.startsWith("'") && themeArg.endsWith("'"))
-                themeArg = themeArg.mid(1).chopped(1);
-            QCOMPARE(themeArg, Utils::creatorTheme()->displayName());
-
-            int pluginIndex = args.indexOf(QLatin1String("-pluginpath"));
-            QVERIFY(pluginIndex != -1);
-            QVERIFY(pluginIndex + 1 < args.size());
-            QString pluginArg = args.at(pluginIndex + 1);
-            if (pluginArg.startsWith("'") && pluginArg.endsWith("'"))
-                pluginArg = pluginArg.mid(1).chopped(1);
-            qDebug() << pluginArg;
-            // FIXME QCOMPARE(pluginArg, QString(QLatin1String(TESTS_DIR "/%1/bin")).arg(qtcPluginsFound.last()));
-        }
-        QCOMPARE(qtcPlugins.size(), qtcPluginsFound.size());
-
-        QStringList qtcTestPluginsFound;
-        for (Internal::QtcTestRunConfiguration* qtcTestRunConfig: qtcTestRunConfigs) {
-            bool ok = false;
-            for (ExpectedPluginInfo pluginInfo: qtcPlugins) {
-                if (QString::compare(qtcTestRunConfig->buildTargetInfo().buildKey, pluginInfo.buildKey, Qt::CaseSensitive) == 0) {
-                    ok = true;
-                    qtcTestPluginsFound << pluginInfo.name;
-                    break;
+                QStringList args = qtcRunConfig->commandLineArgumentsList();
+                for (QStringList::Iterator it = args.begin(); it != args.end(); it++) {
+                    if ((*it).contains(' '))
+                        *it = "'" + *it + "'";
                 }
+                Utils::ProcessRunData qtcRunnable = qtcRunConfig->runnable();
+                QCOMPARE(qtcRunnable.command.executable(), Utils::FilePath::fromString(QCoreApplication::applicationFilePath()));
+                Utils::FilePath workingDirectory = buildConfig->buildDirectory();
+                // workingDirectory.replace(QLatin1Char('/'), QDir::separator());
+                QCOMPARE(qtcRunnable.workingDirectory, workingDirectory);
+                QCOMPARE(qtcRunnable.command.arguments(), args.join(QLatin1Char(' ')));
+
+                int themeIndex = args.indexOf(QLatin1String("-theme"));
+                QVERIFY(themeIndex != -1);
+                QVERIFY(themeIndex + 1 < args.size());
+                QString themeArg = args.at(themeIndex + 1);
+                if (themeArg.startsWith("'") && themeArg.endsWith("'"))
+                    themeArg = themeArg.mid(1).chopped(1);
+                QCOMPARE(themeArg, Utils::creatorTheme()->displayName());
+
+                if (pluginFolderTemplate.isEmpty())
+                    pluginFolderPath = buildConfig->buildDirectory().toFSPathString();
+                else
+                    pluginFolderPath = pluginFolderTemplate.arg(qtcPluginsFound.last());
+
+                int pluginIndex = args.indexOf(QLatin1String("-pluginpath"));
+                QVERIFY(pluginIndex != -1);
+                QVERIFY(pluginIndex + 1 < args.size());
+                QString pluginArg = args.at(pluginIndex + 1);
+                if (pluginArg.startsWith("'") && pluginArg.endsWith("'"))
+                    pluginArg = pluginArg.mid(1).chopped(1);
+                //qDebug() << target->displayName() << buildConfig->displayName() << qtcRunConfig->displayName() << qtcPluginsFound.last() << pluginArg << pluginFolderPath << workingDirectory;
+                QCOMPARE(pluginArg, pluginFolderPath);
             }
-            QVERIFY2(ok, qPrintable(QString(QLatin1String("Unexpected run configuration: %1")).arg(qtcTestRunConfig->id().suffixAfter(Utils::Id(Constants::QtcTestRunConfigurationId)))));
+            QCOMPARE(qtcPlugins.size(), qtcPluginsFound.size());
 
-            QCOMPARE(qtcTestRunConfig->displayName(), QString(QLatin1String("Run Qt Creator tests for \"%1\"")).arg(qtcTestPluginsFound.last()));
+            QStringList qtcTestPluginsFound;
+            for (Internal::QtcTestRunConfiguration* qtcTestRunConfig: qtcTestRunConfigs) {
+                bool ok = false;
+                for (ExpectedPluginInfo pluginInfo: qtcPlugins) {
+                    if (QString::compare(qtcTestRunConfig->buildTargetInfo().buildKey, pluginInfo.buildKey, Qt::CaseSensitive) == 0) {
+                        ok = true;
+                        qtcTestPluginsFound << pluginInfo.name;
+                        break;
+                    }
+                }
+                QVERIFY2(ok, qPrintable(QString(QLatin1String("Unexpected run configuration: %1")).arg(qtcTestRunConfig->id().suffixAfter(Utils::Id(Constants::QtcTestRunConfigurationId)))));
 
-            QStringList args = qtcTestRunConfig->commandLineArgumentsList();
-            for (QStringList::Iterator it = args.begin(); it != args.end(); it++) {
-                if ((*it).contains(' '))
-                    *it = "'" + *it + "'";
+                QCOMPARE(qtcTestRunConfig->displayName(), QString(QLatin1String("Run Qt Creator tests for \"%1\"")).arg(qtcTestPluginsFound.last()));
+
+                QStringList args = qtcTestRunConfig->commandLineArgumentsList();
+                for (QStringList::Iterator it = args.begin(); it != args.end(); it++) {
+                    if ((*it).contains(' '))
+                        *it = "'" + *it + "'";
+                }
+                Utils::ProcessRunData qtcTestRunnable = qtcTestRunConfig->runnable();
+                QCOMPARE(qtcTestRunnable.command.executable(), Utils::FilePath::fromString(QCoreApplication::applicationFilePath()));
+                Utils::FilePath workingDirectory = buildConfig->buildDirectory();
+                // workingDirectory.replace(QLatin1Char('/'), QDir::separator());
+                QCOMPARE(qtcTestRunnable.workingDirectory, workingDirectory);
+                QCOMPARE(qtcTestRunnable.command.arguments(), args.join(QLatin1Char(' ')));
+
+                int testIndex = args.indexOf(QLatin1String("-test"));
+                QVERIFY(testIndex != -1);
+                QVERIFY(testIndex + 1 < args.size());
+                QCOMPARE(args.at(testIndex + 1), qtcTestPluginsFound.last());
+
+                int loadIndex = args.indexOf(QLatin1String("-load"));
+                QVERIFY(loadIndex != -1);
+                QVERIFY(loadIndex + 1 < args.size());
+                QCOMPARE(args.at(loadIndex + 1), QLatin1String("all"));
+
+                int themeIndex = args.indexOf(QLatin1String("-theme"));
+                QVERIFY(themeIndex != -1);
+                QVERIFY(themeIndex + 1 < args.size());
+                QString themeArg = args.at(themeIndex + 1);
+                if (themeArg.startsWith("'") && themeArg.endsWith("'"))
+                    themeArg = themeArg.mid(1).chopped(1);
+                QCOMPARE(themeArg, Utils::creatorTheme()->displayName());
+
+                if (pluginFolderTemplate.isEmpty())
+                    pluginFolderPath = buildConfig->buildDirectory().toFSPathString();
+                else
+                    pluginFolderPath = pluginFolderTemplate.arg(qtcTestPluginsFound.last());
+
+                int pluginIndex = args.indexOf(QLatin1String("-pluginpath"));
+                QVERIFY(pluginIndex != -1);
+                QVERIFY(pluginIndex + 1 < args.size());
+                QString pluginArg = args.at(pluginIndex + 1);
+                if (pluginArg.startsWith("'") && pluginArg.endsWith("'"))
+                    pluginArg = pluginArg.mid(1).chopped(1);
+                //qDebug() << target->displayName() << buildConfig->displayName() << qtcTestRunConfig->displayName() << qtcTestPluginsFound.last() << pluginArg << pluginFolderPath << workingDirectory;
+                QCOMPARE(pluginArg, pluginFolderPath);
             }
-            Utils::ProcessRunData qtcTestRunnable = qtcTestRunConfig->runnable();
-            QCOMPARE(qtcTestRunnable.command.executable(), Utils::FilePath::fromString(QCoreApplication::applicationFilePath()));
-            Utils::FilePath workingDirectory = target->activeBuildConfiguration()->buildDirectory();
-            // workingDirectory.replace(QLatin1Char('/'), QDir::separator());
-            QCOMPARE(qtcTestRunnable.workingDirectory, workingDirectory);
-            QCOMPARE(qtcTestRunnable.command.arguments(), args.join(QLatin1Char(' ')));
-
-            int testIndex = args.indexOf(QLatin1String("-test"));
-            QVERIFY(testIndex != -1);
-            QVERIFY(testIndex + 1 < args.size());
-            QCOMPARE(args.at(testIndex + 1), qtcTestPluginsFound.last());
-
-            int loadIndex = args.indexOf(QLatin1String("-load"));
-            QVERIFY(loadIndex != -1);
-            QVERIFY(loadIndex + 1 < args.size());
-            QCOMPARE(args.at(loadIndex + 1), QLatin1String("all"));
-
-            int themeIndex = args.indexOf(QLatin1String("-theme"));
-            QVERIFY(themeIndex != -1);
-            QVERIFY(themeIndex + 1 < args.size());
-            QString themeArg = args.at(themeIndex + 1);
-            if (themeArg.startsWith("'") && themeArg.endsWith("'"))
-                themeArg = themeArg.mid(1).chopped(1);
-            QCOMPARE(themeArg, Utils::creatorTheme()->displayName());
-
-            int pluginIndex = args.indexOf(QLatin1String("-pluginpath"));
-            QVERIFY(pluginIndex != -1);
-            QVERIFY(pluginIndex + 1 < args.size());
-            QString pluginArg = args.at(pluginIndex + 1);
-            if (pluginArg.startsWith("'") && pluginArg.endsWith("'"))
-                pluginArg = pluginArg.mid(1).chopped(1);
-            qDebug() << pluginArg;
-            // FIXME QCOMPARE(pluginArg, QString(QLatin1String(TESTS_DIR "/%1/bin")).arg(qtcTestPluginsFound.last()));
+            QCOMPARE(qtcPlugins.size(), qtcTestPluginsFound.size());
         }
-        QCOMPARE(qtcPlugins.size(), qtcTestPluginsFound.size());
     }
 }
 

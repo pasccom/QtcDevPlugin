@@ -110,41 +110,43 @@ void QtcRunConfigurationTest::testRestoreSettings(void)
         theme = themes.last();
 
     for (ProjectExplorer::Target* target: mProject->targets()) {
-        for (ProjectExplorer::RunConfiguration* runConfig: target->runConfigurations()) {
-            if ((runConfig->id() != QtcDevPlugin::Constants::QtcRunConfigurationId) &&
-                (runConfig->id() != QtcDevPlugin::Constants::QtcTestRunConfigurationId))
-                continue;
+        for (ProjectExplorer::BuildConfiguration* buildConfig: target->buildConfigurations()) {
+            for (ProjectExplorer::RunConfiguration* runConfig: buildConfig->runConfigurations()) {
+                if ((runConfig->id() != QtcDevPlugin::Constants::QtcRunConfigurationId) &&
+                    (runConfig->id() != QtcDevPlugin::Constants::QtcTestRunConfigurationId))
+                    continue;
 
-            qDebug() << "Created run configuration" << runConfig->displayName()
-                     << "for target" << target->displayName();
+                qDebug() << "Created run configuration" << runConfig->displayName()
+                         << "for target" << target->displayName();
 
-            QVERIFY(runConfig->aspect(QtcDevPlugin::Constants::ThemeId) != nullptr);
-            QVERIFY(qobject_cast<Utils::SelectionAspect*>(runConfig->aspect(QtcDevPlugin::Constants::ThemeId)) != nullptr);
-            static_cast<Utils::SelectionAspect*>(runConfig->aspect(QtcDevPlugin::Constants::ThemeId))->setValue(1);
+                QVERIFY(runConfig->aspect(QtcDevPlugin::Constants::ThemeId) != nullptr);
+                QVERIFY(qobject_cast<Utils::SelectionAspect*>(runConfig->aspect(QtcDevPlugin::Constants::ThemeId)) != nullptr);
+                static_cast<Utils::SelectionAspect*>(runConfig->aspect(QtcDevPlugin::Constants::ThemeId))->setValue(1);
 
-            QVERIFY(runConfig->aspect(QtcDevPlugin::Constants::SettingsPathId) != nullptr);
-            QVERIFY(qobject_cast<QtcDevPlugin::Internal::PathAspect*>(runConfig->aspect(QtcDevPlugin::Constants::SettingsPathId)) != nullptr);
-            static_cast<QtcDevPlugin::Internal::PathAspect*>(runConfig->aspect(QtcDevPlugin::Constants::SettingsPathId))->setValue(Utils::FilePath::fromString("."));
+                QVERIFY(runConfig->aspect(QtcDevPlugin::Constants::SettingsPathId) != nullptr);
+                QVERIFY(qobject_cast<QtcDevPlugin::Internal::PathAspect*>(runConfig->aspect(QtcDevPlugin::Constants::SettingsPathId)) != nullptr);
+                static_cast<QtcDevPlugin::Internal::PathAspect*>(runConfig->aspect(QtcDevPlugin::Constants::SettingsPathId))->setValue(Utils::FilePath::fromString("."));
 
-            QVERIFY(runConfig->aspect(QtcDevPlugin::Constants::WorkingDirectoryId) != nullptr);
-            QVERIFY(qobject_cast<QtcDevPlugin::Internal::PathAspect*>(runConfig->aspect(QtcDevPlugin::Constants::WorkingDirectoryId)) != nullptr);
-            static_cast<QtcDevPlugin::Internal::PathAspect*>(runConfig->aspect(QtcDevPlugin::Constants::WorkingDirectoryId))->setValue(Utils::FilePath::fromString("."));
+                QVERIFY(runConfig->aspect(QtcDevPlugin::Constants::WorkingDirectoryId) != nullptr);
+                QVERIFY(qobject_cast<QtcDevPlugin::Internal::PathAspect*>(runConfig->aspect(QtcDevPlugin::Constants::WorkingDirectoryId)) != nullptr);
+                static_cast<QtcDevPlugin::Internal::PathAspect*>(runConfig->aspect(QtcDevPlugin::Constants::WorkingDirectoryId))->setValue(Utils::FilePath::fromString("."));
 
-            Utils::ProcessRunData runnable = runConfig->runnable();
-            QCOMPARE(runnable.workingDirectory, Utils::FilePath("."));
+                Utils::ProcessRunData runnable = runConfig->runnable();
+                QCOMPARE(runnable.workingDirectory, Utils::FilePath("."));
 
-            QStringList args = splitArgs(runnable.command.arguments());
-            qDebug() << "Command line arguments:" << args;
+                QStringList args = splitArgs(runnable.command.arguments());
+                qDebug() << "Command line arguments:" << args;
 
-            int themeIndex = args.indexOf(QLatin1String("-theme"));
-            QVERIFY(themeIndex != -1);
-            QVERIFY(themeIndex + 1 < args.size());
-            QCOMPARE(args.at(themeIndex + 1), theme);
+                int themeIndex = args.indexOf(QLatin1String("-theme"));
+                QVERIFY(themeIndex != -1);
+                QVERIFY(themeIndex + 1 < args.size());
+                QCOMPARE(args.at(themeIndex + 1), theme);
 
-            int settingsIndex = args.indexOf(QLatin1String("-settingspath"));
-            QVERIFY(settingsIndex != -1);
-            QVERIFY(settingsIndex + 1 < args.size());
-            QCOMPARE(args.at(settingsIndex + 1), QLatin1String("."));
+                int settingsIndex = args.indexOf(QLatin1String("-settingspath"));
+                QVERIFY(settingsIndex != -1);
+                QVERIFY(settingsIndex + 1 < args.size());
+                QCOMPARE(args.at(settingsIndex + 1), QLatin1String("."));
+            }
         }
     }
 
@@ -154,33 +156,35 @@ void QtcRunConfigurationTest::testRestoreSettings(void)
     QCOMPARE(mProject->projectFilePath(), projectPath);
 
     for (ProjectExplorer::Target* target: mProject->targets()) {
-        for (ProjectExplorer::RunConfiguration* runConfig: target->runConfigurations()) {
-            if ((runConfig->id() != QtcDevPlugin::Constants::QtcRunConfigurationId) &&
-                (runConfig->id() != QtcDevPlugin::Constants::QtcTestRunConfigurationId))
-                continue;
+        for (ProjectExplorer::BuildConfiguration* buildConfig: target->buildConfigurations()) {
+            for (ProjectExplorer::RunConfiguration* runConfig: buildConfig->runConfigurations()) {
+                if ((runConfig->id() != QtcDevPlugin::Constants::QtcRunConfigurationId) &&
+                    (runConfig->id() != QtcDevPlugin::Constants::QtcTestRunConfigurationId))
+                    continue;
 
-            qDebug() << "Restored run configuration" << runConfig->displayName()
-                     << "for target" << target->displayName();
+                qDebug() << "Restored run configuration" << runConfig->displayName()
+                         << "for target" << target->displayName();
 
-            Utils::ProcessRunData runnable = runConfig->runnable();
-            QCOMPARE(runnable.workingDirectory, Utils::FilePath("."));
+                Utils::ProcessRunData runnable = runConfig->runnable();
+                QCOMPARE(runnable.workingDirectory, Utils::FilePath("."));
 
-            QStringList args = splitArgs(runnable.command.arguments());
-            qDebug() << "Command line arguments:" << args;
+                QStringList args = splitArgs(runnable.command.arguments());
+                qDebug() << "Command line arguments:" << args;
 
-            int themeIndex = args.indexOf(QLatin1String("-theme"));
-            QVERIFY(themeIndex != -1);
-            QVERIFY(themeIndex + 1 < args.size());
-            QCOMPARE(args.at(themeIndex + 1), theme);
+                int themeIndex = args.indexOf(QLatin1String("-theme"));
+                QVERIFY(themeIndex != -1);
+                QVERIFY(themeIndex + 1 < args.size());
+                QCOMPARE(args.at(themeIndex + 1), theme);
 
-            int settingsIndex = args.indexOf(QLatin1String("-settingspath"));
-            QVERIFY(settingsIndex != -1);
-            QVERIFY(settingsIndex + 1 < args.size());
-            QCOMPARE(args.at(settingsIndex + 1), QLatin1String("."));
+                int settingsIndex = args.indexOf(QLatin1String("-settingspath"));
+                QVERIFY(settingsIndex != -1);
+                QVERIFY(settingsIndex + 1 < args.size());
+                QCOMPARE(args.at(settingsIndex + 1), QLatin1String("."));
 
-            static_cast<Utils::SelectionAspect*>(runConfig->aspect(QtcDevPlugin::Constants::ThemeId))->setValue(0);
-            static_cast<QtcDevPlugin::Internal::PathAspect*>(runConfig->aspect(QtcDevPlugin::Constants::WorkingDirectoryId))->setValue(Utils::FilePath::fromString("%{buildDir}"));
-            static_cast<QtcDevPlugin::Internal::PathAspect*>(runConfig->aspect(QtcDevPlugin::Constants::SettingsPathId))->setValue(Utils::FilePath());
+                static_cast<Utils::SelectionAspect*>(runConfig->aspect(QtcDevPlugin::Constants::ThemeId))->setValue(0);
+                static_cast<QtcDevPlugin::Internal::PathAspect*>(runConfig->aspect(QtcDevPlugin::Constants::WorkingDirectoryId))->setValue(Utils::FilePath::fromString("%{buildDir}"));
+                static_cast<QtcDevPlugin::Internal::PathAspect*>(runConfig->aspect(QtcDevPlugin::Constants::SettingsPathId))->setValue(Utils::FilePath());
+            }
         }
     }
 }

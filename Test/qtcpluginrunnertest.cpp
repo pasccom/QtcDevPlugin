@@ -22,10 +22,10 @@
 #include "../qtcrunconfiguration.h"
 #include "../qtctestrunconfiguration.h"
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/target.h>
 #include <projectexplorer/runcontrol.h>
 
 #include <qtsupport/qtkitaspect.h>
@@ -78,7 +78,7 @@ void QtcPluginRunnerTest::qtcRunConfiguration(const Utils::Id& runConfigId, QtcD
     BEGIN_SUB_TEST_FUNCTION
 
     QVERIFY(mProject->activeTarget() != nullptr);
-    ProjectExplorer::RunConfiguration* runConfig = Utils::findOrDefault(mProject->activeTarget()->runConfigurations(), [runConfigId](ProjectExplorer::RunConfiguration* rc) {
+    ProjectExplorer::RunConfiguration* runConfig = Utils::findOrDefault(mProject->activeBuildConfiguration()->runConfigurations(), [runConfigId](ProjectExplorer::RunConfiguration* rc) {
         return rc->id() == runConfigId;
     });
     QVERIFY(runConfig != nullptr);
@@ -98,8 +98,8 @@ void QtcPluginRunnerTest::testRunner(void)
 
     QtcDevPlugin::Internal::QtcRunConfiguration* qtcRunConfig;
     SUB_TEST_FUNCTION(qtcRunConfiguration(runConfigId, &qtcRunConfig));
-    mProject->activeTarget()->setActiveRunConfiguration(qtcRunConfig);
-    QCOMPARE(mProject->activeTarget()->activeRunConfiguration(), qtcRunConfig);
+    mProject->activeBuildConfiguration()->setActiveRunConfiguration(qtcRunConfig);
+    QCOMPARE(mProject->activeBuildConfiguration()->activeRunConfiguration(), qtcRunConfig);
 
     Utils::FilePath targetInstallPath = qtcRunConfig->targetFilePath();
     qDebug() << targetInstallPath;

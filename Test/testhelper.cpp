@@ -24,6 +24,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/buildinfo.h>
+#include <projectexplorer/buildsystem.h>
 
 #include <QSignalSpy>
 
@@ -105,7 +106,7 @@ bool openQMakeProject(const Utils::FilePath& projectFilePath, ProjectExplorer::P
     QVERIFY(proj->activeTarget()->activeBuildConfiguration() != NULL);
 
     // Wait for project parsed
-    QSignalSpy parsedSpy(proj->activeTarget(), SIGNAL(parsingFinished(bool)));
+    QSignalSpy parsedSpy(proj->activeTarget()->buildSystem(), SIGNAL(parsingFinished(bool)));
     QVERIFY2((parsedSpy.count() > 0) || parsedSpy.wait(), "Project parsing takes too long");
 
     // Update targets:
