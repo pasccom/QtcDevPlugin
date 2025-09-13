@@ -146,12 +146,12 @@ public:
      *
      * \note This function of this method is extensively described in Qt Creator developper documentation.
      * \param arguments Arguments passed to Qt Creator through the command line.
-     * \param errorString If there is an error and if the pointer is not empty,
      * then it is set to a description of the problem.
-     * \return \c true if the plugin initialisation suceeded, \c false otherwise.
+     * \return \c ResultOk if the plugin initialisation suceeded,
+     * otherwise an error result with a meaningful error message.
      * \sa extensionsInitialized()
      */
-    bool initialize(const QStringList &arguments, QString *errorString) override;
+    Utils::Result<> initialize(const QStringList &arguments) override;
     /*!
      * \brief Listener for dependant plugin initialisation.
      *

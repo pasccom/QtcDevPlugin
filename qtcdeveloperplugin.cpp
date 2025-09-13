@@ -63,7 +63,7 @@ QtcDeveloperPlugin::~QtcDeveloperPlugin()
         delete mRunWorkerFactory;
 }
 
-bool QtcDeveloperPlugin::initialize(const QStringList &arguments, QString *errorString)
+Utils::Result<> QtcDeveloperPlugin::initialize(const QStringList& arguments)
 {
     // Register objects in the plugin manager's object pool
     // Load settings
@@ -73,7 +73,6 @@ bool QtcDeveloperPlugin::initialize(const QStringList &arguments, QString *error
     // depends on have initialized their members.
 
     Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
 
     // Locate QM file for the current language and use it
     QString qmFile = Core::ICore::userInterfaceLanguage();
@@ -99,7 +98,7 @@ bool QtcDeveloperPlugin::initialize(const QStringList &arguments, QString *error
     mRunConfigurationFactories << new QMakeQtcRunConfigurationFactory<QtcTestRunConfiguration>();
     mRunWorkerFactory = new QtcRunWorkerFactory();
 
-    return true;
+    return Utils::ResultOk;
 }
 
 void QtcDeveloperPlugin::extensionsInitialized()
